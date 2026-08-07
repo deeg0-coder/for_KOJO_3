@@ -487,6 +487,29 @@ function userProgressCount(login) {
   return { done: done, total: total };
 }
 
+var CONTROL_LEVELS = [
+  { clId: 'open', icon: '☀️', label: 'Открытие' },
+  { clId: 'close', icon: '🌙', label: 'Закрытие' },
+  { clId: 'general', icon: '🧹', label: 'Генуборка' }
+];
+
+function checklistProgressCount(login, clId) {
+  var topic = topicByClId(clId);
+  if (!topic) return { done: 0, total: 0 };
+  var state = KOJOState.getChecklist(clId, login);
+  var idx = 0;
+  var total = 0;
+  var done = 0;
+  for (var j = 0; j < topic.items.length; j++) {
+    var it = topic.items[j];
+    if (it.label) continue;
+    total++;
+    if (state && state[idx] === true) done++;
+    idx++;
+  }
+  return { done: done, total: total };
+}
+
 function renderControlSection(box) {
   var today = kojoToday();
   var html = '<div class="back" data-back>';
@@ -494,7 +517,7 @@ function renderControlSection(box) {
   html += '</div>';
   html += '<div class="screen-box">';
   html += '<h1 class="screen-title">📊 Контроль</h1>';
-  html += '<p class="screen-sub">Выполнено пунктов чек-листов за сегодня (' + today + ') по каждому аккаунту.</p>';
+  html += '<p class="screen-sub">Открытие, закрытие и генеральная уборка за сегодня (' + today + ') по каждому аккаунту.</p>';
 
   html += '<div class="control-syncline">';
   html += '<span id="control-sync-status">Синхронизация: …</span>';
@@ -502,30 +525,42 @@ function renderControlSection(box) {
   html += '<button class="reset-btn" data-action="open-sync-settings">⚙️ Синхронизация</button>';
   html += '</div>';
 
-  var totalAll = 0;
-  var doneAll = 0;
-  html += '<div class="control-card">';
-  html += '<div class="control-table-head"><span>Аккаунт</span><span>Сегодня</span><span>Прогресс</span></div>';
+  var totals = { open: { done: 0, total: 0 }, close: { done: 0, total: 0 }, general: { done: 0, total: 0 } };
+
   for (var i = 0; i < KOJO_ACCOUNTS.length; i++) {
     var acc = KOJO_ACCOUNTS[i];
-    var p = userProgressCount(acc.login);
-    totalAll += p.total;
-    doneAll += p.done;
-    var pct = p.total > 0 ? Math.round((p.done / p.total) * 100) : 0;
-    var cls = pct === 100 ? ' good' : (pct > 0 ? ' mid' : '');
-    html += '<div class="control-row' + (acc.role === 'admin' ? ' is-admin' : '') + '">';
-    html += '<div class="control-user">';
-    html += '<span class="control-name">' + acc.login + '</span>';
-    html += '<span class="control-role">' + KOJO_ROLE_LABELS[acc.role] + '</span>';
+    html += '<div class="control-account">';
+    html += '<div class="control-account-head">';
+    html += '<div class="control-name' + (acc.role === 'admin' ? ' admin' : '') + '">' + acc.login + '</div>';
+    html += '<div class="control-role">' + KOJO_ROLE_LABELS[acc.role] + '</div>';
     html += '</div>';
-    html += '<div class="control-count' + cls + '"><strong>' + p.done + '</strong> / ' + p.total + '</div>';
-    html += '<div class="control-pct"><div class="progress-bar"><div class="progress-bar-fill' + cls + '" style="width:' + pct + '%"></div></div></div>';
+    html += '<div class="control-bars">';
+    for (var k = 0; k < CONTROL_LEVELS.length; k++) {
+      var lvl = CONTROL_LEVELS[k];
+      var p = checklistProgressCount(acc.login, lvl.clId);
+      totals[lvl.clId].done += p.done;
+      totals[lvl.clId].total += p.total;
+      var pct = p.total > 0 ? Math.round((p.done / p.total) * 100) : 0;
+      var cls = pct === 100 ? ' good' : (pct > 0 ? ' mid' : '');
+      html += '<div class="control-bar">';
+      html += '<div class="control-bar-top">';
+      html += '<span>' + lvl.icon + ' ' + lvl.label + '</span>';
+      html += '<span class="control-count' + cls + '"><strong>' + p.done + '</strong>/' + p.total + '</span>';
+      html += '</div>';
+      html += '<div class="progress-bar"><div class="progress-bar-fill' + cls + '" style="width:' + pct + '%"></div></div>';
+      html += '</div>';
+    }
+    html += '</div>';
     html += '</div>';
   }
-  html += '<div class="control-total">';
-  html += '<span>Итого по всем аккаунтам</span>';
-  html += '<span><strong>' + doneAll + '</strong> / ' + totalAll + ' (' + (totalAll > 0 ? Math.round((doneAll / totalAll) * 100) : 0) + '%)</span>';
-  html += '</div>';
+
+  html += '<div class="control-total-wrap">';
+  html += '<span class="muted">Итого по всем аккаунтам</span>';
+  for (var t = 0; t < CONTROL_LEVELS.length; t++) {
+    var lvl2 = CONTROL_LEVELS[t];
+    var tt = totals[lvl2.clId];
+    html += '<span>' + lvl2.icon + ' ' + tt.done + '/' + tt.total + ' (' + (tt.total > 0 ? Math.round((tt.done / tt.total) * 100) : 0) + '%)</span>';
+  }
   html += '</div>';
 
   html += '<p class="screen-sub small">Каждый новый день прогресс всех аккаунтов автоматически обнуляется.</p>';

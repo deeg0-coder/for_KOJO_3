@@ -1560,6 +1560,76 @@ details[open] summary .expand-icon {
   font-size: 14px;
 }
 
+.control-account {
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--bg);
+  margin-bottom: 12px;
+  padding: 12px 14px;
+}
+
+.control-account-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.control-account-head .control-name {
+  font-size: 15px;
+}
+
+.control-account-head .control-name.admin {
+  color: var(--info);
+}
+
+.control-bars {
+  display: grid;
+  gap: 10px;
+}
+
+.control-bar-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 8px;
+  font-size: 12px;
+  color: var(--muted);
+  margin-bottom: 4px;
+}
+
+.control-bar .control-count {
+  font-size: 12px;
+}
+
+.control-bar .progress-bar {
+  width: 100%;
+  height: 6px;
+}
+
+.control-bar .progress-bar-fill.good { background: var(--success); }
+.control-bar .progress-bar-fill.mid { background: var(--warning); }
+
+.control-total-wrap {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--bg-soft);
+  font-size: 13px;
+  font-weight: 600;
+  margin-bottom: 14px;
+}
+
+.control-total-wrap .muted {
+  color: var(--muted);
+  font-weight: 400;
+}
+
 .screen-sub.small {
   font-size: 12px;
 }
