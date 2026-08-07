@@ -36,7 +36,7 @@ var KOJOCloud = (function () {
     return !!(s.binId && s.masterKey);
   }
 
-  function get(payload, cb) {
+  function get(cb) {
     var s = getSettings();
     if (!isConfigured()) { cb && cb(null); return; }
     var xhr = new XMLHttpRequest();
@@ -47,7 +47,9 @@ var KOJOCloud = (function () {
     xhr.onload = function () {
       try {
         if (xhr.status >= 200 && xhr.status < 300) {
-          cb && cb(JSON.parse(xhr.responseText));
+          var body = JSON.parse(xhr.responseText);
+          var record = body && body.record !== undefined ? body.record : body;
+          cb && cb(record);
         } else {
           cb && cb(null);
         }
