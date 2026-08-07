@@ -1,12 +1,12 @@
 'use strict';
 
 // === НАСТРОЙКИ ОБЛАЧНОЙ СИНХРОНИЗАЦИИ (jsonbin.io) ===
-// Зарегистрируйся на https://jsonbin.io (бесплатно), скопируй "X-Master-Key".
-// Bin ID и Master Key можно вставить прямо в приложении: раздел «Контроль» → «Синхронизация».
+// Bin создан заранее; Bin ID и Master Key зашиты, поэтому каждое устройство
+// синхронизируется автоматически сразу после входа — настройка не нужна.
 var KOJO_SYNC_DEFAULTS = {
   enabled: true,
-  binId: '',
-  masterKey: ''
+  binId: '6a75d369da38895dfec61877',
+  masterKey: '$2a$10$m2hF9IKYOm4BwwKTjeGXX.pLSVOSiLPwY373P7uklbWhL5ln3P0Su'
 };
 
 var KOJOCloud = (function () {
@@ -22,8 +22,9 @@ var KOJOCloud = (function () {
         if (parsed) { s.binId = parsed.binId || ''; s.masterKey = parsed.masterKey || ''; }
       }
     } catch (e) {}
-    if (!s.binId) s.binId = KOJO_SYNC_DEFAULTS.binId || '';
-    if (!s.masterKey) s.masterKey = KOJO_SYNC_DEFAULTS.masterKey || '';
+    // Вшитые по умолчанию значения всегда приоритетны — единый общий Bin на всех устройствах
+    if (KOJO_SYNC_DEFAULTS.binId) s.binId = KOJO_SYNC_DEFAULTS.binId;
+    if (KOJO_SYNC_DEFAULTS.masterKey) s.masterKey = KOJO_SYNC_DEFAULTS.masterKey;
     return s;
   }
 

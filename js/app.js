@@ -1639,13 +1639,18 @@ function initApp() {
     }
 
     try { KOJOState.cleanOldDates(kojoToday()); } catch (e) {}
+    renderHome();
+    updateAllMiniProgress();
+    updateChecklistsBadge();
+    updateStats();
+    updateHeaderAdminButtons();
+    scheduleCloudPush();
     syncAllFromCloud(function () {
       renderHome();
       updateAllMiniProgress();
       updateChecklistsBadge();
       updateStats();
       updateHeaderAdminButtons();
-      scheduleCloudPush();
     });
     startCloudSyncPolling();
 
