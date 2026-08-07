@@ -1277,6 +1277,21 @@ details[open] summary .expand-icon {
   gap: 10px;
 }
 
+.calc-section {
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--info);
+  margin-top: 12px;
+  padding-bottom: 4px;
+  border-bottom: 1px solid var(--border);
+}
+
+.calc-section:first-child {
+  margin-top: 0;
+}
+
 .calc-row {
   display: flex;
   align-items: center;

@@ -443,6 +443,10 @@ function renderTopic(key, parent) {
     html += '<div class="calc-wrap" id="order-calc">';
     for (var r = 0; r < D.calc.length; r++) {
       var row = D.calc[r];
+      if (row.section) {
+        html += '<div class="calc-section">' + row.section + '</div>';
+        continue;
+      }
       html += '<div class="calc-row">';
       html += '<label>' + row.label + '</label>';
       html += '<input type="number" class="calc-input" id="stock-' + row.key + '" value="0" min="0" data-calc="' + row.key + '" data-norm="' + row.norm + '" />';
@@ -1128,6 +1132,7 @@ function copyOrderToClipboard() {
   var lines = [];
   for (var i = 0; i < D.calc.length; i++) {
     var row = D.calc[i];
+    if (row.section) continue;
     var stock = 0;
     var input = $('stock-' + row.key);
     if (input) stock = parseInt(input.value, 10) || 0;
