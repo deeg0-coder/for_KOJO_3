@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+  <title>KOJO Guide</title>
+  <meta name="theme-color" content="#ffffff" />
+  <meta name="description" content="Внутренний справочник для сотрудников KOJO Coffee" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="apple-mobile-web-app-title" content="KOJO Guide" />
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="icon" href="icons/favicon.svg" type="image/svg+xml" />
+  <link rel="apple-touch-icon" href="icons/icon-192.png" />
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+  <div class="login-screen" id="login-screen">
+    <div class="login-card" id="login-card">
+      <div class="login-logo">
+        <svg viewBox="0 0 80 37" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <path d="M5.60452 3.82117V12.928L13.2337 3.82933H19.9444V4.15181L10.707 14.4914L21.2302 26.0719V26.4841H14.4746L5.60452 16.2385V26.4841H0V3.82117H5.60452Z" fill="currentColor"/>
+          <path d="M44.3057 15.181C44.3057 21.704 39.8482 26.9901 32.4966 26.9901C25.145 26.9901 20.7324 21.704 20.7324 15.181C20.7324 8.65807 25.2348 3.37195 32.4476 3.37195C39.6604 3.37195 44.3016 8.70297 44.3016 15.181H44.3057ZM26.3369 15.181C26.3369 18.6262 28.4024 21.8428 32.4925 21.8428C36.5826 21.8428 38.6481 18.6262 38.6481 15.181C38.6481 11.7359 36.2602 8.4703 32.4925 8.4703C28.4473 8.4703 26.3369 11.7808 26.3369 15.181Z" fill="currentColor"/>
+          <path d="M53.1923 0V27.5695C53.1923 33.174 50.7553 36.8069 45.657 36.8069C44.0038 36.8069 42.2567 36.3498 40.6484 35.2925L42.669 30.9289C43.6323 31.3902 44.5549 31.6188 45.3794 31.5739C47.2163 31.4841 47.6327 30.0554 47.6327 27.5776V0H53.1923Z" fill="currentColor"/>
+          <path d="M79.999 15.181C79.999 21.704 75.5415 26.9901 68.19 26.9901C60.8384 26.9901 56.4258 21.704 56.4258 15.181C56.4258 8.65807 60.9282 3.37195 68.141 3.37195C75.3538 3.37195 79.995 8.70297 79.995 15.181H79.999ZM62.0303 15.181C62.0303 18.6262 64.0998 21.8428 68.1859 21.8428C72.2719 21.8428 74.3415 18.6262 74.3415 15.181C74.3415 11.7359 71.9535 8.4703 68.1859 8.4703C64.1407 8.4703 62.0303 11.7808 62.0303 15.181Z" fill="currentColor"/>
+        </svg>
+      </div>
+      <div class="login-title">KOJO COFFEE</div>
+      <div class="login-sub">Guide for staff</div>
+      <form class="login-form" id="login-form">
+        <div id="account-picker"></div>
+        <input type="text" id="login-user" class="login-input hidden-input" placeholder="Логин" autocomplete="off" hidden />
+        <input type="password" id="login-pass" class="login-input" placeholder="Пароль" autocomplete="current-password" />
+        <div class="login-error" id="login-error"></div>
+        <label class="login-remember">
+          <input type="checkbox" id="login-remember" checked />
+          <span>Запомнить меня</span>
+        </label>
+        <button type="submit" class="login-btn">Войти</button>
+      </form>
+      <div class="login-hint">Внутренний справочник для сотрудников KOJO Coffee</div>
+    </div>
+  </div>
+
+  <div class="app">
+    <header class="header">
+      <div class="logo-wrap">
+        <div class="logo">
+          <svg viewBox="0 0 80 37" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <path d="M5.60452 3.82117V12.928L13.2337 3.82933H19.9444V4.15181L10.707 14.4914L21.2302 26.0719V26.4841H14.4746L5.60452 16.2385V26.4841H0V3.82117H5.60452Z" fill="currentColor"/>
+            <path d="M44.3057 15.181C44.3057 21.704 39.8482 26.9901 32.4966 26.9901C25.145 26.9901 20.7324 21.704 20.7324 15.181C20.7324 8.65807 25.2348 3.37195 32.4476 3.37195C39.6604 3.37195 44.3016 8.70297 44.3016 15.181H44.3057ZM26.3369 15.181C26.3369 18.6262 28.4024 21.8428 32.4925 21.8428C36.5826 21.8428 38.6481 18.6262 38.6481 15.181C38.6481 11.7359 36.2602 8.4703 32.4925 8.4703C28.4473 8.4703 26.3369 11.7808 26.3369 15.181Z" fill="currentColor"/>
+            <path d="M53.1923 0V27.5695C53.1923 33.174 50.7553 36.8069 45.657 36.8069C44.0038 36.8069 42.2567 36.3498 40.6484 35.2925L42.669 30.9289C43.6323 31.3902 44.5549 31.6188 45.3794 31.5739C47.2163 31.4841 47.6327 30.0554 47.6327 27.5776V0H53.1923Z" fill="currentColor"/>
+            <path d="M79.999 15.181C79.999 21.704 75.5415 26.9901 68.19 26.9901C60.8384 26.9901 56.4258 21.704 56.4258 15.181C56.4258 8.65807 60.9282 3.37195 68.141 3.37195C75.3538 3.37195 79.995 8.70297 79.995 15.181H79.999ZM62.0303 15.181C62.0303 18.6262 64.0998 21.8428 68.1859 21.8428C72.2719 21.8428 74.3415 18.6262 74.3415 15.181C74.3415 11.7359 71.9535 8.4703 68.1859 8.4703C64.1407 8.4703 62.0303 11.7808 62.0303 15.181Z" fill="currentColor"/>
+          </svg>
+        </div>
+        <div class="logo-text">
+          <div class="logo-title">KOJO COFFEE</div>
+          <div class="logo-sub">Guide for staff</div>
+        </div>
+      </div>
+      <div class="header-actions">
+        <button class="icon-btn theme-toggle" data-action="toggle-theme" aria-label="Переключить тему" title="Светлая / тёмная / красная тема">🌙</button>
+        <button class="icon-btn" data-action="show-stats" aria-label="Статистика" title="Статистика">📊</button>
+        <button class="icon-btn" id="btn-control" data-action="show-control" aria-label="Контроль" title="Контроль (для администраторов)" style="display:none">📋</button>
+        <button class="icon-btn" data-action="logout" aria-label="Выйти" title="Выйти">🔒</button>
+        <div class="header-user">
+          <div class="header-user-name" id="current-user-name"></div>
+          <div class="header-user-role" id="current-user-role"></div>
+        </div>
+        <div class="header-tag">внутренний справочник</div>
+      </div>
+    </header>
+
+    <main id="home-screen"></main>
+    <main id="section-screen" class="screen"></main>
+    <main id="topic-screen" class="screen"></main>
+  </div>
+
+  <div class="toast-container" id="toast-container"></div>
+
+  <div class="modal-overlay" id="stats-modal">
+    <div class="modal-content">
+      <h3>📊 Статистика чек-листов</h3>
+      <div id="stats-content"></div>
+      <div class="modal-actions">
+        <button data-action="export-progress">⬇️ Экспорт</button>
+        <button data-action="import-progress">⬆️ Импорт</button>
+        <button data-action="close-modal">Закрыть</button>
+        <button class="primary" data-action="reset-all">Сбросить всё</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="sync-modal">
+    <div class="modal-content">
+      <h3>⚙️ Синхронизация (облако)</h3>
+      <div id="sync-modal-content"></div>
+      <div class="modal-actions">
+        <button data-action="close-sync-modal">Закрыть</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="install-banner" id="install-banner">
+    <span>📲 Установи KOJO Guide на телефон</span>
+    <button class="install-primary" data-action="install-app">Установить</button>
+    <button class="install-close" data-action="dismiss-install" aria-label="Скрыть">✕</button>
+  </div>
+
+  <input type="file" id="import-file" accept=".json,application/json" class="hidden" />
+
+  <script src="js/data.js"></script>
+  <script src="js/accounts.js"></script>
+  <script src="js/state.js"></script>
+  <script src="js/sync.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
