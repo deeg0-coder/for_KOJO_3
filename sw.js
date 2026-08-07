@@ -1,4 +1,4 @@
-var CACHE_NAME = 'kojo-guide-v2';
+var CACHE_NAME = 'kojo-guide-v3';
 var ASSETS = [
   './',
   './index.html',
@@ -33,12 +33,36 @@ self.addEventListener('activate', function (event) {
       );
     }).then(function () {
       return self.clients.claim();
+    }).then(function () {
+      return self.clients.matchAll({ type: 'window' }).then(function (clients) {
+        clients.forEach(function (client) { client.navigate(client.url); });
+      });
     })
   );
 });
 
 self.addEventListener('fetch', function (event) {
   if (event.request.method !== 'GET') return;
+
+  if (event.request.mode === 'navigate') {
+    event.respondWith(
+      fetch(event.request).then(function (response) {
+        if (response && response.status === 200) {
+          var copy = response.clone();
+          caches.open(CACHE_NAME).then(function (cache) {
+            cache.put(event.request, copy);
+          }).catch(function () {});
+        }
+        return response;
+      }).catch(function () {
+        return caches.match(event.request).then(function (cached) {
+          return cached || caches.match('./index.html');
+        });
+      })
+    );
+    return;
+  }
+
   event.respondWith(
     caches.match(event.request).then(function (cached) {
       if (cached) return cached;
@@ -50,9 +74,9 @@ self.addEventListener('fetch', function (event) {
           }).catch(function () {});
         }
         return response;
+      }).catch(function () {
+        return caches.match('./index.html');
       });
-    }).catch(function () {
-      return caches.match('./index.html');
     })
   );
 });
