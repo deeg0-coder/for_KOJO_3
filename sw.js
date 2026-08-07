@@ -1,4 +1,4 @@
-var CACHE_NAME = 'kojo-guide-v3';
+var CACHE_NAME = 'kojo-guide-v4';
 var ASSETS = [
   './',
   './index.html',
@@ -41,21 +41,28 @@ self.addEventListener('activate', function (event) {
   );
 });
 
+function isCoreResource(request) {
+  if (request.mode === 'navigate') return true;
+  var url = request.url;
+  return /\.(js|css)$/.test(url) || /\/index\.html$/.test(url);
+}
+
 self.addEventListener('fetch', function (event) {
   if (event.request.method !== 'GET') return;
+  var request = event.request;
 
-  if (event.request.mode === 'navigate') {
+  if (isCoreResource(request)) {
     event.respondWith(
-      fetch(event.request).then(function (response) {
+      fetch(request).then(function (response) {
         if (response && response.status === 200) {
           var copy = response.clone();
           caches.open(CACHE_NAME).then(function (cache) {
-            cache.put(event.request, copy);
+            cache.put(request, copy);
           }).catch(function () {});
         }
         return response;
       }).catch(function () {
-        return caches.match(event.request).then(function (cached) {
+        return caches.match(request).then(function (cached) {
           return cached || caches.match('./index.html');
         });
       })
@@ -64,13 +71,13 @@ self.addEventListener('fetch', function (event) {
   }
 
   event.respondWith(
-    caches.match(event.request).then(function (cached) {
+    caches.match(request).then(function (cached) {
       if (cached) return cached;
-      return fetch(event.request).then(function (response) {
+      return fetch(request).then(function (response) {
         if (response && response.status === 200) {
           var copy = response.clone();
           caches.open(CACHE_NAME).then(function (cache) {
-            cache.put(event.request, copy);
+            cache.put(request, copy);
           }).catch(function () {});
         }
         return response;

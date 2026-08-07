@@ -2984,6 +2984,7 @@ function submitLogin() {
 }
 
 function logout() {
+  try { stopCloudSyncPolling(); } catch (e) {}
   try { KOJOState.setAuth(false); } catch (e) {}
   try { goHome(); } catch (e) {}
   var pu = $('login-user'); if (pu) pu.value = '';
@@ -3394,7 +3395,7 @@ function showSyncSettingsModal() {
   html += '<input type="text" id="sync-key" class="login-input" value="' + (s.masterKey || '') + '" placeholder="Вставьте Master Key" />';
   html += '<button class="login-btn" data-action="save-sync-settings" style="margin-top:4px">Сохранить</button>';
   html += '<button class="reset-btn" data-action="auto-create-bin" style="margin-top:8px">✨ Создать Bin автоматически (только Master Key)</button>';
-  html += '<p style="font-size:12px;color:var(--muted)">Зарегистрируйтесь на jsonbin.io, скопируйте Master Key и Bin ID. Затем все устройства будут видеть прогресс друг друга.</p>';
+  html += '<p style="font-size:12px;color:var(--muted)">Схема: на ПЕРВОМ устройстве вставьте Master Key (jsonbin.io) и нажмите «Создать Bin» — появится Bin ID. На ВСЕХ остальных устройствах вставьте этот же Bin ID и Master Key и нажмите «Сохранить». Данные всех аккаунтов будут автоматически обновляться на всех устройствах каждые 20 секунд.</p>';
   html += '</div>';
   var content = $('sync-modal-content');
   if (content) content.innerHTML = html;
@@ -3409,6 +3410,7 @@ function closeSyncSettingsFromForm() {
   KOJOCloud.saveSettings(bin.value.trim(), key.value.trim());
   closeSyncModal();
   showToast('⚙️ Настройки синхронизации сохранены', 'success');
+  startCloudSyncPolling();
   syncAllFromCloud(function () {
     var box = $('section-screen');
     if (box && box.classList.contains('active') && box.querySelector('.screen-title')) {
@@ -3431,6 +3433,7 @@ function autoCreateBin() {
     if (binId) {
       closeSyncModal();
       showToast('✨ Bin создан и подключён!', 'success');
+      startCloudSyncPolling();
       syncAllFromCloud(function () {
         var box = $('section-screen');
         if (box && box.classList.contains('active') && box.querySelector('.screen-title')) {
@@ -3451,6 +3454,8 @@ function closeSyncModal() {
 
 // === ОБЛАЧНАЯ СИНХРОНИЗАЦИЯ ===
 var syncTimer = null;
+var cloudSyncing = false;
+var cloudTimer = null;
 
 function pushCloud() {
   var user = currentUser();
@@ -3476,28 +3481,62 @@ function scheduleCloudPush() {
 }
 
 function syncAllFromCloud(cb) {
-  KOJOCloud.get(function (doc) {
-    var today = kojoToday();
-    if (!doc || doc.date !== today || !doc.users) {
-      doc = { date: today, users: {} };
-      KOJOState.saveCloudDoc(doc);
-      KOJOCloud.set(doc, function () {});
-    } else {
-      // переносим облачные данные в локальное хранилище для каждого аккаунта
-      for (var user in doc.users) {
-        var u = doc.users[user];
-        if (!u) continue;
-        for (var clId in u) {
-          if (Array.isArray(u[clId])) KOJOState.saveChecklist(clId, u[clId], user);
-        }
-      }
-      KOJOState.saveCloudDoc(doc);
-      pushCloud();
-    }
-    try { KOJOState.cleanOldDates(today); } catch (e) {}
+  if (cloudSyncing) {
     if (cb) cb();
-    refreshAllViews();
+    return;
+  }
+  cloudSyncing = true;
+  KOJOCloud.get(function (doc) {
+    try {
+      var today = kojoToday();
+      if (!doc || doc.date !== today || !doc.users) {
+        doc = { date: today, users: {} };
+        KOJOState.saveCloudDoc(doc);
+        KOJOCloud.set(doc, function () {});
+      } else {
+        // переносим облачные данные в локальное хранилище для каждого аккаунта
+        for (var user in doc.users) {
+          var u = doc.users[user];
+          if (!u) continue;
+          for (var clId in u) {
+            if (Array.isArray(u[clId])) KOJOState.saveChecklist(clId, u[clId], user);
+          }
+        }
+        KOJOState.saveCloudDoc(doc);
+        pushCloud();
+      }
+      try { KOJOState.cleanOldDates(today); } catch (e) {}
+      if (cb) cb();
+      refreshAllViews();
+    } finally {
+      cloudSyncing = false;
+    }
   });
+}
+
+function startCloudSyncPolling() {
+  stopCloudSyncPolling();
+  if (!KOJOCloud.isConfigured()) return;
+  cloudTimer = setInterval(function () {
+    try {
+      if (!isAuthenticated() || !currentUser()) return;
+      syncAllFromCloud(function () {
+        var box = $('section-screen');
+        if (box && box.classList.contains('active')) {
+          var titleEl = box.querySelector('.screen-title');
+          var title = titleEl ? titleEl.textContent : '';
+          if (title.indexOf('Контроль') !== -1) renderSection('control');
+        }
+      });
+    } catch (e) {}
+  }, 20000);
+}
+
+function stopCloudSyncPolling() {
+  if (cloudTimer) {
+    clearInterval(cloudTimer);
+    cloudTimer = null;
+  }
 }
 
 // === НАВИГАЦИЯ ===
@@ -4412,7 +4451,9 @@ function initApp() {
       updateChecklistsBadge();
       updateStats();
       updateHeaderAdminButtons();
+      scheduleCloudPush();
     });
+    startCloudSyncPolling();
 
     setupSearchListeners();
     setupInstallBanner();
