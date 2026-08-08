@@ -1998,6 +1998,50 @@ details[open] summary .expand-icon {
   .recipe-calc { grid-template-columns: 1fr; }
 }
 
+/* === ТАЙМЕР ЗАВАРИВАНИЯ === */
+.brew-modal-content { max-width: 460px; max-height: 88vh; overflow-y: auto; }
+.brew-time { font-size: 34px; font-weight: 700; letter-spacing: 1px; text-align: center; margin: 6px 0 4px; font-variant-numeric: tabular-nums; }
+.brew-slash { color: var(--muted); font-weight: 400; margin: 0 6px; }
+.brew-bar { height: 8px; margin: 8px 0 14px; }
+.brew-steps { list-style: none; padding: 0; margin: 0; display: grid; gap: 6px; }
+.brew-step {
+  display: flex; justify-content: space-between; gap: 10px; align-items: baseline;
+  border: 1px solid var(--border); border-radius: 10px; padding: 8px 12px;
+  font-size: 13px; color: var(--muted); background: var(--bg);
+}
+.brew-step .brew-step-text { flex: 1; }
+.brew-step .brew-step-time { font-variant-numeric: tabular-nums; white-space: nowrap; }
+.brew-step.upcoming { opacity: 0.55; }
+.brew-step.active { border-color: var(--info); background: var(--info-bg); color: var(--text); font-weight: 600; }
+.brew-step.done { opacity: 0.4; text-decoration: line-through; }
+/* === БАННЕР НАПОМИНАНИЙ НА ГЛАВНОЙ === */
+.home-reminder { display: grid; gap: 6px; margin: 0 0 12px; }
+.home-reminder-btn {
+  display: flex; justify-content: space-between; align-items: center; gap: 10px;
+  border: 1px solid var(--warning-border, #fde68a); background: var(--warning-bg);
+  color: var(--text); border-radius: 12px; padding: 9px 12px; font-size: 13px; text-align: left; cursor: pointer;
+}
+.home-reminder-btn:active { opacity: 0.75; }
+.home-reminder-btn b { font-weight: 600; }
+.home-reminder-btn span { font-variant-numeric: tabular-nums; white-space: nowrap; }
+/* === НАСТРОЙКИ НАПОМИНАНИЙ === */
+.remind-row { display: grid; grid-template-columns: 1fr auto auto; gap: 10px; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--border); font-size: 14px; }
+.remind-row:last-child { border-bottom: none; }
+.remind-time { border: 1px solid var(--border-strong); border-radius: 10px; padding: 6px 8px; font-size: 14px; background: var(--bg); color: var(--text); }
+.remind-toggle { display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--muted); cursor: pointer; }
+.brew-modal-content .modal-actions { margin-top: 14px; }
+
+.recipe-card-actions { display: flex; gap: 8px; }
+.recipe-run-btn {
+  flex: 1; border: 1px solid var(--border-strong); background: var(--bg);
+  border-radius: 8px; padding: 6px 8px; font-size: 12px; cursor: pointer; color: var(--text);
+}
+.recipe-edit-btn {
+  border: 1px solid var(--border); background: var(--accent-soft);
+  border-radius: 8px; padding: 6px 9px; font-size: 12px; cursor: pointer;
+}
+.recipe-run-btn:active, .recipe-edit-btn:active { opacity: 0.7; }
+
 </style>
 </head>
 <body>
@@ -2108,6 +2152,7 @@ details[open] summary .expand-icon {
         <button class="profile-item" data-action="show-stats">📊 Статистика и экспорт</button>
         <button class="profile-item" id="btn-control" data-action="show-control" style="display:none">📋 Контроль</button>
         <button class="profile-item" data-action="open-sync-settings">⚙️ Синхронизация</button>
+        <button class="profile-item" data-action="show-reminders">🔔 Напоминания</button>
         <button class="profile-item danger" data-action="logout">🔒 Выйти</button>
       </div>
       <div class="modal-actions">
@@ -2170,6 +2215,50 @@ details[open] summary .expand-icon {
         <button data-action="delete-recipe" id="recipe-delete-btn" class="danger">🗑 Удалить</button>
         <button data-action="close-recipe">Отмена</button>
         <button class="primary" data-action="save-recipe">💾 Сохранить</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="brew-modal">
+    <div class="modal-content brew-modal-content">
+      <h3 id="brew-title">⏱ Заваривание</h3>
+      <div class="brew-time">
+        <span id="brew-elapsed">00:00</span>
+        <span class="brew-slash">/</span>
+        <span id="brew-total">00:00</span>
+      </div>
+      <div class="progress-bar brew-bar"><div class="progress-bar-fill" id="brew-bar-fill" style="width:0%"></div></div>
+      <ol id="brew-steps" class="brew-steps"></ol>
+      <div class="modal-actions">
+        <button data-action="brew-reset">↺ Сброс</button>
+        <button data-action="brew-toggle" id="brew-toggle-btn" class="primary">▶️ Старт</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="remind-modal">
+    <div class="modal-content">
+      <h3>🔔 Напоминания</h3>
+      <p style="font-size:13px;color:var(--muted);margin:0 0 10px">Если чек-лист не выполнен к указанному времени — приложение напомнит (звук + уведомление).</p>
+      <div class="remind-row" data-remind="open">
+        <span>☀️ Открытие</span>
+        <input type="time" class="remind-time" data-remind="open" />
+        <label class="remind-toggle"><input type="checkbox" data-remind="open" /> вкл</label>
+      </div>
+      <div class="remind-row" data-remind="close">
+        <span>🌙 Закрытие</span>
+        <input type="time" class="remind-time" data-remind="close" />
+        <label class="remind-toggle"><input type="checkbox" data-remind="close" /> вкл</label>
+      </div>
+      <div class="remind-row" data-remind="general">
+        <span>🧹 Генеральная уборка</span>
+        <input type="time" class="remind-time" data-remind="general" />
+        <label class="remind-toggle"><input type="checkbox" data-remind="general" /> вкл</label>
+      </div>
+      <div class="modal-actions">
+        <button data-action="request-notify">🔔 Уведомления устройства</button>
+        <button data-action="close-reminders">Закрыть</button>
+        <button class="primary" data-action="save-reminders">💾 Сохранить</button>
       </div>
     </div>
   </div>
@@ -3068,6 +3157,7 @@ var KOJOState = (function () {
   var NOTES_PREFIX = 'kojo_notes_';
   var PHOTO_PREFIX = 'kojo_photo_';
   var RECIPES_PREFIX = 'kojo_recipes_';
+  var REMINDERS_PREFIX = 'kojo_reminders_';
 
   function keyOf(account, clId, date) {
     var d = date || kojoToday();
@@ -3173,6 +3263,20 @@ var KOJOState = (function () {
     setRecipes: function (arr, account) {
       var acc = account || KOJOState.getCurrentUser() || 'kojo';
       KOJOStore.set(RECIPES_PREFIX + acc, JSON.stringify(Array.isArray(arr) ? arr : []));
+    },
+    getReminders: function (account) {
+      var acc = account || KOJOState.getCurrentUser() || 'kojo';
+      var raw = KOJOStore.get(REMINDERS_PREFIX + acc);
+      if (!raw) return {};
+      try {
+        var obj = JSON.parse(raw);
+        if (obj && typeof obj === 'object') return obj;
+      } catch (e) {}
+      return {};
+    },
+    setReminders: function (obj, account) {
+      var acc = account || KOJOState.getCurrentUser() || 'kojo';
+      KOJOStore.set(REMINDERS_PREFIX + acc, JSON.stringify(obj || {}));
     },
     exportData: function (clIds, account) {
       var acc = account || KOJOState.getCurrentUser() || 'kojo';
@@ -3652,7 +3756,7 @@ function topicByClId(clId) {
 
 var CL_IDS = checklistIds();
 
-var APP_VERSION = 11;
+var APP_VERSION = 12;
 
 function appVersionMarker() {
   var el = $('app-version-marker');
@@ -3741,6 +3845,8 @@ function renderHome() {
   }
   html += '</div>';
   html += '</section>';
+
+  html += reminderStripHtml();
 
   html += '<section class="section">';
   html += '<div class="quick-checklist-access">';
@@ -4628,7 +4734,17 @@ function renderRecipes() {
     if (r.time) parts.push(r.time);
     if (r.grind) parts.push(r.grind);
     parts.push(r.method === 'aeropress' ? '☕ Аэропресс' : '🫗 Воронка');
+    html += '<div class="recipe-card">';
+    html += '<div class="recipe-card-head">';
+    html += '<button class="recipe-fav-btn' + (r.fav ? ' on' : '') + '" data-action="toggle-recipe-fav" data-id="' + r.id + '" aria-label="Избранное">' + (r.fav ? '★' : '☆') + '</button>';
+    html += '<span class="recipe-card-name">' + (r.name || 'Без названия') + '</span>';
+    html += '</div>';
     html += '<div class="recipe-card-meta">' + parts.join(' · ') + '</div>';
+    html += '<div class="recipe-card-actions">';
+    html += '<button class="recipe-run-btn" data-action="open-brew" data-id="' + r.id + '">⏱ Заварить</button>';
+    html += '<button class="recipe-edit-btn" data-action="open-recipe" data-id="' + r.id + '">✏️</button>';
+    html += '</div>';
+    html += '</div>';
   }
   list.innerHTML = html;
 }
@@ -4777,6 +4893,352 @@ function updateRecipeRatioDisplay() {
   var el = $('recipe-ratio-display');
   var ratio = parseFloat(String($('recipe-ratio').value || '').replace(',', '.'));
   if (el) el.textContent = ratio > 0 ? formatRatio(ratio) : '—';
+}
+
+// === ТАЙМЕР ЗАВАРИВАНИЯ ===
+var brew = { recipe: null, steps: [], idx: -1, running: false, startedAt: 0, elapsed: 0, total: 0, tick: null, manualIdx: -1 };
+
+function formatBrewTime(sec) {
+  sec = Math.max(0, Math.floor(sec || 0));
+  var m = Math.floor(sec / 60);
+  var s = sec % 60;
+  return (m < 10 ? '0' + m : m) + ':' + (s < 10 ? '0' + s : s);
+}
+
+function parseRecipeTimeMMSS(str) {
+  if (!str) return 0;
+  var m = String(str).trim().match(/^(\d{1,3}):([0-5]\d)$/);
+  if (m) return (+m[1]) * 60 + (+m[2]);
+  var s = String(str).trim().match(/^(\d{1,4})\s*с(?:ек)?\.?$/i);
+  if (s) return +s[1];
+  return 0;
+}
+
+// Шаги рецепта: каждая строка = шаг. Время шага в конце строки:
+// (00:45) или (00:45-01:30) или (45с). Без времени — шаг ждёт кнопки «Следующий».
+function parseBrewSteps(recipe) {
+  var steps = [];
+  var lines = String(recipe.steps || '').split('\n');
+  for (var i = 0; i < lines.length; i++) {
+    var line = lines[i].trim();
+    if (!line) continue;
+    var start = null;
+    var end = null;
+    var m = line.match(/\((\d{1,3}):([0-5]\d)(?:-(\d{1,3}):([0-5]\d))?\)/);
+    if (m) {
+      start = (+m[1]) * 60 + (+m[2]);
+      end = m[3] != null ? (+m[3]) * 60 + (+m[4]) : start;
+    } else {
+      var s = line.match(/\((\d{1,4})\s*с(?:ек)?\.?\s*\)/i);
+      if (s) { start = +s[1]; end = start; }
+    }
+    steps.push({
+      text: line.replace(/\([^)]*\)/g, '').replace(/\s+/g, ' ').trim(),
+      start: start,
+      end: end
+    });
+  }
+  var cursor = 0;
+  for (var j = 0; j < steps.length; j++) {
+    var st = steps[j];
+    if (st.start == null) {
+      st.start = cursor;
+      st.auto = false;
+    } else {
+      cursor = st.start;
+      st.auto = true;
+    }
+    if (st.end == null || st.end < st.start) st.end = st.start;
+    cursor = Math.max(cursor, st.end);
+  }
+  var total = parseRecipeTimeMMSS(recipe.time);
+  if (total > 0) {
+    if (cursor >= total && steps.length && steps[steps.length - 1].end > 0) total = Math.max(total, steps[steps.length - 1].end);
+  } else {
+    total = Math.max(cursor, 60);
+  }
+  return { steps: steps, total: total };
+}
+
+function openBrewTimer(id) {
+  var user = currentUser();
+  if (!user) return;
+  var recipes = KOJOState.getRecipes(user);
+  var r = recipeById(recipes, id);
+  if (!r) { showToast('⚠️ Рецепт не найден', 'warning'); return; }
+  brewReset(true);
+  brew.recipe = r;
+  var parsed = parseBrewSteps(r);
+  brew.steps = parsed.steps;
+  brew.total = parsed.total;
+  brew.idx = -1;
+  var title = $('brew-title');
+  if (title) title.textContent = '⏱ ' + (r.name || 'Заваривание');
+  var totalEl = $('brew-total');
+  if (totalEl) totalEl.textContent = formatBrewTime(brew.total);
+  renderBrewSteps();
+  var modal = $('brew-modal');
+  if (modal) modal.classList.add('visible');
+}
+
+function renderBrewSteps() {
+  var list = $('brew-steps');
+  if (!list) return;
+  var html = '';
+  for (var i = 0; i < brew.steps.length; i++) {
+    var st = brew.steps[i];
+    var cls = 'brew-step';
+    if (brew.idx === -1 || i < brew.idx) cls += ' upcoming';
+    if (i === brew.idx) cls += ' active';
+    if (i < brew.idx) cls = 'brew-step done';
+    html += '<li class="' + cls + '" id="brew-step-' + i + '">';
+    html += '<span class="brew-step-text">' + (st.text || '—') + '</span>';
+    html += '<span class="brew-step-time">' + formatBrewTime(st.start) + '</span>';
+    html += '</li>';
+  }
+  list.innerHTML = html;
+}
+
+function brewBeep(pulses) {
+  try {
+    var ctx = window.__kojoAudio || (window.__kojoAudio = new (window.AudioContext || window.webkitAudioContext)());
+    var t0 = ctx.currentTime;
+    for (var i = 0; i < pulses; i++) {
+      var osc = ctx.createOscillator();
+      var g = ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.value = 880;
+      g.gain.setValueAtTime(0.0001, t0 + i * 0.28);
+      g.gain.exponentialRampToValueAtTime(0.35, t0 + i * 0.28 + 0.02);
+      g.gain.exponentialRampToValueAtTime(0.0001, t0 + i * 0.28 + 0.16);
+      osc.connect(g);
+      g.connect(ctx.destination);
+      osc.start(t0 + i * 0.28);
+      osc.stop(t0 + i * 0.28 + 0.18);
+    }
+  } catch (e) {}
+}
+
+function brewVibrate() {
+  try { if (navigator.vibrate) navigator.vibrate([180, 90, 180]); } catch (e) {}
+}
+
+function brewTick() {
+  if (!brew.running) return;
+  brew.elapsed = (Date.now() - brew.startedAt) / 1000;
+  var el = $('brew-elapsed');
+  if (el) el.textContent = formatBrewTime(brew.elapsed);
+  var bar = $('brew-bar-fill');
+  if (bar) bar.style.width = Math.min(100, (brew.elapsed / brew.total) * 100) + '%';
+  for (var i = 0; i < brew.steps.length; i++) {
+    var st = brew.steps[i];
+    if (st.auto && st.start != null && brew.elapsed >= st.start && i > brew.idx) {
+      brew.idx = i;
+      renderBrewSteps();
+      brewBeep(1);
+      brewVibrate();
+      var cur = $('brew-step-' + i);
+      if (cur && cur.scrollIntoView) cur.scrollIntoView({ block: 'nearest' });
+      showToast('➡️ ' + (st.text || 'Шаг ' + (i + 1)), 'success');
+    }
+  }
+  if (brew.elapsed >= brew.total) {
+    finishBrew();
+  }
+}
+
+function finishBrew() {
+  brew.running = false;
+  if (brew.tick) { clearInterval(brew.tick); brew.tick = null; }
+  brewBeep(3);
+  brewVibrate();
+  var el = $('brew-elapsed');
+  if (el) el.textContent = formatBrewTime(brew.total);
+  var btn = $('brew-toggle-btn');
+  if (btn) btn.textContent = '▶️ Заново';
+  var bar = $('brew-bar-fill');
+  if (bar) bar.style.width = '100%';
+  showToast('⏱ Заваривание готово!', 'success');
+}
+
+function brewToggle() {
+  var btn = $('brew-toggle-btn');
+  if (!brew.running) {
+    if (brew.elapsed >= brew.total) brew.elapsed = 0;
+    brew.startedAt = Date.now() - brew.elapsed * 1000;
+    brew.running = true;
+    if (btn) btn.textContent = '⏸ Пауза';
+    if (brew.tick) clearInterval(brew.tick);
+    brew.tick = setInterval(brewTick, 250);
+    brewBeep(1);
+  } else {
+    brew.running = false;
+    if (brew.tick) { clearInterval(brew.tick); brew.tick = null; }
+    if (btn) btn.textContent = '▶️ Продолжить';
+  }
+}
+
+function brewReset(quiet) {
+  brew.running = false;
+  if (brew.tick) { clearInterval(brew.tick); brew.tick = null; }
+  brew.elapsed = 0;
+  brew.idx = -1;
+  var el = $('brew-elapsed');
+  if (el) el.textContent = formatBrewTime(0);
+  var bar = $('brew-bar-fill');
+  if (bar) bar.style.width = '0%';
+  var btn = $('brew-toggle-btn');
+  if (btn) btn.textContent = '▶️ Старт';
+  renderBrewSteps();
+  if (!quiet) showToast('↺ Таймер сброшен', 'warning');
+}
+
+function closeBrewModal() {
+  if (brew.running && !window.confirm('Остановить таймер и закрыть?')) return;
+  var modal = $('brew-modal');
+  if (modal) modal.classList.remove('visible');
+  brewReset(true);
+}
+
+// === НАПОМИНАНИЯ ===
+var REMIND_IDS = ['open', 'close', 'general'];
+var REMIND_LABELS = { open: '☀️ Открытие', close: '🌙 Закрытие', general: '🧹 Генеральная уборка' };
+var REMIND_ICONS = { open: '☀️', close: '🌙', general: '🧹' };
+
+function remindConfig() {
+  var user = currentUser();
+  return user ? KOJOState.getReminders(user) : {};
+}
+
+function remindDueIds(nowMin) {
+  var conf = remindConfig();
+  var out = [];
+  var now = nowMin != null ? nowMin : new Date().getHours() * 60 + new Date().getMinutes();
+  for (var i = 0; i < REMIND_IDS.length; i++) {
+    var id = REMIND_IDS[i];
+    var item = conf[id];
+    if (!item || !item.enabled || !item.time) continue;
+    var t = String(item.time).match(/^(\d{1,2}):(\d{2})$/);
+    if (!t) continue;
+    var mins = (+t[1]) * 60 + (+t[2]);
+    if (now >= mins) out.push(id);
+  }
+  return out;
+}
+
+function isRemindedToday(clId) {
+  try { return KOJOStore.get('kojo_rem_' + clId + '_' + kojoToday()) === '1'; } catch (e) { return false; }
+}
+
+function markRemindedToday(clId) {
+  try { KOJOStore.set('kojo_rem_' + clId + '_' + kojoToday(), '1'); } catch (e) {}
+}
+
+function notifyReminder(clId) {
+  var user = currentUser();
+  if (!user) return;
+  var p = checklistProgressCount(user, clId);
+  if (!(p.total > 0)) return;
+  if (p.done >= p.total) return;
+  if (isRemindedToday(clId)) return;
+  var label = REMIND_LABELS[clId] || clId;
+  showToast('⏰ ' + label + ': чек-лист ещё не выполнен', 'warning');
+  brewBeep(2);
+  brewVibrate();
+  try {
+    if (typeof Notification !== 'undefined' && Notification.permission === 'granted') {
+      new Notification('KOJO Guide', { body: label + ' ещё не выполнен. Откройте чек-лист.', icon: 'icons/icon-192.png', tag: 'kojo-remind-' + clId });
+    }
+  } catch (e) {}
+  markRemindedToday(clId);
+}
+
+function checkReminders() {
+  if (!isAuthenticated() || !currentUser()) return;
+  var due = remindDueIds();
+  for (var i = 0; i < due.length; i++) notifyReminder(due[i]);
+  renderReminderStrip();
+}
+
+function reminderStripHtml() {
+  var user = currentUser();
+  if (!user) return '';
+  var due = remindDueIds();
+  if (!due.length) return '';
+  var html = '<div class="home-reminder">';
+  for (var i = 0; i < due.length; i++) {
+    var clId = due[i];
+    var p = checklistProgressCount(user, clId);
+    if (!(p.total > 0) || p.done >= p.total) continue;
+    if (isRemindedToday(clId)) continue;
+    html += '<button class="home-reminder-btn" data-action="open-checklist" data-checklist="' + clId + '">';
+    html += '<span><b>' + REMIND_LABELS[clId] + '</b> — осталось пунктов: ' + (p.total - p.done) + '</span>';
+    html += '<span>→</span>';
+    html += '</button>';
+  }
+  html += '</div>';
+  return html === '<div class="home-reminder"></div>' ? '' : html;
+}
+
+function renderReminderStrip() {
+  var homeEl = $('home-screen');
+  if (!homeEl) return;
+  var strip = reminderStripHtml();
+  if (strip) {
+    var box = homeEl.querySelector('.home-reminder');
+    if (box) { box.outerHTML = strip; return; }
+    var hero = homeEl.querySelector('.hero');
+    if (hero) hero.insertAdjacentHTML('afterend', strip);
+  } else {
+    var box2 = homeEl.querySelector('.home-reminder');
+    if (box2) box2.remove();
+  }
+}
+
+function renderRemindModal() {
+  var conf = remindConfig();
+  for (var i = 0; i < REMIND_IDS.length; i++) {
+    var id = REMIND_IDS[i];
+    var item = conf[id] || {};
+    var timeEl = document.querySelector('.remind-time[data-remind="' + id + '"]');
+    var cbEl = document.querySelector('.remind-toggle input[data-remind="' + id + '"]');
+    if (timeEl) timeEl.value = item.time || '';
+    if (cbEl) cbEl.checked = !!item.enabled;
+  }
+  var modal = $('remind-modal');
+  if (modal) modal.classList.add('visible');
+}
+
+function saveRemindersFromForm() {
+  var user = currentUser();
+  if (!user) return;
+  var conf = {};
+  for (var i = 0; i < REMIND_IDS.length; i++) {
+    var id = REMIND_IDS[i];
+    var timeEl = document.querySelector('.remind-time[data-remind="' + id + '"]');
+    var cbEl = document.querySelector('.remind-toggle input[data-remind="' + id + '"]');
+    conf[id] = { enabled: !!(cbEl && cbEl.checked), time: (timeEl && timeEl.value) || '' };
+  }
+  KOJOState.setReminders(conf, user);
+  var modal = $('remind-modal');
+  if (modal) modal.classList.remove('visible');
+  checkReminders();
+  showToast('🔔 Напоминания сохранены', 'success');
+}
+
+function requestNotifyPermission() {
+  try {
+    if (typeof Notification === 'undefined') {
+      showToast('⚠️ Уведомления не поддерживаются этим браузером', 'warning');
+      return;
+    }
+    Notification.requestPermission().then(function (res) {
+      if (res === 'granted') showToast('🔔 Уведомления разрешены', 'success');
+      else showToast('⚠️ Уведомления не разрешены', 'warning');
+    });
+  } catch (e) {
+    showToast('⚠️ Не удалось запросить доступ к уведомлениям', 'warning');
+  }
 }
 
 function handlePhotoFile(file) {
@@ -5318,6 +5780,43 @@ document.addEventListener('click', function (e) {
       toggleRecipeFav(target.getAttribute('data-id'));
       return;
     }
+    if (action === 'open-brew') {
+      e.preventDefault();
+      openBrewTimer(target.getAttribute('data-id'));
+      return;
+    }
+    if (action === 'brew-toggle') {
+      e.preventDefault();
+      brewToggle();
+      return;
+    }
+    if (action === 'brew-reset') {
+      e.preventDefault();
+      brewReset(false);
+      return;
+    }
+    if (action === 'show-reminders') {
+      e.preventDefault();
+      closeProfileModal();
+      renderRemindModal();
+      return;
+    }
+    if (action === 'close-reminders') {
+      e.preventDefault();
+      var rmodal2 = $('remind-modal');
+      if (rmodal2) rmodal2.classList.remove('visible');
+      return;
+    }
+    if (action === 'save-reminders') {
+      e.preventDefault();
+      saveRemindersFromForm();
+      return;
+    }
+    if (action === 'request-notify') {
+      e.preventDefault();
+      requestNotifyPermission();
+      return;
+    }
     if (action === 'save-sync-settings') {
       e.preventDefault();
       closeSyncSettingsFromForm();
@@ -5503,11 +6002,22 @@ document.addEventListener('keydown', function (e) {
       if (inp) inp.focus();
     }
     if (e.key === 'Escape') {
+      var bmodal = $('brew-modal');
+      if (bmodal && bmodal.classList.contains('visible')) {
+        closeBrewModal();
+        return;
+      }
       var rmodal = $('recipe-modal');
       if (rmodal && rmodal.classList.contains('visible')) {
         closeRecipeModal();
-      } else {
-        var pmodal = $('profile-modal');
+        return;
+      }
+      var emodal = $('remind-modal');
+      if (emodal && emodal.classList.contains('visible')) {
+        emodal.classList.remove('visible');
+        return;
+      }
+      var pmodal = $('profile-modal');
         if (pmodal && pmodal.classList.contains('visible')) {
           closeProfileModal();
         } else {
@@ -5524,7 +6034,6 @@ document.addEventListener('keydown', function (e) {
           }
         }
       }
-    }
   } catch (err) { console.error('KOJO keyboard:', err); }
 });
 

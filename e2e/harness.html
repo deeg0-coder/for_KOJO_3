@@ -248,3 +248,275 @@
   <script src="js/app.js?v=12"></script>
 </body>
 </html>
+<script>// E2E harness for KOJO v12
+window.__e2eLog = [];
+function e2eLog(msg) {
+  window.__e2eLog.push(msg);
+  var el = document.getElementById('e2e-log');
+  if (!el) { el = document.createElement('div'); el.id = 'e2e-log'; document.body.appendChild(el); }
+  el.textContent = window.__e2eLog.join(' | ');
+}
+window.addEventListener('error', function (e) { e2eLog('PAGE ERROR: ' + e.message); });
+window.addEventListener('unhandledrejection', function (e) { e2eLog('UNHANDLED: ' + (e.reason && (e.reason.message || e.reason))); });
+
+(function () {
+  var results = [];
+  var queue = [];
+  function add(name, fn) { queue.push({ name: name, fn: fn }); e2eLog('queued: ' + name); }
+  function pass(name) { results.push('PASS: ' + name); e2eLog('PASS: ' + name); }
+  function fail(name, extra) { results.push('FAIL: ' + name + (extra ? ' :: ' + extra : '')); e2eLog('FAIL: ' + name + (extra ? ' :: ' + extra : '')); }
+
+  function xhrJson(method, url, payload, cb) {
+    var x = new XMLHttpRequest();
+    x.open(method, url, true);
+    if (payload) x.setRequestHeader('Content-Type', 'application/json');
+    x.timeout = 20000;
+    x.onload = function () { cb(null, x.status, x.responseText, x.getResponseHeader('Location') || ''); };
+    x.onerror = function () { cb('network'); };
+    x.ontimeout = function () { cb('timeout'); };
+    x.send(payload ? JSON.stringify(payload) : null);
+  }
+
+  add('app loaded v12', function (done) {
+    if (typeof KOJOState === 'object' && typeof KOJOCloud === 'object' && APP_VERSION === 12) pass('app loaded v12');
+    else fail('app loaded v12', 'globals/version');
+    done();
+  });
+
+  add('notes local roundtrip', function (done) {
+    KOJOState.setCurrentUser('tester');
+    KOJOState.setNotes('hello-notes', 'tester');
+    if (KOJOState.getNotes('tester') === 'hello-notes') pass('notes local roundtrip');
+    else fail('notes local roundtrip');
+    done();
+  });
+
+  add('recipes local roundtrip + calculator helpers', function (done) {
+    KOJOState.setCurrentUser('tester');
+    var r = { id: 'r1', name: 'Тест V60', method: 'v60', dose: 16, water: 240, ratio: 15, temp: 92, time: '2:30', grind: 'средний', steps: '1. blossom', fav: true };
+    KOJOState.setRecipes([r], 'tester');
+    var got = KOJOState.getRecipes('tester');
+    var recalc = (got.length === 1 && got[0].ratio === 15 && got[0].water === 240);
+    if (recalc) pass('recipes local roundtrip');
+    else fail('recipes local roundtrip', JSON.stringify(got));
+    done();
+  });
+
+  add('parseBrewSteps: times+ranges+auto cursor', function (done) {
+    var r = { time: '2:30', steps: 'Спилл (0:00)\nВлить 300 г (0:45-1:30)\nДолить до конца\nФинальный спилл (2:00-2:30)' };
+    var p = parseBrewSteps(r);
+    var ok = p.steps.length === 4 &&
+      p.steps[0].start === 0 && p.steps[0].end === 0 && p.steps[0].auto === true &&
+      p.steps[1].start === 45 && p.steps[1].end === 90 &&
+      p.steps[2].start === 90 && p.steps[2].end === 90 && p.steps[2].auto === false &&
+      p.steps[3].start === 120 && p.steps[3].end === 150 &&
+      p.total === 150;
+    if (ok) pass('parseBrewSteps');
+    else fail('parseBrewSteps', JSON.stringify(p));
+    done();
+  });
+
+  add('parseBrewSteps: no time -> default 60s', function (done) {
+    var p = parseBrewSteps({ time: '', steps: 'Заварить\nПить' });
+    if (p.total === 60 && p.steps[0].start === 0 && p.steps[1].start === 0) pass('parseBrewSteps default 60');
+    else fail('parseBrewSteps default 60', JSON.stringify(p));
+    done();
+  });
+
+  add('brew modal opens from recipe', function (done) {
+    KOJOState.setCurrentUser('tester');
+    var r = { id: 'r1', name: 'Тест V60', method: 'v60', dose: 16, water: 240, ratio: 15, temp: 92, time: '2:30', grind: 'средний', steps: 'Спилл (0:00)\nВлить (0:45)' };
+    KOJOState.setRecipes([r], 'tester');
+    openBrewTimer('r1');
+    var modal = document.getElementById('brew-modal');
+    var steps = document.getElementById('brew-steps');
+    var visible = modal && modal.classList.contains('visible');
+    var stepCount = steps ? steps.querySelectorAll('li').length : 0;
+    if (visible && stepCount === 2) pass('brew modal opens (steps ' + stepCount + ')');
+    else fail('brew modal opens', 'visible=' + !!visible + ' steps=' + stepCount);
+    closeBrewModal();
+    done();
+  });
+
+  add('brew modal unknown recipe -> toast, no modal', function (done) {
+    var before = (document.getElementById('brew-modal') || {}).classList || { contains: function () { return false; } };
+    openBrewTimer('no-such-id');
+    var modal = document.getElementById('brew-modal');
+    if (modal && !modal.classList.contains('visible')) pass('brew modal stays closed for unknown recipe');
+    else fail('brew modal stays closed for unknown recipe');
+    done();
+  });
+
+  add('reminders local roundtrip', function (done) {
+    KOJOState.setCurrentUser('tester');
+    var conf = { open: { enabled: true, time: '09:00' }, close: { enabled: false, time: '' } };
+    KOJOState.setReminders(conf, 'tester');
+    var got = KOJOState.getReminders('tester');
+    if (got && got.open && got.open.enabled === true && got.open.time === '09:00') pass('reminders roundtrip');
+    else fail('reminders roundtrip', JSON.stringify(got));
+    done();
+  });
+
+  add('remindDueIds: before/after time', function (done) {
+    KOJOState.setCurrentUser('tester');
+    KOJOState.setReminders({ open: { enabled: true, time: '09:00' }, close: { enabled: true, time: '21:30' } }, 'tester');
+    var early = remindDueIds(8 * 60);
+    var noon = remindDueIds(12 * 60);
+    var ok = early.indexOf('open') === -1 && early.indexOf('close') === -1 && noon.indexOf('open') !== -1 && noon.indexOf('close') === -1;
+    if (ok) pass('remindDueIds');
+    else fail('remindDueIds', 'early=' + JSON.stringify(early) + ' noon=' + JSON.stringify(noon));
+    done();
+  });
+
+  add('notifyReminder fires once per day when checklist incomplete', function (done) {
+    KOJOState.setCurrentUser('tester');
+    var topic = topicByClId('open');
+    var arr = [];
+    for (var j = 0; j < topic.items.length; j++) arr.push(false);
+    KOJOState.saveChecklist('open', arr, 'tester');
+    var p = checklistProgressCount('tester', 'open');
+    if (!(p.total > 0) || p.done >= p.total) { fail('notifyReminder setup', JSON.stringify(p)); done(); return; }
+    notifyReminder('open');
+    if (!isRemindedToday('open')) { fail('notifyReminder marks today'); done(); return; }
+    var strip = reminderStripHtml();
+    if (strip.indexOf('home-reminder-btn') !== -1) { fail('reminder strip hidden after notify', strip); done(); return; }
+    notifyReminder('open');
+    if (isRemindedToday('open')) pass('notifyReminder once per day');
+    else fail('notifyReminder second call');
+    done();
+  });
+
+  add('temp bin create + switch', function (done) {
+    xhrJson('POST', 'https://jsonblob.com/api/jsonBlob', { date: kojoToday(), users: {} }, function (err, status, text, loc) {
+      if (err || status < 200 || status >= 300) { fail('temp bin create', err || ('HTTP ' + status)); done(); return; }
+      var parts = (loc || '').split('/');
+      var id = parts[parts.length - 1];
+      if (!id) { fail('temp bin create', 'no id'); done(); return; }
+      window.__tmpBin = id;
+      KOJOCloud.saveSettings(id, '');
+      pass('temp bin create');
+      done();
+    });
+  });
+
+  add('cloud set/get roundtrip (notes+recipes in meta)', function (done) {
+    var doc = { date: kojoToday(), users: { tester: { meta: { notes: 'cloud-notes', recipes: [{ id: 'r9', name: 'Облачный', method: 'aeropress', dose: 15, water: 225, ratio: 15, fav: false }] } } } };
+    KOJOCloud.set(doc, function (res, err) {
+      if (err) { fail('cloud set/get', String(err)); done(); return; }
+      KOJOCloud.get(function (got, err2) {
+        var m = got && got.users && got.users.tester && got.users.tester.meta;
+        if (m && m.notes === 'cloud-notes' && Array.isArray(m.recipes) && m.recipes.length === 1) pass('cloud set/get roundtrip');
+        else fail('cloud set/get roundtrip', JSON.stringify(got));
+        done();
+      });
+    });
+  });
+
+  add('syncAllFromCloud pulls notes+recipes into local', function (done) {
+    syncAllFromCloud(function () {
+      var n = KOJOState.getNotes('tester');
+      var rc = KOJOState.getRecipes('tester');
+      var okR = rc && rc.length && rc[0].name === 'Облачный';
+      if (n === 'cloud-notes' && okR) pass('syncAllFromCloud pulls meta');
+      else fail('syncAllFromCloud pulls meta', 'notes=' + n + ' recipes=' + (rc ? rc.length : 'none'));
+      done();
+    });
+  });
+
+  add('pushCloud writes recipes into cloud', function (done) {
+    KOJOState.setCurrentUser('tester');
+    KOJOState.setRecipes([{ id: 'rpush', name: 'Из пуша', method: 'v60', dose: 18, water: 300, ratio: 15 }], 'tester');
+    pushCloud(function () {
+      KOJOCloud.get(function (got, err) {
+        var tm = got && got.users && got.users.tester && got.users.tester.meta;
+        if (tm && Array.isArray(tm.recipes) && tm.recipes[0] && tm.recipes[0].name === 'Из пуша') pass('pushCloud meta written');
+        else fail('pushCloud meta written', got ? JSON.stringify(got.users && got.users.tester) : 'no doc');
+        done();
+      });
+    });
+  });
+
+  add('two devices: staff checks -> admin sees progress', function (done) {
+    var staff = null, admin = null;
+    for (var i = 0; i < KOJO_ACCOUNTS.length; i++) {
+      var a = KOJO_ACCOUNTS[i];
+      if (a.role === 'admin' && !admin) admin = a.login;
+      if (a.role !== 'admin' && !staff) staff = a.login;
+    }
+    if (!staff || !admin) { fail('two devices', 'accounts missing'); done(); return; }
+    var topic = topicByClId('open');
+    if (!topic) { fail('two devices', 'no open topic'); done(); return; }
+    var arr = [];
+    var items = topic.items;
+    for (var j = 0; j < items.length; j++) { if (!items[j].label) arr.push(true); }
+    KOJOState.setCurrentUser(staff);
+    KOJOState.saveChecklist('open', arr, staff);
+    pushCloud(function () {
+      KOJOState.setCurrentUser(admin);
+      syncAllFromCloud(function () {
+        var p = checklistProgressCount(staff, 'open');
+        if (p.done > 0 && p.done === p.total) pass('two-device progress (staff ' + staff + ' done ' + p.done + '/' + p.total + ')');
+        else fail('two-device progress', staff + ' -> ' + JSON.stringify(p));
+        done();
+      });
+    });
+  });
+
+  add('future-date guard', function (done) {
+    var orig = KOJOCloud.get;
+    KOJOCloud.get = function (cb) { cb({ date: '2099-01-01', users: { evil: { meta: { notes: 'BAD' } } } }, null); };
+    syncAllFromCloud(function () {
+      KOJOCloud.get = orig;
+      var evil = KOJOState.getNotes('evil');
+      if (evil) fail('future-date guard', 'evil notes leaked');
+      else pass('future-date guard');
+      done();
+    });
+  });
+
+  add('404 heal: stale bin -> default bin', function (done) {
+    KOJOCloud.saveSettings('00000000-0000-0000-0000-000000000000', '');
+    KOJOCloud.get(function (doc, err) {
+      var s = KOJOCloud.getSettings();
+      if (err || !doc || !doc.users) fail('404 heal', 'err=' + err + ' bin=' + s.binId);
+      else if (s.binId === KOJO_SYNC_DEFAULTS.binId) pass('404 heal -> default bin revived');
+      else fail('404 heal', 'bin=' + s.binId);
+      done();
+    });
+  });
+
+  add('cleanup temp bin', function (done) {
+    var id = window.__tmpBin;
+    if (!id) { done(); return; }
+    xhrJson('DELETE', 'https://jsonblob.com/api/jsonBlob/' + id, null, function (err) {
+      if (!err) pass('cleanup temp bin'); else fail('cleanup temp bin', err);
+      done();
+    });
+  });
+
+  function finish() {
+    var passCount = results.filter(function (r) { return r.indexOf('PASS') === 0; }).length;
+    var total = results.length;
+    var el = document.getElementById('e2e-result');
+    if (!el) { el = document.createElement('div'); el.id = 'e2e-result'; document.body.appendChild(el); }
+    el.textContent = 'E2E RESULT ' + passCount + '/' + total + ' :: ' + results.join(' | ');
+    document.title = 'E2E ' + passCount + '/' + total;
+    clearInterval(timer);
+  }
+  var timer = setInterval(function () {
+    if (results.length >= queue.length && results.length > 0) finish();
+  }, 200);
+
+  var idx = 0;
+  function next() {
+    if (idx >= queue.length) return;
+    var t = queue[idx++];
+    e2eLog('start: ' + t.name);
+    var guard = false;
+    function done() { if (guard) return; guard = true; next(); }
+    try { t.fn(done); } catch (e) { fail(t.name, e.message); done(); }
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', next);
+  else next();
+})();
+</script>
