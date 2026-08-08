@@ -1,11 +1,11 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ru">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
   <title>KOJO Guide</title>
   <meta name="theme-color" content="#ffffff" />
-  <meta name="description" content="Р’РЅСѓС‚СЂРµРЅРЅРёР№ СЃРїСЂР°РІРѕС‡РЅРёРє РґР»СЏ СЃРѕС‚СЂСѓРґРЅРёРєРѕРІ KOJO Coffee" />
+  <meta name="description" content="Внутренний справочник для сотрудников KOJO Coffee" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="default" />
   <meta name="apple-mobile-web-app-title" content="KOJO Guide" />
@@ -29,16 +29,16 @@
       <div class="login-sub">Guide for staff</div>
       <form class="login-form" id="login-form">
         <div id="account-picker"></div>
-        <input type="text" id="login-user" class="login-input hidden-input" placeholder="Р›РѕРіРёРЅ" autocomplete="off" hidden />
-        <input type="password" id="login-pass" class="login-input" placeholder="РџР°СЂРѕР»СЊ" autocomplete="current-password" />
+        <input type="text" id="login-user" class="login-input hidden-input" placeholder="Логин" autocomplete="off" hidden />
+        <input type="password" id="login-pass" class="login-input" placeholder="Пароль" autocomplete="current-password" />
         <div class="login-error" id="login-error"></div>
         <label class="login-remember">
           <input type="checkbox" id="login-remember" checked />
-          <span>Р—Р°РїРѕРјРЅРёС‚СЊ РјРµРЅСЏ</span>
+          <span>Запомнить меня</span>
         </label>
-        <button type="submit" class="login-btn">Р’РѕР№С‚Рё</button>
+        <button type="submit" class="login-btn">Войти</button>
       </form>
-      <div class="login-hint">Р’РЅСѓС‚СЂРµРЅРЅРёР№ СЃРїСЂР°РІРѕС‡РЅРёРє РґР»СЏ СЃРѕС‚СЂСѓРґРЅРёРєРѕРІ KOJO Coffee</div>
+      <div class="login-hint">Внутренний справочник для сотрудников KOJO Coffee</div>
     </div>
   </div>
 
@@ -59,16 +59,16 @@
         </div>
       </div>
       <div class="header-actions">
-        <span class="header-sync-badge" id="sync-badge" title="РЎС‚Р°С‚СѓСЃ СЃРёРЅС…СЂРѕРЅРёР·Р°С†РёРё">вЃпёЏ</span>
-        <button class="icon-btn theme-toggle" data-action="toggle-theme" aria-label="РџРµСЂРµРєР»СЋС‡РёС‚СЊ С‚РµРјСѓ" title="РЎРІРµС‚Р»Р°СЏ / С‚С‘РјРЅР°СЏ / РєСЂР°СЃРЅР°СЏ С‚РµРјР°">рџЊ™</button>
-        <button class="icon-btn" data-action="show-stats" aria-label="РЎС‚Р°С‚РёСЃС‚РёРєР°" title="РЎС‚Р°С‚РёСЃС‚РёРєР°">рџ“Љ</button>
-        <button class="icon-btn" id="btn-control" data-action="show-control" aria-label="РљРѕРЅС‚СЂРѕР»СЊ" title="РљРѕРЅС‚СЂРѕР»СЊ (РґР»СЏ Р°РґРјРёРЅРёСЃС‚СЂР°С‚РѕСЂРѕРІ)" style="display:none">рџ“‹</button>
-        <button class="icon-btn" data-action="logout" aria-label="Р’С‹Р№С‚Рё" title="Р’С‹Р№С‚Рё">рџ”’</button>
+        <span class="header-sync-badge" id="sync-badge" title="Статус синхронизации">☁️</span>
+        <button class="icon-btn theme-toggle" data-action="toggle-theme" aria-label="Переключить тему" title="Светлая / тёмная / красная тема">🌙</button>
+        <button class="icon-btn" data-action="show-stats" aria-label="Статистика" title="Статистика">📊</button>
+        <button class="icon-btn" id="btn-control" data-action="show-control" aria-label="Контроль" title="Контроль (для администраторов)" style="display:none">📋</button>
+        <button class="icon-btn" data-action="logout" aria-label="Выйти" title="Выйти">🔒</button>
         <div class="header-user">
           <div class="header-user-name" id="current-user-name"></div>
           <div class="header-user-role" id="current-user-role"></div>
         </div>
-        <div class="header-tag">РІРЅСѓС‚СЂРµРЅРЅРёР№ СЃРїСЂР°РІРѕС‡РЅРёРє <span id="app-version-marker"></span></div>
+        <div class="header-tag">внутренний справочник <span id="app-version-marker"></span></div>
       </div>
     </header>
 
@@ -81,31 +81,31 @@
 
   <div class="modal-overlay" id="stats-modal">
     <div class="modal-content">
-      <h3>рџ“Љ РЎС‚Р°С‚РёСЃС‚РёРєР° С‡РµРє-Р»РёСЃС‚РѕРІ</h3>
+      <h3>📊 Статистика чек-листов</h3>
       <div id="stats-content"></div>
       <div class="modal-actions">
-        <button data-action="export-progress">в¬‡пёЏ Р­РєСЃРїРѕСЂС‚</button>
-        <button data-action="import-progress">в¬†пёЏ РРјРїРѕСЂС‚</button>
-        <button data-action="close-modal">Р—Р°РєСЂС‹С‚СЊ</button>
-        <button class="primary" data-action="reset-all">РЎР±СЂРѕСЃРёС‚СЊ РІСЃС‘</button>
+        <button data-action="export-progress">⬇️ Экспорт</button>
+        <button data-action="import-progress">⬆️ Импорт</button>
+        <button data-action="close-modal">Закрыть</button>
+        <button class="primary" data-action="reset-all">Сбросить всё</button>
       </div>
     </div>
   </div>
 
   <div class="modal-overlay" id="sync-modal">
     <div class="modal-content">
-      <h3>вљ™пёЏ РЎРёРЅС…СЂРѕРЅРёР·Р°С†РёСЏ (РѕР±Р»Р°РєРѕ)</h3>
+      <h3>⚙️ Синхронизация (облако)</h3>
       <div id="sync-modal-content"></div>
       <div class="modal-actions">
-        <button data-action="close-sync-modal">Р—Р°РєСЂС‹С‚СЊ</button>
+        <button data-action="close-sync-modal">Закрыть</button>
       </div>
     </div>
   </div>
 
   <div class="install-banner" id="install-banner">
-    <span>рџ“І РЈСЃС‚Р°РЅРѕРІРё KOJO Guide РЅР° С‚РµР»РµС„РѕРЅ</span>
-    <button class="install-primary" data-action="install-app">РЈСЃС‚Р°РЅРѕРІРёС‚СЊ</button>
-    <button class="install-close" data-action="dismiss-install" aria-label="РЎРєСЂС‹С‚СЊ">вњ•</button>
+    <span>📲 Установи KOJO Guide на телефон</span>
+    <button class="install-primary" data-action="install-app">Установить</button>
+    <button class="install-close" data-action="dismiss-install" aria-label="Скрыть">✕</button>
   </div>
 
   <input type="file" id="import-file" accept=".json,application/json" class="hidden" />
