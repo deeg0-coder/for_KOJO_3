@@ -12,6 +12,17 @@ var KOJO_SYNC_DEFAULTS = {
 var KOJOCloud = (function () {
   var BASE = 'https://api.jsonbin.io/v3/b/';
   var SETTINGS_KEY = 'kojo-sync-settings';
+  var lastSync = { ok: null, error: '', at: '' };
+
+  function markSync(ok, error) {
+    lastSync.ok = ok;
+    lastSync.error = error || '';
+    lastSync.at = new Date().toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
+  }
+
+  function getLastSync() {
+    return lastSync;
+  }
 
   function getSettings() {
     var s = { binId: '', masterKey: '' };
@@ -50,14 +61,16 @@ var KOJOCloud = (function () {
         if (xhr.status >= 200 && xhr.status < 300) {
           var body = JSON.parse(xhr.responseText);
           var record = body && body.record !== undefined ? body.record : body;
+          markSync(true, '');
           cb && cb(record);
         } else {
+          markSync(false, 'HTTP ' + xhr.status);
           cb && cb(null);
         }
-      } catch (e) { cb && cb(null); }
+      } catch (e) { markSync(false, 'ошибка ответа'); cb && cb(null); }
     };
-    xhr.onerror = function () { cb && cb(null); };
-    xhr.ontimeout = function () { cb && cb(null); };
+    xhr.onerror = function () { markSync(false, 'сеть недоступна'); cb && cb(null); };
+    xhr.ontimeout = function () { markSync(false, 'таймаут'); cb && cb(null); };
     xhr.send();
   }
 
@@ -73,14 +86,16 @@ var KOJOCloud = (function () {
     xhr.onload = function () {
       try {
         if (xhr.status >= 200 && xhr.status < 300) {
+          markSync(true, '');
           cb && cb(JSON.parse(xhr.responseText));
         } else {
+          markSync(false, 'HTTP ' + xhr.status);
           cb && cb(null);
         }
-      } catch (e) { cb && cb(null); }
+      } catch (e) { markSync(false, 'ошибка ответа'); cb && cb(null); }
     };
-    xhr.onerror = function () { cb && cb(null); };
-    xhr.ontimeout = function () { cb && cb(null); };
+    xhr.onerror = function () { markSync(false, 'сеть недоступна'); cb && cb(null); };
+    xhr.ontimeout = function () { markSync(false, 'таймаут'); cb && cb(null); };
     xhr.send(JSON.stringify(payload));
   }
 
@@ -115,6 +130,7 @@ var KOJOCloud = (function () {
     isConfigured: isConfigured,
     get: get,
     set: set,
-    createBin: createBin
+    createBin: createBin,
+    getLastSync: getLastSync
   };
 })();

@@ -1,4 +1,4 @@
-var CACHE_NAME = 'kojo-guide-v4';
+var CACHE_NAME = 'kojo-guide-v5';
 var ASSETS = [
   './',
   './index.html',

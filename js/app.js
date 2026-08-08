@@ -579,9 +579,18 @@ function renderControlSection(box) {
 function updateControlStatus() {
   var el = $('control-sync-status');
   if (!el) return;
-  el.textContent = KOJOCloud.isConfigured()
-    ? '☁️ Синхронизация включена — данные со всех устройств'
-    : '⚠️ Облачная синхронизация не настроена — работает локально на этом устройстве';
+  if (KOJOCloud.isConfigured()) {
+    var ls = KOJOCloud.getLastSync();
+    if (ls.ok === true) {
+      el.textContent = '☁️ Синхронизация включена · обновлено в ' + ls.at;
+    } else if (ls.ok === false) {
+      el.textContent = '☁️ Синхронизация включена · ошибка: ' + (ls.error || 'неизвестно');
+    } else {
+      el.textContent = '☁️ Синхронизация включена · ожидание первой синхронизации…';
+    }
+  } else {
+    el.textContent = '⚠️ Облачная синхронизация не настроена — работает локально на этом устройстве';
+  }
 }
 
 function showSyncSettingsModal() {
