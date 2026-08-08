@@ -202,7 +202,7 @@ function topicByClId(clId) {
 
 var CL_IDS = checklistIds();
 
-var APP_VERSION = 10;
+var APP_VERSION = 11;
 
 function appVersionMarker() {
   var el = $('app-version-marker');
@@ -742,6 +742,8 @@ function pushCloud(cb, freshDoc) {
     if (ph) meta.photo = ph;
     var nt = KOJOState.getNotes(user);
     if (nt) meta.notes = nt;
+    var rc = KOJOState.getRecipes(user);
+    if (rc && rc.length) meta.recipes = rc;
     if (Object.keys(meta).length) doc.users[user].meta = meta;
     KOJOState.saveCloudDoc(doc);
     KOJOCloud.set(doc, function (res, err2) {
@@ -815,6 +817,7 @@ function syncAllFromCloud(cb) {
           if (u.meta) {
             if (u.meta.photo) KOJOState.setPhoto(u.meta.photo, user);
             if (u.meta.notes) KOJOState.setNotes(u.meta.notes, user);
+            if (Array.isArray(u.meta.recipes)) KOJOState.setRecipes(u.meta.recipes, user);
           }
         }
         KOJOState.saveCloudDoc(doc);
@@ -1115,6 +1118,7 @@ function showProfileModal() {
   if (notesEl) notesEl.value = user ? (KOJOState.getNotes(user) || '') : '';
   var savedEl = $('notes-saved');
   if (savedEl) savedEl.classList.remove('visible');
+  renderRecipes();
   refreshAvatar();
   updateHeaderAdminButtons();
   modal.classList.add('visible');
@@ -1136,6 +1140,193 @@ function saveProfileNotes() {
     savedEl.textContent = '💾 Сохранено ' + new Date().toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
     savedEl.classList.add('visible');
   }
+  scheduleCloudPush();
+}
+
+// === КНИГА РЕЦЕПТОВ ===
+var recipeEditingId = null;
+
+function recipeSortKey(r) { return (r.fav ? '0' : '1') + (r.name || '').toLowerCase(); }
+
+function formatRatio(ratio) {
+  var n = parseFloat(ratio);
+  if (!n || n <= 0) return '';
+  return (Math.round(n * 10) / 10) + '';
+}
+
+function renderRecipes() {
+  var list = $('recipes-list');
+  if (!list) return;
+  var user = currentUser();
+  var recipes = user ? KOJOState.getRecipes(user) : [];
+  if (!recipes.length) {
+    list.innerHTML = '<div class="recipe-empty">Пока нет рецептов — добавьте свой, сохранится и синхронизируется через облако.</div>';
+    return;
+  }
+  recipes.sort(function (a, b) {
+    var ka = recipeSortKey(a), kb = recipeSortKey(b);
+    return ka < kb ? -1 : (ka > kb ? 1 : 0);
+  });
+  var html = '';
+  for (var i = 0; i < recipes.length; i++) {
+    var r = recipes[i];
+    var parts = [];
+    if (r.ratio) parts.push('1:' + formatRatio(r.ratio));
+    if (dose > 0) parts.push(dose + ' г');
+    if (water > 0) parts.push(water + ' мл');
+    if (r.temp) parts.push(r.temp + '°C');
+    if (r.time) parts.push(r.time);
+    if (r.grind) parts.push(r.grind);
+    parts.push(r.method === 'aeropress' ? '☕ Аэропресс' : '🫗 Воронка');
+    html += '<div class="recipe-card-meta">' + parts.join(' · ') + '</div>';
+  }
+  list.innerHTML = html;
+}
+
+function recipeById(recipes, id) { for (var i = 0; i < recipes.length; i++) { if (recipes[i].id === id) return recipes[i]; } return null; }
+function recipeGenId() { return 'r' + Date.now().toString(36) + Math.floor(Math.random() * 1000); }
+
+function openRecipeEditor(id) {
+  var modal = $('recipe-modal');
+  if (!modal) return;
+  var user = currentUser();
+  var recipes = user ? KOJOState.getRecipes(user) : [];
+  var r = id ? recipeById(recipes, id) : null;
+  recipeEditingId = id || null;
+  var nameEl = $('recipe-name');
+  var methodEl = $('recipe-method');
+  var doseEl = $('recipe-dose');
+  var waterEl = $('recipe-water');
+  var ratioEl = $('recipe-ratio');
+  var ratioDisp = $('recipe-ratio-display');
+  var tempEl = $('recipe-temp');
+  var timeEl = $('recipe-time');
+  var grindEl = $('recipe-grind');
+  var stepsEl = $('recipe-steps');
+  var favEl = $('recipe-fav');
+  if (r) {
+    nameEl.value = r.name || '';
+    methodEl.value = r.method || 'v60';
+    doseEl.value = r.dose != null ? r.dose : '';
+    waterEl.value = r.water != null ? r.water : '';
+    ratioEl.value = r.ratio != null ? r.ratio : '';
+    tempEl.value = r.temp != null ? r.temp : '';
+    timeEl.value = r.time || '';
+    grindEl.value = r.grind || '';
+    stepsEl.value = r.steps || '';
+    favEl.checked = !!r.fav;
+  } else {
+    methodEl.value = 'aeropress';
+    doseEl.value = '16';
+    ratioEl.value = '15';
+    waterEl.value = '240';
+    tempEl.value = '';
+    timeEl.value = '';
+    grindEl.value = '';
+    stepsEl.value = '';
+    favEl.checked = false;
+    updateRecipeRatioDisplay();
+  }
+  var title = $('recipe-modal-title');
+  if (title) title.textContent = r ? '📖 Рецепт: ' + (r.name || 'без названия') : '📖 Новый рецепт';
+  var del = $('recipe-delete-btn');
+  if (del) del.style.display = r ? 'inline-block' : 'none';
+  modal.classList.add('visible');
+}
+
+function closeRecipeModal() {
+  var modal = $('recipe-modal');
+  if (modal) modal.classList.remove('visible');
+  recipeEditingId = null;
+}
+
+function recipeVal(el) {
+  if (!el) return null;
+  var v = String(el.value || '').trim();
+  return v === '' ? null : v;
+}
+
+function saveRecipeFromForm() {
+  var user = currentUser();
+  if (!user) { showToast('⚠️ Нет аккаунта', 'warning'); return; }
+  var name = recipeVal($('recipe-name'));
+  var method = recipeVal($('recipe-method')) || 'v60';
+  var dose = parseFloat(String($('recipe-dose').value || '').replace(',', '.'));
+  var water = parseFloat(String($('recipe-water').value || '').replace(',', '.'));
+  var ratio = parseFloat(String($('recipe-ratio').value || '').replace(',', '.'));
+  var temp = parseFloat(String($('recipe-temp').value || '').replace(',', '.'));
+  var time = recipeVal($('recipe-time'));
+  var grind = recipeVal($('recipe-grind'));
+  var steps = recipeVal($('recipe-steps'));
+  var fav = $('recipe-fav').checked;
+  if (!name) { showToast('Назовите рецепт', 'warning'); return; }
+  if (!(dose > 0) && !(water > 0)) { showToast('Укажите дозу или воду', 'warning'); return; }
+  if (!(dose > 0)) { dose = +(Math.round(water / (ratio > 0 ? ratio : 15) * 10) / 10); }
+  if (!(water > 0)) { water = Math.round(dose * (ratio > 0 ? ratio : 15)); }
+  if (!(ratio > 0)) { ratio = +((water / dose).toFixed(1)); }
+  var recipes = KOJOState.getRecipes(user);
+  if (recipeEditingId) {
+    var found = recipeById(recipes, recipeEditingId);
+    if (found) {
+      found.name = name; found.method = method; found.dose = dose; found.water = water;
+      found.ratio = ratio; found.temp = isNaN(temp) ? null : temp; found.time = time;
+      found.grind = grind; found.steps = steps; found.fav = fav;
+    }
+  } else {
+    recipes.push({ id: recipeGenId(), name: name, method: method, dose: dose, water: water, ratio: ratio, temp: isNaN(temp) ? null : temp, time: time, grind: grind, steps: steps, fav: fav });
+  }
+  KOJOState.setRecipes(recipes, user);
+  renderRecipes();
+  closeRecipeModal();
+  scheduleCloudPush();
+  showToast('💾 Рецепт сохранён', 'success');
+}
+
+function deleteRecipeFromForm() {
+  var user = currentUser();
+  if (!user || !recipeEditingId) return;
+  if (!window.confirm('Удалить рецепт?')) return;
+  var list = KOJOState.getRecipes(user).filter(function (r) { return r.id !== recipeEditingId; });
+  KOJOState.setRecipes(list, user);
+  renderRecipes();
+  closeRecipeModal();
+  scheduleCloudPush();
+  showToast('🗑 Рецепт удалён', 'warning');
+}
+
+function toggleRecipeFav(id) {
+  var user = currentUser();
+  if (!user || !id) return;
+  var list = KOJOState.getRecipes(user);
+  var r = recipeById(list, id);
+  if (r) { r.fav = !r.fav; }
+  KOJOState.setRecipes(list, user);
+  renderRecipes();
+  scheduleCloudPush();
+}
+
+function recalcRecipeWater() {
+  var dose = parseFloat(String($('recipe-dose').value || '').replace(',', '.'));
+  var ratio = parseFloat(String($('recipe-ratio').value || '').replace(',', '.'));
+  if (dose > 0 && ratio > 0) {
+    $('recipe-water').value = Math.round(dose * ratio);
+  }
+  updateRecipeRatioDisplay();
+}
+
+function recalcRecipeRatio() {
+  var dose = parseFloat(String($('recipe-dose').value || '').replace(',', '.'));
+  var water = parseFloat(String($('recipe-water').value || '').replace(',', '.'));
+  if (dose > 0 && water > 0) {
+    $('recipe-ratio').value = +(water / dose).toFixed(1);
+  }
+  updateRecipeRatioDisplay();
+}
+
+function updateRecipeRatioDisplay() {
+  var el = $('recipe-ratio-display');
+  var ratio = parseFloat(String($('recipe-ratio').value || '').replace(',', '.'));
+  if (el) el.textContent = ratio > 0 ? formatRatio(ratio) : '—';
 }
 
 function handlePhotoFile(file) {
@@ -1635,12 +1826,46 @@ document.addEventListener('click', function (e) {
     }
     if (action === 'show-control') {
       e.preventDefault();
-      showSection('control');
+      syncAllFromCloud(function () {
+        showSection('control');
+      });
       return;
     }
     if (action === 'open-sync-settings') {
       e.preventDefault();
+      closeProfileModal();
       showSyncSettingsModal();
+      return;
+    }
+    if (action === 'add-recipe') {
+      e.preventDefault();
+      openRecipeEditor(null);
+      return;
+    }
+    if (action === 'open-recipe') {
+      e.preventDefault();
+      openRecipeEditor(target.getAttribute('data-id'));
+      return;
+    }
+    if (action === 'close-recipe') {
+      e.preventDefault();
+      closeRecipeModal();
+      return;
+    }
+    if (action === 'save-recipe') {
+      e.preventDefault();
+      saveRecipeFromForm();
+      return;
+    }
+    if (action === 'delete-recipe') {
+      e.preventDefault();
+      deleteRecipeFromForm();
+      return;
+    }
+    if (action === 'toggle-recipe-fav') {
+      e.preventDefault();
+      e.stopPropagation();
+      toggleRecipeFav(target.getAttribute('data-id'));
       return;
     }
     if (action === 'save-sync-settings') {
@@ -1828,19 +2053,24 @@ document.addEventListener('keydown', function (e) {
       if (inp) inp.focus();
     }
     if (e.key === 'Escape') {
-      var pmodal = $('profile-modal');
-      if (pmodal && pmodal.classList.contains('visible')) {
-        closeProfileModal();
+      var rmodal = $('recipe-modal');
+      if (rmodal && rmodal.classList.contains('visible')) {
+        closeRecipeModal();
       } else {
-        var statsModal = $('stats-modal');
-        if (statsModal && statsModal.classList.contains('visible')) {
-          closeStatsModal();
+        var pmodal = $('profile-modal');
+        if (pmodal && pmodal.classList.contains('visible')) {
+          closeProfileModal();
         } else {
-          var syncModal = $('sync-modal');
-          if (syncModal && syncModal.classList.contains('visible')) {
-            closeSyncModal();
-          } else if (document.querySelector('.screen.active')) {
-            goHome();
+          var statsModal = $('stats-modal');
+          if (statsModal && statsModal.classList.contains('visible')) {
+            closeStatsModal();
+          } else {
+            var syncModal = $('sync-modal');
+            if (syncModal && syncModal.classList.contains('visible')) {
+              closeSyncModal();
+            } else if (document.querySelector('.screen.active')) {
+              goHome();
+            }
           }
         }
       }
@@ -1960,6 +2190,30 @@ function initApp() {
         saveProfileNotes();
       });
     }
+    var rmodal = $('recipe-modal');
+    if (rmodal) {
+      rmodal.addEventListener('click', function (e) {
+        if (e.target === e.currentTarget) closeRecipeModal();
+      });
+    }
+    var rdose = $('recipe-dose');
+    var rwater = $('recipe-water');
+    var rratio = $('recipe-ratio');
+    if (rdose) {
+      rdose.addEventListener('input', function () { recalcRecipeWater(); recalcRecipeRatio(); });
+      rdose.addEventListener('blur', function () { recalcRecipeRatio(); });
+    }
+    if (rwater) {
+      rwater.addEventListener('input', function () { recalcRecipeRatio(); });
+    }
+    if (rratio) {
+      rratio.addEventListener('input', function () { recalcRecipeWater(); });
+    }
+    document.addEventListener('visibilitychange', function () {
+      if (!document.hidden && isAuthenticated() && currentUser()) {
+        syncAllFromCloud(function () {});
+      }
+    });
 
     var fileInput = $('import-file');
     if (fileInput) {

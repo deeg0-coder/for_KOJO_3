@@ -12,7 +12,7 @@
   <link rel="manifest" href="manifest.webmanifest" />
   <link rel="icon" href="icons/favicon.svg" type="image/svg+xml" />
   <link rel="apple-touch-icon" href="icons/icon-192.png" />
-  <link rel="stylesheet" href="css/styles.css?v=10" />
+  <link rel="stylesheet" href="css/styles.css?v=11" />
 </head>
 <body>
   <div class="login-screen" id="login-screen">
@@ -107,8 +107,15 @@
       <label class="profile-photo-btn" for="photo-file">📷 Изменить фото</label>
       <input type="file" id="photo-file" accept="image/*" class="hidden" />
       <div class="profile-label">📝 Мои заметки</div>
-      <textarea id="profile-notes" class="profile-notes" placeholder="Личные заметки… (сохраняются на этом устройстве)"></textarea>
+      <textarea id="profile-notes" class="profile-notes" placeholder="Личные заметки… (синхронизируются через облако)"></textarea>
       <div class="profile-saved" id="notes-saved"></div>
+
+      <div class="profile-section-title">
+        <span>📖 Книга рецептов</span>
+        <button class="recipe-add-btn" data-action="add-recipe">➕ Добавить</button>
+      </div>
+      <div class="recipe-list" id="recipes-list"></div>
+
       <div class="profile-section-label">Меню</div>
       <div class="profile-menu">
         <button class="profile-item" data-action="toggle-theme">🌙 Тема (светлая / тёмная / красная)</button>
@@ -123,6 +130,64 @@
     </div>
   </div>
 
+  <div class="modal-overlay" id="recipe-modal">
+    <div class="modal-content recipe-modal-content">
+      <h3 id="recipe-modal-title">📖 Рецепт</h3>
+      <div style="display:grid;gap:10px">
+        <div class="recipe-field-row">
+          <label>Название</label>
+          <input type="text" id="recipe-name" class="login-input" placeholder="Например: утренний V60" />
+        </div>
+        <div class="recipe-field-row">
+          <label>Метод</label>
+          <select id="recipe-method" class="login-input">
+            <option value="aeropress">Аэропресс</option>
+            <option value="v60">Воронка (V60)</option>
+          </select>
+        </div>
+        <div class="recipe-calc">
+          <div class="recipe-field-row">
+            <label>Кофе, г</label>
+            <input type="number" id="recipe-dose" class="login-input" min="0" step="0.5" placeholder="16" />
+          </div>
+          <div class="recipe-field-row">
+            <label>Вода, мл</label>
+            <input type="number" id="recipe-water" class="login-input" min="0" step="5" placeholder="240" />
+          </div>
+          <div class="recipe-field-row">
+            <label>Блю ратио</label>
+            <input type="number" id="recipe-ratio" class="login-input" min="1" step="0.5" placeholder="15" />
+            <div class="recipe-ratio-hint">1:<span id="recipe-ratio-display">15</span></div>
+          </div>
+        </div>
+        <div class="recipe-calc">
+          <div class="recipe-field-row">
+            <label>Температура, °C</label>
+            <input type="number" id="recipe-temp" class="login-input" min="0" max="100" step="1" placeholder="92" />
+          </div>
+          <div class="recipe-field-row">
+            <label>Время (мм:сс)</label>
+            <input type="text" id="recipe-time" class="login-input" placeholder="2:30" />
+          </div>
+          <div class="recipe-field-row">
+            <label>Помол</label>
+            <input type="text" id="recipe-grind" class="login-input" placeholder="напр. средний" />
+          </div>
+        </div>
+        <div class="recipe-field-row">
+          <label>Шаги / заметки</label>
+          <textarea id="recipe-steps" class="profile-notes" rows="4" placeholder="1. Залить 60 г воды…"></textarea>
+        </div>
+        <label class="recipe-fav-row"><input type="checkbox" id="recipe-fav" /> ★ В избранное</label>
+      </div>
+      <div class="modal-actions">
+        <button data-action="delete-recipe" id="recipe-delete-btn" class="danger">🗑 Удалить</button>
+        <button data-action="close-recipe">Отмена</button>
+        <button class="primary" data-action="save-recipe">💾 Сохранить</button>
+      </div>
+    </div>
+  </div>
+
   <div class="install-banner" id="install-banner">
     <span>📲 Установи KOJO Guide на телефон</span>
     <button class="install-primary" data-action="install-app">Установить</button>
@@ -131,10 +196,10 @@
 
   <input type="file" id="import-file" accept=".json,application/json" class="hidden" />
 
-  <script src="js/data.js?v=10"></script>
-  <script src="js/accounts.js?v=10"></script>
-  <script src="js/state.js?v=10"></script>
-  <script src="js/sync.js?v=10"></script>
-  <script src="js/app.js?v=10"></script>
+  <script src="js/data.js?v=11"></script>
+  <script src="js/accounts.js?v=11"></script>
+  <script src="js/state.js?v=11"></script>
+  <script src="js/sync.js?v=11"></script>
+  <script src="js/app.js?v=11"></script>
 </body>
 </html>

@@ -1927,3 +1927,58 @@ details[open] summary .expand-icon {
   .stat-card { padding: 6px 10px; }
   .stat-card .stat-value { font-size: 16px; }
 }
+
+/* === КНИГА РЕЦЕПТОВ === */
+.profile-section-title {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 14px 0 6px;
+  font-size: 14px;
+  font-weight: 600;
+}
+.recipe-add-btn {
+  border: 1px solid var(--border);
+  background: var(--accent-soft);
+  color: var(--text);
+  border-radius: 999px;
+  font-size: 12px;
+  padding: 5px 10px;
+  cursor: pointer;
+}
+.recipe-add-btn:active { opacity: 0.7; }
+.recipe-list { display: grid; gap: 8px; margin-bottom: 4px; }
+.recipe-card {
+  border: 1px solid var(--border);
+  background: var(--bg-soft);
+  border-radius: 12px;
+  padding: 10px 12px;
+  display: grid;
+  gap: 3px;
+  cursor: pointer;
+}
+.recipe-card:active { opacity: 0.75; }
+.recipe-card-head { display: flex; align-items: center; gap: 8px; }
+.recipe-card-name { font-size: 14px; font-weight: 600; flex: 1; }
+.recipe-fav-btn {
+  background: none;
+  border: none;
+  font-size: 17px;
+  cursor: pointer;
+  line-height: 1;
+  color: var(--muted);
+}
+.recipe-fav-btn.on { color: var(--warning); }
+.recipe-card-meta { font-size: 12px; color: var(--muted); line-height: 1.45; }
+.recipe-empty { font-size: 12px; color: var(--muted); border: 1px dashed var(--border-strong); border-radius: 12px; padding: 10px 12px; }
+.recipe-modal-content { max-width: 480px; max-height: 88vh; overflow-y: auto; }
+.recipe-field-row { display: grid; gap: 4px; }
+.recipe-field-row label { font-size: 12px; color: var(--muted); }
+.recipe-field-row textarea { resize: vertical; }
+.recipe-calc { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.recipe-ratio-hint { font-size: 12px; color: var(--muted); }
+.recipe-fav-row { display: flex; align-items: center; gap: 8px; font-size: 14px; cursor: pointer; }
+.danger { color: var(--danger); }
+@media (max-width: 480px) {
+  .recipe-calc { grid-template-columns: 1fr; }
+}
