@@ -258,6 +258,12 @@ body.red .header {
   border: 1px solid var(--border);
 }
 
+.header-sync-badge {
+  font-size: 15px;
+  line-height: 1;
+  padding: 2px;
+}
+
 .icon-btn {
   background: var(--bg-soft);
   border: 1px solid var(--border);

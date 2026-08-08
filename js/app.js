@@ -202,6 +202,13 @@ function topicByClId(clId) {
 
 var CL_IDS = checklistIds();
 
+var APP_VERSION = 6;
+
+function appVersionMarker() {
+  var el = $('app-version-marker');
+  if (el) el.textContent = 'v' + APP_VERSION;
+}
+
 // === ТЕМА ===
 function getTheme() {
   if (document.body.classList.contains('red')) return 'red';
@@ -252,6 +259,7 @@ function renderHome() {
     userWrap.style.display = 'block';
   }
   updateHeaderAdminButtons();
+  appVersionMarker();
 
   var h = D.home;
   var html = '';
@@ -678,6 +686,7 @@ function pushCloud() {
   }
   KOJOState.saveCloudDoc(doc);
   KOJOCloud.set(doc, function (res) {
+    updateHeaderSyncBadge();
     if (res) { if (console) console.log('KOJO sync ok'); }
   });
 }
@@ -715,6 +724,7 @@ function syncAllFromCloud(cb) {
       try { KOJOState.cleanOldDates(today); } catch (e) {}
       if (cb) cb();
       refreshAllViews();
+      updateHeaderSyncBadge();
     } finally {
       cloudSyncing = false;
     }
@@ -964,6 +974,24 @@ function updateHeaderUserBadge() {
 function updateHeaderAdminButtons() {
   var cnt = $('btn-control');
   if (cnt) cnt.style.display = isAdmin() ? '' : 'none';
+}
+
+function updateHeaderSyncBadge() {
+  var badge = $('sync-badge');
+  if (!badge) return;
+  if (!KOJOCloud.isConfigured()) {
+    badge.textContent = '☁️';
+    badge.title = 'Синхронизация не настроена';
+    return;
+  }
+  var ls = KOJOCloud.getLastSync();
+  if (ls.ok === false) {
+    badge.textContent = '⚠️';
+    badge.title = 'Ошибка синхронизации: ' + (ls.error || 'неизвестно') + ' (последняя попытка ' + ls.at + ')';
+  } else if (ls.ok === true) {
+    badge.textContent = '☁️';
+    badge.title = 'Синхронизация активна · обновлено в ' + ls.at;
+  }
 }
 
 function refreshAllViews() {

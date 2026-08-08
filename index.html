@@ -12,7 +12,7 @@
   <link rel="manifest" href="manifest.webmanifest" />
   <link rel="icon" href="icons/favicon.svg" type="image/svg+xml" />
   <link rel="apple-touch-icon" href="icons/icon-192.png" />
-  <link rel="stylesheet" href="css/styles.css" />
+  <link rel="stylesheet" href="css/styles.css?v=6" />
 </head>
 <body>
   <div class="login-screen" id="login-screen">
@@ -59,6 +59,7 @@
         </div>
       </div>
       <div class="header-actions">
+        <span class="header-sync-badge" id="sync-badge" title="Статус синхронизации">☁️</span>
         <button class="icon-btn theme-toggle" data-action="toggle-theme" aria-label="Переключить тему" title="Светлая / тёмная / красная тема">🌙</button>
         <button class="icon-btn" data-action="show-stats" aria-label="Статистика" title="Статистика">📊</button>
         <button class="icon-btn" id="btn-control" data-action="show-control" aria-label="Контроль" title="Контроль (для администраторов)" style="display:none">📋</button>
@@ -67,7 +68,7 @@
           <div class="header-user-name" id="current-user-name"></div>
           <div class="header-user-role" id="current-user-role"></div>
         </div>
-        <div class="header-tag">внутренний справочник</div>
+        <div class="header-tag">внутренний справочник <span id="app-version-marker"></span></div>
       </div>
     </header>
 
@@ -109,10 +110,10 @@
 
   <input type="file" id="import-file" accept=".json,application/json" class="hidden" />
 
-  <script src="js/data.js"></script>
-  <script src="js/accounts.js"></script>
-  <script src="js/state.js"></script>
-  <script src="js/sync.js"></script>
-  <script src="js/app.js"></script>
+  <script src="js/data.js?v=6"></script>
+  <script src="js/accounts.js?v=6"></script>
+  <script src="js/state.js?v=6"></script>
+  <script src="js/sync.js?v=6"></script>
+  <script src="js/app.js?v=6"></script>
 </body>
 </html>
