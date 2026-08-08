@@ -12,7 +12,7 @@
   <link rel="manifest" href="manifest.webmanifest" />
   <link rel="icon" href="icons/favicon.svg" type="image/svg+xml" />
   <link rel="apple-touch-icon" href="icons/icon-192.png" />
-  <link rel="stylesheet" href="css/styles.css?v=13" />
+  <link rel="stylesheet" href="css/styles.css?v=16" />
 </head>
 <body>
   <div class="login-screen" id="login-screen">
@@ -71,19 +71,6 @@
 
   <div class="toast-container" id="toast-container"></div>
 
-  <div class="modal-overlay" id="stats-modal">
-    <div class="modal-content">
-      <h3>📊 Статистика чек-листов</h3>
-      <div id="stats-content"></div>
-      <div class="modal-actions">
-        <button data-action="export-progress">⬇️ Экспорт</button>
-        <button data-action="import-progress">⬆️ Импорт</button>
-        <button data-action="close-modal">Закрыть</button>
-        <button class="primary" data-action="reset-all">Сбросить всё</button>
-      </div>
-    </div>
-  </div>
-
   <div class="modal-overlay" id="sync-modal">
     <div class="modal-content">
       <h3>⚙️ Синхронизация (облако)</h3>
@@ -119,7 +106,6 @@
       <div class="profile-section-label">Меню</div>
       <div class="profile-menu">
         <button class="profile-item" data-action="toggle-theme">🌙 Тема (светлая / тёмная / красная)</button>
-        <button class="profile-item" data-action="show-stats">📊 Статистика и экспорт</button>
         <button class="profile-item" id="btn-control" data-action="show-control" style="display:none">📋 Контроль</button>
         <button class="profile-item" data-action="open-sync-settings">⚙️ Синхронизация</button>
         <button class="profile-item" data-action="show-reminders">🔔 Напоминания</button>
@@ -241,10 +227,10 @@
 
   <input type="file" id="import-file" accept=".json,application/json" class="hidden" />
 
-  <script src="js/data.js?v=13"></script>
-  <script src="js/accounts.js?v=13"></script>
-  <script src="js/state.js?v=13"></script>
-  <script src="js/sync.js?v=13"></script>
-  <script src="js/app.js?v=13"></script>
+  <script src="js/data.js?v=16"></script>
+  <script src="js/accounts.js?v=16"></script>
+  <script src="js/state.js?v=16"></script>
+  <script src="js/sync.js?v=16"></script>
+  <script src="js/app.js?v=16"></script>
 </body>
 </html>

@@ -88,6 +88,16 @@ var KOJO_DATA = {
         { id: 'rules-philosophy', icon: '🧘', title: 'Философия KOJO' },
         { id: 'rules-history', icon: '🏛️', title: 'История бренда KOJO' }
       ]
+    },
+    {
+      id: 'schedule',
+      icon: '📅',
+      title: 'График смен',
+      text: 'Расстановка смен по дням и расчёт оплаты.',
+      screenTitle: '📅 График смен',
+      sub: 'Расстановка смен по дням месяца и оплата по ставке за час.',
+      backLabel: 'К разделу «График смен»',
+      items: []
     }
   ],
   home: {

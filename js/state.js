@@ -54,6 +54,7 @@ var KOJOState = (function () {
   var PHOTO_PREFIX = 'kojo_photo_';
   var RECIPES_PREFIX = 'kojo_recipes_';
   var REMINDERS_PREFIX = 'kojo_reminders_';
+  var SCHEDULE_PREFIX = 'kojo_schedule_';
 
   function keyOf(account, clId, date) {
     var d = date || kojoToday();
@@ -235,6 +236,24 @@ var KOJOState = (function () {
     setReminders: function (obj, account) {
       var acc = account || KOJOState.getCurrentUser() || 'kojo';
       KOJOStore.set(REMINDERS_PREFIX + acc, JSON.stringify(obj || {}));
+    },
+    getSchedule: function () {
+      var raw = KOJOStore.get(SCHEDULE_PREFIX + 'local');
+      if (!raw) return null;
+      try {
+        var obj = JSON.parse(raw);
+        if (obj && typeof obj === 'object') return obj;
+      } catch (e) {}
+      return null;
+    },
+    saveSchedule: function (data) {
+      var out = { ts: (data && data.ts) || Date.now() };
+      if (data) {
+        if (data.shifts) out.shifts = data.shifts;
+        if (data.rates) out.rates = data.rates;
+        if (data.cells) out.cells = data.cells;
+      }
+      KOJOStore.set(SCHEDULE_PREFIX + 'local', JSON.stringify(out));
     },
     exportData: function (clIds, account) {
       var acc = account || KOJOState.getCurrentUser() || 'kojo';

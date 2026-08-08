@@ -12,7 +12,7 @@
   <link rel="manifest" href="manifest.webmanifest" />
   <link rel="icon" href="icons/favicon.svg" type="image/svg+xml" />
   <link rel="apple-touch-icon" href="icons/icon-192.png" />
-  <link rel="stylesheet" href="css/styles.css?v=13" />
+  <link rel="stylesheet" href="css/styles.css?v=16" />
 </head>
 <body>
   <div class="login-screen" id="login-screen">
@@ -71,19 +71,6 @@
 
   <div class="toast-container" id="toast-container"></div>
 
-  <div class="modal-overlay" id="stats-modal">
-    <div class="modal-content">
-      <h3>📊 Статистика чек-листов</h3>
-      <div id="stats-content"></div>
-      <div class="modal-actions">
-        <button data-action="export-progress">⬇️ Экспорт</button>
-        <button data-action="import-progress">⬆️ Импорт</button>
-        <button data-action="close-modal">Закрыть</button>
-        <button class="primary" data-action="reset-all">Сбросить всё</button>
-      </div>
-    </div>
-  </div>
-
   <div class="modal-overlay" id="sync-modal">
     <div class="modal-content">
       <h3>⚙️ Синхронизация (облако)</h3>
@@ -119,7 +106,6 @@
       <div class="profile-section-label">Меню</div>
       <div class="profile-menu">
         <button class="profile-item" data-action="toggle-theme">🌙 Тема (светлая / тёмная / красная)</button>
-        <button class="profile-item" data-action="show-stats">📊 Статистика и экспорт</button>
         <button class="profile-item" id="btn-control" data-action="show-control" style="display:none">📋 Контроль</button>
         <button class="profile-item" data-action="open-sync-settings">⚙️ Синхронизация</button>
         <button class="profile-item" data-action="show-reminders">🔔 Напоминания</button>
@@ -241,11 +227,11 @@
 
   <input type="file" id="import-file" accept=".json,application/json" class="hidden" />
 
-  <script src="js/data.js?v=13"></script>
-  <script src="js/accounts.js?v=13"></script>
-  <script src="js/state.js?v=13"></script>
-  <script src="js/sync.js?v=13"></script>
-  <script src="js/app.js?v=13"></script>
+  <script src="js/data.js?v=16"></script>
+  <script src="js/accounts.js?v=16"></script>
+  <script src="js/state.js?v=16"></script>
+  <script src="js/sync.js?v=16"></script>
+  <script src="js/app.js?v=16"></script>
 </body>
 </html>
 <script>// E2E harness for KOJO v12
@@ -277,9 +263,9 @@ window.addEventListener('unhandledrejection', function (e) { e2eLog('UNHANDLED: 
     x.send(payload ? JSON.stringify(payload) : null);
   }
 
-  add('app loaded v13', function (done) {
-    if (typeof KOJOState === 'object' && typeof KOJOCloud === 'object' && APP_VERSION === 13) pass('app loaded v13');
-    else fail('app loaded v13', 'globals/version');
+  add('app loaded v16', function (done) {
+    if (typeof KOJOState === 'object' && typeof KOJOCloud === 'object' && APP_VERSION === 16) pass('app loaded v16');
+    else fail('app loaded v16', 'globals/version');
     done();
   });
 
@@ -531,6 +517,179 @@ window.addEventListener('unhandledrejection', function (e) { e2eLog('UNHANDLED: 
         done();
       });
     });
+  });
+
+  add('realtime control: staff push -> admin control screen shows new %', function (done) {
+    var staff = null, admin = null;
+    for (var i = 0; i < KOJO_ACCOUNTS.length; i++) {
+      var a = KOJO_ACCOUNTS[i];
+      if (a.role === 'admin' && !admin) admin = a.login;
+      if (a.role !== 'admin' && !staff) staff = a.login;
+    }
+    if (!staff || !admin) { fail('realtime control', 'accounts missing'); done(); return; }
+    var topic = topicByClId('open');
+    if (!topic) { fail('realtime control', 'no open topic'); done(); return; }
+    var fired = false;
+    // Стафф отмечает 1 пункт из N (массив — только пункты без label, как в остальном коде)
+    var arr = [];
+    var cnt = 0;
+    for (var j = 0; j < topic.items.length; j++) {
+      if (topic.items[j].label) continue;
+      arr.push(cnt === 0);
+      cnt++;
+    }
+    KOJOState.setCurrentUser(staff);
+    KOJOState.saveChecklist('open', arr, staff);
+    // Заглушки облака — детерминированный сценарий без сети
+    var bin = { date: kojoToday(), users: {} };
+    var origGet = KOJOCloud.get;
+    var origSet = KOJOCloud.set;
+    KOJOCloud.get = function (cb) { cb(bin, null); };
+    KOJOCloud.set = function (doc, cb) { bin = doc; if (cb) cb(doc, null); };
+    pushCloud(function () {
+      if (fired) return;
+      // Админ на экране «Контроль» делает sync из облака и перерисовывает
+      KOJOState.setCurrentUser(admin);
+      syncAllFromCloud(function () {
+        KOJOCloud.get = origGet;
+        KOJOCloud.set = origSet;
+        var box = $('section-screen');
+        box.innerHTML = '';
+        renderControlSection(box);
+        var accBoxes = box.querySelectorAll('.control-account');
+        var target = null;
+        for (var k = 0; k < accBoxes.length; k++) {
+          var nm = accBoxes[k].querySelector('.control-name');
+          if (nm && nm.textContent === staff) { target = accBoxes[k]; break; }
+        }
+        var countEl = target ? target.querySelector('.control-count strong') : null;
+        var fill = target ? target.querySelector('.control-bar .progress-bar-fill') : null;
+        var doneN = countEl ? parseInt(countEl.textContent, 10) : -1;
+        var width = fill ? fill.style.width : '';
+        var expected = Math.round((1 / topic.items.filter(function (t) { return !t.label; }).length) * 100);
+        fired = true;
+        if (target && doneN === 1 && Math.abs(parseFloat(width) - expected) < 0.5) pass('realtime control % (done=1, width=' + width + ')');
+        else fail('realtime control', 'done=' + doneN + ' width=' + width + ' expected=' + expected + '%');
+        done();
+      });
+    });
+  });
+
+  add('schedule: local save + hours 1-15/16-31 split', function (done) {
+    var sched = { ts: 100, shifts: [
+      { id: 's-morning', name: 'Утро', short: 'У', hours: 8 },
+      { id: 's-day', name: 'День', short: 'Д', hours: 12 },
+      { id: 's-off', name: 'Выходной', short: 'В', hours: 0 }
+    ], rates: { 'Панченко Мария': 10 }, cells: {} };
+    sched.cells['2026-08-' + (1 < 10 ? '0' : '') + 1] = { 'Панченко Мария': 's-morning' };
+    sched.cells['2026-08-' + (16 < 10 ? '0' : '') + 16] = { 'Панченко Мария': 's-day' };
+    sched.cells['2026-08-' + (20 < 10 ? '0' : '') + 20] = { 'Панченко Мария': 's-off' };
+    KOJOState.saveSchedule(sched);
+    var got = KOJOState.getSchedule();
+    SCHED_VIEW.y = 2026; SCHED_VIEW.m = 8;
+    var h = schedEmployeeHours('Панченко Мария', 2026, 8);
+    var sal = schedSalary('Панченко Мария');
+    var hDays = schedDaysInMonth(2026, 8);
+    if (got && got.ts === 100 && h.first === 8 && h.second === 12 && h.total === 20 && sal.salary === 200 && hDays === 31) pass('schedule split (1-15:' + h.first + ' 16-31:' + h.second + ' зп=' + sal.salary + ')');
+    else fail('schedule payroll math', JSON.stringify({ h: h, sal: sal, d: hDays }));
+    done();
+  });
+
+  add('schedule: cloud push includes schedule, pull applies', function (done) {
+    var origGet = KOJOCloud.get;
+    var origSet = KOJOCloud.set;
+    var pushed = null;
+    KOJOCloud.set = function (doc, cb) { pushed = doc; if (cb) cb(doc, null); };
+    KOJOCloud.get = function (cb) { cb({ date: kojoToday(), users: {}, schedule: null }, null); };
+    // локальный график новее облака — при пуше должен уехать в облако
+    var sched = { ts: 777, shifts: [{ id: 's1', name: 'Тест', short: 'Т', hours: 9 }], rates: {}, cells: {} };
+    KOJOState.saveSchedule(sched);
+    pushCloud(function () {
+      KOJOCloud.get = origGet;
+      KOJOCloud.set = origSet;
+      var ok = pushed && pushed.schedule && pushed.schedule.ts === 777;
+      if (ok) pass('schedule push includes local');
+      else fail('schedule push', pushed ? JSON.stringify(pushed.schedule) : 'no set');
+      done();
+    });
+  });
+
+  add('schedule: cloud newer wins merge', function (done) {
+    var origGet = KOJOCloud.get;
+    var cloudSched = { ts: 5000, shifts: [{ id: 's2', name: 'Из облака', short: 'О', hours: 7 }], rates: { 'Бер Никита': 15 }, cells: {} };
+    KOJOState.saveSchedule({ ts: 10, shifts: [], rates: {}, cells: {} });
+    KOJOCloud.get = function (cb) { cb({ date: kojoToday(), users: {}, schedule: cloudSched }, null); };
+    syncAllFromCloud(function () {
+      KOJOCloud.get = origGet;
+      var got = KOJOState.getSchedule();
+      if (got && got.ts === 5000 && got.shifts[0] && got.shifts[0].id === 's2') pass('schedule cloud merge');
+      else fail('schedule cloud merge', JSON.stringify(got));
+      done();
+    });
+  });
+
+  add('schedule: staff sees own rate, admin sees all', function (done) {
+    var staff = 'Бер Никита';
+    var admin = '';
+    for (var i = 0; i < KOJO_ACCOUNTS.length; i++) {
+      var a = KOJO_ACCOUNTS[i];
+      if (a.role === 'admin' && !admin) admin = a.login;
+    }
+    var sched = { ts: 1, shifts: [{ id: 's3', name: 'С', short: 'С', hours: 8 }], rates: { 'Бер Никита': 12, 'Панченко Мария': 14 }, cells: {} };
+    sched.cells['2026-08-03'] = { 'Панченко Мария': 's3' };
+    KOJOState.saveSchedule(sched);
+    var box = $('section-screen');
+    KOJOState.setCurrentUser(admin);
+    renderScheduleSection(box);
+    var htmlAdmin = box.innerHTML;
+    // у админа в сводке строка «Панченко Мария» заканчивается ячейкой class="money"
+    var adminHasMariaMoney = /Панченко Мария<\/td><td>[\d]+<\/td><td>[\d]+<\/td><td>[\d]+<\/td><td>[\d.]*<\/td><td class="money">/.test(htmlAdmin);
+    var adminHasGrand = htmlAdmin.indexOf('sched-grand') !== -1;
+    var stateBack = KOJOState.getCurrentUser();
+    KOJOState.setCurrentUser(staff);
+    renderScheduleSection(box);
+    var htmlStaff = box.innerHTML;
+    // сотрудник видит свою ставку в деньгах…
+    var staffOwnRate = /Моя ставка\/ч<\/td><td class="money">12/.test(htmlStaff);
+    // …но НЕ видит чужих ставок в сводке (нет строки «Панченко Мария» с class="money")
+    var staffHasOtherMoney = /Панченко Мария<\/td><td[^>]*>[\d]*<\/td><td class="money">/.test(htmlStaff) || htmlStaff.indexOf('sched-grand') !== -1;
+    KOJOState.setCurrentUser(stateBack);
+    if (adminHasMariaMoney === false) { fail('schedule roles', 'admin missing other-rate row'); done(); return; }
+    if (adminHasGrand === false) { fail('schedule roles', 'admin missing totals'); done(); return; }
+    if (staffOwnRate === false) { fail('schedule roles', 'staff own rate missing'); done(); return; }
+    if (staffHasOtherMoney) { fail('schedule roles', 'staff sees others pay'); done(); return; }
+    pass('schedule roles (admin all, staff own rate only)');
+    done();
+  });
+
+  add('schedule home widget: renders week + month summary', function (done) {
+    var sched = { ts: 2, shifts: [{ id: 'wh', name: 'Утро', short: 'У', hours: 8 }], rates: { 'Бер Никита': 11 }, cells: {} };
+    var mn = new Date();
+    var start = new Date(mn.getFullYear(), mn.getMonth(), mn.getDate());
+    var dw = start.getDay();
+    var off = (dw === 0) ? -6 : 1 - dw;
+    var mon = new Date(mn.getFullYear(), mn.getMonth(), mn.getDate() + off);
+    var k = schedMonthKey(mon.getFullYear(), mon.getMonth() + 1) + '-' + (mon.getDate() < 10 ? '0' : '') + mon.getDate();
+    sched.cells[k] = { 'Бер Никита': 'wh' };
+    KOJOState.saveSchedule(sched);
+    var wantUser = 'Бер Никита';
+    KOJOState.setCurrentUser(wantUser);
+    var wh = schedHomeWidgetHtml();
+    if (wh.indexOf('sched-home') !== -1 && wh.indexOf('У') !== -1 && wh.indexOf('Мои часы') !== -1 && wh.indexOf('1–15') !== -1) pass('schedule home widget (staff)');
+    else fail('schedule home widget', 'missing parts');
+    done();
+  });
+
+  add('schedule: admin home widget totals over all staff', function (done) {
+    var admin = '';
+    for (var i = 0; i < KOJO_ACCOUNTS.length; i++) {
+      if (KOJO_ACCOUNTS[i].role === 'admin') { admin = KOJO_ACCOUNTS[i].login; break; }
+    }
+    KOJOState.setCurrentUser(admin);
+    var wh = schedHomeWidgetHtml();
+    if (wh.indexOf('Все сотрудники') !== -1 && wh.indexOf('ЗП ≈') !== -1) pass('schedule home widget (admin totals)');
+    else fail('schedule home widget admin', wh.indexOf('Все сотрудники') + ' z ' + wh.indexOf('ЗП ≈'));
+    done();
   });
 
   add('future-date guard', function (done) {

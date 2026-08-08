@@ -202,7 +202,7 @@ function topicByClId(clId) {
 
 var CL_IDS = checklistIds();
 
-var APP_VERSION = 13;
+var APP_VERSION = 16;
 
 function appVersionMarker() {
   var el = $('app-version-marker');
@@ -246,6 +246,101 @@ function toggleTheme() {
 }
 
 // === РЕНДЕР: ГЛАВНЫЙ ЭКРАН ===
+// === ВИДЖЕТ ГРАФИКА НА ГЛАВНОМ ЭКРАНЕ ===
+function schedHomeWeekStart() {
+  var d = new Date();
+  var dow = d.getDay(); // 0=вс
+  var off = (dow === 0) ? -6 : 1 - dow;
+  var monday = new Date(d.getFullYear(), d.getMonth(), d.getDate() + off);
+  return monday;
+}
+
+function schedHomeWidgetHtml() {
+  var s = schedRawData();
+  var me = currentUser();
+  var t = schedTodayParts();
+  var monday = schedHomeWeekStart();
+  var staffList = [];
+  for (var i = 0; i < KOJO_ACCOUNTS.length; i++) {
+    if (KOJO_ACCOUNTS[i].role === 'staff') staffList.push(KOJO_ACCOUNTS[i].login);
+  }
+  var rows = isAdmin() ? staffList : [me];
+  var hasShifts = s.shifts && s.shifts.length > 0;
+  var wdNames = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'];
+
+  var html = '<section class="section sched-home-section">';
+  html += '<div class="section-header">';
+  html += '<h2>📅 График смен</h2>';
+  html += '<span class="see-all" data-action="show-section" data-section="schedule">все →</span>';
+  html += '</div>';
+
+  if (!hasShifts) {
+    html += '<div class="sched-home-empty">Смены ещё не назначены — зайди в раздел «График смен» (у администратора: ➕ Смена, 💰 Ставки).</div>';
+    html += '</section>';
+    return html;
+  }
+
+  html += '<div class="sched-home">';
+  html += '<div class="sched-home-head">';
+  html += '<span class="sched-home-who">Сотрудник</span>';
+  for (var d = 0; d < 7; d++) {
+    var wd = new Date(monday.getFullYear(), monday.getMonth(), monday.getDate() + d);
+    var isToday = (wd.getFullYear() === t.y && wd.getMonth() + 1 === t.m && wd.getDate() === t.d);
+    html += '<span class="sched-home-day' + (isToday ? ' today' : '') + '">' + wdNames[d] + ' ' + wd.getDate() + '</span>';
+  }
+  html += '<span class="sched-home-h">Ч</span>';
+  html += '</div>';
+
+  for (var r = 0; r < rows.length; r++) {
+    var login = rows[r];
+    var weekHours = 0;
+    html += '<div class="sched-home-row">';
+    html += '<span class="sched-home-who">' + (login === me ? '<b>' + login + '</b>' : login) + '</span>';
+    for (var d2 = 0; d2 < 7; d2++) {
+      var wd2 = new Date(monday.getFullYear(), monday.getMonth(), monday.getDate() + d2);
+      var dayKey = schedMonthKey(wd2.getFullYear(), wd2.getMonth() + 1) + '-' + (wd2.getDate() < 10 ? '0' : '') + wd2.getDate();
+      var sid = schedCellFor(login, dayKey);
+      var sh = sid ? schedShiftById(sid) : null;
+      if (sh && sh.hours) weekHours += sh.hours;
+      var shIdx = sid ? schedShiftIndex(sid) : 0;
+      html += '<span class="sched-home-cell' + (sh ? ' filled' : '') + '">' +
+        (sh ? '<span class="sched-chip" style="background:' + SCHED_SHIFT_COLORS[shIdx % SCHED_SHIFT_COLORS.length] + '">' + sh.short + '</span>' : '') +
+        '</span>';
+    }
+    html += '<span class="sched-home-h">' + weekHours + '</span>';
+    html += '</div>';
+  }
+
+  // Сводка за месяц (1–15 / 16–31)
+  html += '<div class="sched-home-sum">';
+  if (isAdmin()) {
+    var g = { first: 0, second: 0, total: 0, salary: 0 };
+    for (var b = 0; b < staffList.length; b++) {
+      var hv = schedEmployeeHours(staffList[b], t.y, t.m);
+      var sal = schedSalaryDirect(staffList[b], t.y, t.m);
+      g.first += hv.first; g.second += hv.second; g.total += hv.total; g.salary += sal.salary;
+    }
+    html += 'Все сотрудники: 1–15: ' + g.first + ' ч · 16–31: ' + g.second + ' ч · всего ' + g.total + ' ч';
+    if (g.salary > 0) html += ' · ЗП ≈ ' + numFmt2(g.salary);
+  } else {
+    var myv = schedEmployeeHours(me, t.y, t.m);
+    var mysal = schedSalaryDirect(me, t.y, t.m);
+    html += 'Мои часы: 1–15: ' + myv.first + ' · 16–31: ' + myv.second + ' · всего ' + myv.total + ' ч';
+    if (mysal.salary > 0) html += ' · моя ЗП ≈ ' + numFmt2(mysal.salary);
+  }
+  html += '</div>';
+  html += '</div>';
+  html += '</section>';
+  return html;
+}
+
+function schedSalaryDirect(login, y, m) {
+  var s = schedRawData();
+  var rate = parseFloat(s.rates[login]) || 0;
+  var v = schedEmployeeHours(login, y, m);
+  return { rate: rate, total: v.total, salary: Math.round(v.total * rate * 100) / 100 };
+}
+
 function renderHome() {
   var homeEl = $('home-screen');
   if (!homeEl) return;
@@ -294,6 +389,8 @@ function renderHome() {
 
   html += reminderStripHtml();
 
+  html += schedHomeWidgetHtml();
+
   html += '<section class="section">';
   html += '<div class="quick-checklist-access">';
   for (var q = 0; q < h.quickChecklists.length; q++) {
@@ -333,6 +430,11 @@ function renderHome() {
     html += '<p class="tile-text">Что и кто выполнил сегодня по всем аккаунтам.</p>';
     html += '</article>';
   }
+  html += '<article class="tile" data-action="show-section" data-section="schedule">';
+  html += '<span class="tile-icon">📅</span>';
+  html += '<p class="tile-title">График смен</p>';
+  html += '<p class="tile-text">Смены по дням, часы и оплата.</p>';
+  html += '</article>';
   html += '</div>';
   html += '</section>';
 
@@ -345,6 +447,7 @@ function renderSection(id) {
   if (!box) return;
 
   if (id === 'control') { renderControlSection(box); box.classList.add('active'); return; }
+  if (id === 'schedule') { renderScheduleSection(box); box.classList.add('active'); return; }
 
   var sec = null;
   for (var i = 0; i < D.sections.length; i++) {
@@ -586,6 +689,266 @@ function renderControlSection(box) {
   updateControlStatus();
 }
 
+// === ГРАФИК СМЕН ===
+var SCHED_VIEW = { y: null, m: null }; // 1-based month
+var SCHED_SHIFT_COLORS = ['#e8f4fd', '#e9f9ec', '#fdf3e3', '#fdeef1', '#efedfd', '#eafaf6', '#fef9e7'];
+
+function schedMonthKey(y, m) {
+  return y + '-' + (m < 10 ? '0' : '') + m;
+}
+
+function schedTodayParts() {
+  var d = new Date();
+  return { y: d.getFullYear(), m: d.getMonth() + 1, d: d.getDate() };
+}
+
+function schedGetViewMonth() {
+  var t = schedTodayParts();
+  if (!SCHED_VIEW.y || !SCHED_VIEW.m) { SCHED_VIEW.y = t.y; SCHED_VIEW.m = t.m; }
+  return SCHED_VIEW;
+}
+
+function schedRawData() {
+  var s = KOJOState.getSchedule();
+  if (!s) s = { ts: 0, shifts: [], rates: {}, cells: {} };
+  if (!s.shifts) s.shifts = [];
+  if (!s.rates) s.rates = {};
+  if (!s.cells) s.cells = {};
+  return s;
+}
+
+function schedShiftById(id) {
+  var s = schedRawData();
+  for (var i = 0; i < s.shifts.length; i++) {
+    if (s.shifts[i].id === id) return s.shifts[i];
+  }
+  return null;
+}
+
+function schedDaysInMonth(y, m) {
+  return new Date(y, m, 0).getDate();
+}
+
+function schedWeekdayOf(y, m, d) {
+  var names = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'];
+  var wd = new Date(y, m - 1, d).getDay();
+  return names[wd === 0 ? 6 : wd - 1];
+}
+
+function schedCellFor(login, dayKey) {
+  var s = schedRawData();
+  var cells = s.cells[dayKey];
+  return cells ? cells[login] : null;
+}
+
+function schedSetCell(login, dayKey, shiftId) {
+  var s = schedRawData();
+  if (!s.cells[dayKey]) s.cells[dayKey] = {};
+  if (shiftId) s.cells[dayKey][login] = shiftId;
+  else delete s.cells[dayKey][login];
+  KOJOState.saveSchedule(s);
+  scheduleCloudPush();
+}
+
+function schedEmployeeHours(login, y, m) {
+  var s = schedRawData();
+  var total = 0, first = 0, second = 0;
+  var days = schedDaysInMonth(y, m);
+  var month = schedMonthKey(y, m);
+  for (var d = 1; d <= days; d++) {
+    var dayKey = month + '-' + (d < 10 ? '0' : '') + d;
+    var sid = schedCellFor(login, dayKey);
+    if (!sid) continue;
+    var sh = schedShiftById(sid);
+    if (!sh || !sh.hours) continue;
+    total += sh.hours;
+    if (d <= 15) first += sh.hours; else second += sh.hours;
+  }
+  return { total: total, first: first, second: second };
+}
+
+function schedSalary(login) {
+  var s = schedRawData();
+  var rate = parseFloat(s.rates[login]) || 0;
+  var v = schedEmployeeHours(login, schedGetViewMonth().y, schedGetViewMonth().m);
+  return { rate: rate, total: v.total, salary: Math.round(v.total * rate * 100) / 100 };
+}
+
+function renderScheduleSection(box) {
+  var v = schedGetViewMonth();
+  var monthKey = schedMonthKey(v.y, v.m);
+  var days = schedDaysInMonth(v.y, v.m);
+  var me = currentUser();
+  var staffList = [];
+  for (var i = 0; i < KOJO_ACCOUNTS.length; i++) {
+    if (KOJO_ACCOUNTS[i].role === 'staff') staffList.push(KOJO_ACCOUNTS[i].login);
+  }
+  var s = schedRawData();
+
+  var html = '';
+  html += '<div class="back" data-back>';
+  html += '<div class="back-icon">←</div><span>На главный экран</span>';
+  html += '</div>';
+  html += '<div class="screen-box">';
+  html += '<h1 class="screen-title">📅 График смен</h1>';
+  html += '<p class="screen-sub">Смены по дням месяца · оплата = часы × ставка · ' + monthKey + '</p>';
+
+  html += '<div class="sched-nav">';
+  html += '<button class="reset-btn" data-action="sched-prev">◀</button>';
+  html += '<span class="sched-month-label">' + monthKey + '</span>';
+  html += '<button class="reset-btn" data-action="sched-next">▶</button>';
+  html += '</div>';
+
+  if (isAdmin()) {
+    html += '<div class="sched-admin-actions">';
+    html += '<button class="reset-btn" data-action="sched-add-shift">➕ Смена</button>';
+    html += '<button class="reset-btn" data-action="sched-set-rate">💰 Ставки</button>';
+    html += '<button class="reset-btn" data-action="sync-now">🔄 Синхронизация</button>';
+    html += '</div>';
+  }
+
+  html += '<div class="sched-wrap">';
+  html += '<table class="sched-table">';
+  html += '<thead><tr><th class="sched-name-col">Сотрудник</th>';
+  var today = kojoToday();
+  for (var d = 1; d <= days; d++) {
+    var dk = monthKey + '-' + (d < 10 ? '0' : '') + d;
+    var isToday = dk === today;
+    html += '<th class="sched-day' + (isToday ? ' today' : '') + '"><span class="sched-wd">' + schedWeekdayOf(v.y, v.m, d) + '</span><span class="sched-dnum">' + d + '</span></th>';
+  }
+  html += '<th class="sched-sum-col">Ч</th></tr></thead>';
+  html += '<tbody>';
+
+  for (var a = 0; a < staffList.length; a++) {
+    var login = staffList[a];
+    var hrs = schedEmployeeHours(login, v.y, v.m);
+    html += '<tr>';
+    html += '<td class="sched-name-col"><span class="sched-name">' + login + '</span></td>';
+    var rowHtml = '';
+    for (var dd = 1; dd <= days; dd++) {
+      var dKey2 = monthKey + '-' + (dd < 10 ? '0' : '') + dd;
+      var sid = schedCellFor(login, dKey2);
+      var sh = sid ? schedShiftById(sid) : null;
+      var cls = sh ? ' filled' : '';
+      var shIdx = sid ? schedShiftIndex(sid) : 0;
+      var chip = sh ? '<span class="sched-chip" style="background:' + SCHED_SHIFT_COLORS[shIdx % SCHED_SHIFT_COLORS.length] + '">' + sh.short + '</span>' : '';
+      if (isAdmin()) {
+        rowHtml += '<td data-action="sched-pick" data-login="' + encodeURIComponent(login) + '" data-day="' + dKey2 + '" class="sched-day' + cls + '">' + chip + '</td>';
+      } else {
+        rowHtml += '<td class="sched-day' + cls + '">' + chip + '</td>';
+      }
+    }
+    html += rowHtml;
+    html += '<td class="sched-sum-col">' + hrs.total + '</td>';
+    html += '</tr>';
+  }
+  html += '</tbody></table>';
+  html += '</div>';
+
+  html += '<div class="sched-report">';
+  if (isAdmin()) {
+    html += '<div class="sched-report-title">Сводка по сотрудникам (1–15 / 16–31, ставка, ЗП)</div>';
+    var grand = { first: 0, second: 0, total: 0, salary: 0 };
+    html += '<table class="sched-summary"><thead><tr><th>Сотрудник</th><th>1–15 ч</th><th>16–31 ч</th><th>Всего ч</th><th>Ставка/ч</th><th>ЗП</th></tr></thead><tbody>';
+    for (var b = 0; b < staffList.length; b++) {
+      var lg = staffList[b];
+      var hv = schedEmployeeHours(lg, v.y, v.m);
+      var sal = schedSalary(lg);
+      grand.first += hv.first;
+      grand.second += hv.second;
+      grand.total += hv.total;
+      grand.salary += sal.salary;
+      html += '<tr><td>' + lg + '</td><td>' + hv.first + '</td><td>' + hv.second + '</td><td>' + hv.total + '</td><td>' + numFmt2(sal.rate) + '</td><td class="money">' + numFmt2(sal.salary) + '</td></tr>';
+    }
+    html += '<tr class="sched-grand"><td>Итого</td><td class="money">' + grand.first + '</td><td class="money">' + grand.second + '</td><td class="money">' + grand.total + '</td><td>—</td><td class="money">' + numFmt2(grand.salary) + '</td></tr>';
+    html += '</tbody></table>';
+  } else {
+    html += '<div class="sched-report-title">Мои часы и оплата</div>';
+    var my = schedEmployeeHours(me, v.y, v.m);
+    var mySal = schedSalary(me);
+    html += '<table class="sched-summary"><tbody>';
+    html += '<tr><td>Часы 1–15</td><td class="money">' + my.first + '</td></tr>';
+    html += '<tr><td>Часы 16–31</td><td class="money">' + my.second + '</td></tr>';
+    html += '<tr><td>Всего часов</td><td class="money">' + my.total + '</td></tr>';
+    html += '<tr><td>Моя ставка/ч</td><td class="money">' + numFmt2(mySal.rate) + '</td></tr>';
+    html += '<tr><td>Моя ЗП за месяц</td><td class="money">' + numFmt2(mySal.salary) + '</td></tr>';
+    html += '</tbody></table>';
+  }
+  html += '</div>';
+
+  html += '</div>';
+  box.innerHTML = html;
+}
+
+function schedShiftIndex(sid) {
+  var s = schedRawData();
+  for (var i = 0; i < s.shifts.length; i++) {
+    if (s.shifts[i].id === sid) return i;
+  }
+  return 0;
+}
+
+function schedAddShift() {
+  var name = prompt('Название смены (например: Утро, Вечер):', 'Смена');
+  if (!name) return;
+  var hrs = prompt('Часов в смене:', '8');
+  var h = parseInt(hrs, 10);
+  if (isNaN(h) || h < 0) h = 8;
+  var s = schedRawData();
+  var id = 'sh' + Date.now();
+  var short = (name.trim() || 'С').slice(0, 2);
+  s.shifts.push({ id: id, name: name.trim(), short: short, hours: h });
+  KOJOState.saveSchedule(s);
+  scheduleCloudPush();
+  renderScheduleSection($('section-screen'));
+}
+
+function schedSetRate() {
+  var s = schedRawData();
+  var lines = [];
+  for (var i = 0; i < KOJO_ACCOUNTS.length; i++) {
+    var a = KOJO_ACCOUNTS[i];
+    if (a.role !== 'staff') continue;
+    lines.push(a.login + ': ' + (s.rates[a.login] !== undefined ? s.rates[a.login] : '0'));
+  }
+  var input = prompt('Ставки за час для сотрудников (ставка: логин — только для админа).\n\nФормат: логин = число\n\n' + lines.join('\n'), lines.join('\n'));
+  if (!input) return;
+  var newRates = {};
+  var rows = input.split('\n');
+  for (var r = 0; r < rows.length; r++) {
+    var m = rows[r].match(/^\s*([^:=]+?)\s*[:=]\s*([\d.,]+)/);
+    if (m) {
+      var rate = parseFloat(m[2].replace(',', '.'));
+      if (!isNaN(rate)) newRates[m[1].trim()] = rate;
+    }
+  }
+  var s2 = schedRawData();
+  s2.rates = newRates;
+  KOJOState.saveSchedule(s2);
+  scheduleCloudPush();
+  renderScheduleSection($('section-screen'));
+}
+
+function schedCheckShiftBtn(login, dayKey) {
+  var s = schedRawData();
+  var html = '<div class="sched-pick-head">Выбрать смену: <b>' + login + '</b>, ' + dayKey + '</div>';
+  for (var i = 0; i < s.shifts.length; i++) {
+    var sh = s.shifts[i];
+    html += '<button class="sched-pick-btn" data-action="sched-set" data-login="' + encodeURIComponent(login) + '" data-day="' + dayKey + '" data-shift="' + sh.id + '" style="background:' + SCHED_SHIFT_COLORS[i % SCHED_SHIFT_COLORS.length] + '">' + sh.short + ' ' + sh.name + ' (' + sh.hours + ' ч)</button>';
+  }
+  html += '<button class="sched-pick-btn" data-action="sched-clear" data-login="' + encodeURIComponent(login) + '" data-day="' + dayKey + '">✕ Убрать смену</button>';
+  html += '<button class="sched-pick-btn" data-action="sched-close-pick">Закрыть</button>';
+  return html;
+}
+
+function schedScheduleData() { return schedRawData(); }
+
+function numFmt2(n) {
+  if (n === undefined || n === null || isNaN(n)) return '—';
+  var v = Math.round(n * 100) / 100;
+  return String(v);
+}
+
 function updateControlStatus() {
   var el = $('control-sync-status');
   if (!el) return;
@@ -607,7 +970,7 @@ function showSyncSettingsModal() {
   var s = KOJOCloud.getSettings();
   var ls = KOJOCloud.getLastSync();
   var html = '<div style="display:grid;gap:10px;padding:4px 0">';
-  html += '<p style="font-size:13px;color:var(--muted);margin:0">Все устройства автоматически используют одно общее облако (JSONBlob). Данные каждого аккаунта обновляются на всех устройствах раз в 45 секунд (при включённом экране) и сразу после отметки пунктов.</p>';
+  html += '<p style="font-size:13px;color:var(--muted);margin:0">Все устройства автоматически используют одно общее облако (JSONBlob). Данные каждого аккаунта обновляются на всех устройствах автоматически (интервал подстраивается под лимиты облака) и сразу после отметки пунктов.</p>';
   html += '<div style="font-size:13px;background:var(--bg-soft);border:1px solid var(--border);border-radius:12px;padding:10px 12px">';
   html += 'Облако: <b>' + (s.binId ? s.binId.slice(0, 8) + '…' : 'не настроено') + '</b>';
   if (ls.ok === true) html += '<br>✅ Последняя синхронизация: ' + ls.at;
@@ -766,6 +1129,19 @@ function pushCloud(cb, freshDoc) {
       if (Object.keys(metaTs).length) meta.ts = metaTs;
       doc.users[user].meta = meta;
     }
+    // График смен — общий документ для всех аккаунтов: новее всех
+    if (cloud && cloud.schedule && typeof cloud.schedule === 'object') {
+      var lS = KOJOState.getSchedule();
+      var schedTs = lS && lS.ts ? lS.ts : 0;
+      if (schedTs > (cloud.schedule.ts || 0)) {
+        doc.schedule = { ts: lS.ts, shifts: lS.shifts || [], rates: lS.rates || {}, cells: lS.cells || {} };
+      } else {
+        doc.schedule = cloud.schedule;
+      }
+    } else {
+      var localS = KOJOState.getSchedule();
+      if (localS && localS.ts) doc.schedule = localS;
+    }
     KOJOState.saveCloudDoc(doc);
     KOJOCloud.set(doc, function (res, err2) {
       if (!err2) cloudDirty = false;
@@ -813,13 +1189,17 @@ function syncAllFromCloud(cb) {
       var today = kojoToday();
       if (!doc || !doc.users) {
         // Облако пустое или ещё не создано — безопасно начать с чистого документа.
+        var prevSched = (doc && doc.schedule) ? doc.schedule : null;
         doc = { date: today, users: {} };
+        if (prevSched) doc.schedule = prevSched;
         KOJOState.saveCloudDoc(doc);
         KOJOCloud.set(doc, function (res, err2) { finished(); });
       } else if (doc.date !== today) {
         if (doc.date < today) {
-          // Наступил новый день — начинаем с чистого документа.
+          // Наступил новый день — начинаем с чистого документа (график сохраняем).
+          var keepSched = (doc && typeof doc.schedule === 'object') ? doc.schedule : null;
           doc = { date: today, users: {} };
+          if (keepSched) doc.schedule = keepSched;
           KOJOState.saveCloudDoc(doc);
           KOJOCloud.set(doc, function (res, err2) { finished(); });
         } else {
@@ -869,6 +1249,24 @@ function syncAllFromCloud(cb) {
             }
           }
         }
+        // === ГРАФИК СМЕН ===
+        var cloudSched = doc.schedule;
+        var localSched = KOJOState.getSchedule();
+        var lSchedTs = localSched && localSched.ts ? localSched.ts : 0;
+        if (cloudSched && typeof cloudSched === 'object' && cloudSched.ts) {
+          if (lSchedTs >= cloudSched.ts && lSchedTs > 0) {
+            mergeNeeded = true;
+          } else {
+            KOJOState.saveSchedule({
+              ts: cloudSched.ts,
+              shifts: cloudSched.shifts ? cloudSched.shifts.slice() : [],
+              rates: cloudSched.rates ? JSON.parse(JSON.stringify(cloudSched.rates)) : {},
+              cells: cloudSched.cells ? JSON.parse(JSON.stringify(cloudSched.cells)) : {}
+            });
+          }
+        } else if (localSched && lSchedTs > 0) {
+          mergeNeeded = true;
+        }
         KOJOState.saveCloudDoc(doc);
         try { KOJOState.cleanOldDates(today); } catch (e) {}
         // Записываем обратно ТОЛЬКО если что-то изменилось локально
@@ -879,27 +1277,48 @@ function syncAllFromCloud(cb) {
   });
 }
 
+var cloudTimer = null;
+var cloudSyncDelayMs = 60000;              // базовый интервал опроса облака
+var cloudSyncDelayMinMs = 60000;           // минимум
+var cloudSyncDelayMaxMs = 600000;          // максимум (при ошибках/лимитах)
+
 function startCloudSyncPolling() {
   stopCloudSyncPolling();
   if (!KOJOCloud.isConfigured()) return;
-  cloudTimer = setInterval(function () {
-    try {
-      if (!isAuthenticated() || !currentUser()) return;
-      syncAllFromCloud(function () {
-        var box = $('section-screen');
-        if (box && box.classList.contains('active')) {
-          var titleEl = box.querySelector('.screen-title');
-          var title = titleEl ? titleEl.textContent : '';
-          if (title.indexOf('Контроль') !== -1) renderSection('control');
+  // Адаптивный интервал: при ошибках (в т.ч. HTTP 429 — лимит запросов) замедляемся,
+  // при успехе возвращаемся к базовому. Это защищает от упора в лимит JSONBlob.
+  var tick = function () {
+    if (!isAuthenticated() || !currentUser()) { cloudTimer = setTimeout(tick, cloudSyncDelayMinMs); return; }
+    var delay = cloudSyncDelayMs;
+    syncAllFromCloud(function () {
+      var ls = KOJOCloud.getLastSync();
+      if (!ls || ls.ok === true) {
+        cloudSyncDelayMs = cloudSyncDelayMinMs;
+        delay = cloudSyncDelayMinMs;
+      } else {
+        var err = String(ls.error || '');
+        cloudSyncDelayMs = Math.min(cloudSyncDelayMaxMs, Math.max(cloudSyncDelayMs * 2, cloudSyncDelayMinMs));
+        delay = cloudSyncDelayMs;
+        if (err.indexOf('429') !== -1 || err.indexOf('лимит') !== -1) {
+          showToast('⚠️ Слишком частые запросы к облаку — синхронизация замедлена', 'warning');
         }
-      });
-    } catch (e) {}
-  }, 45000);
+      }
+      var box = $('section-screen');
+      if (box && box.classList.contains('active')) {
+        var titleEl = box.querySelector('.screen-title');
+        var title = titleEl ? titleEl.textContent : '';
+        if (title.indexOf('Контроль') !== -1) renderSection('control');
+        if (title.indexOf('График') !== -1) renderSection('schedule');
+      }
+      cloudTimer = setTimeout(tick, delay);
+    });
+  };
+  cloudTimer = setTimeout(tick, 2000);
 }
 
 function stopCloudSyncPolling() {
   if (cloudTimer) {
-    clearInterval(cloudTimer);
+    clearTimeout(cloudTimer);
     cloudTimer = null;
   }
 }
@@ -932,6 +1351,14 @@ function showSection(id) {
       var box = $('section-screen');
       if (box && box.classList.contains('active') && id === 'control') {
         renderSection('control');
+      }
+    });
+  }
+  if (id === 'schedule') {
+    syncAllFromCloud(function () {
+      var box = $('section-screen');
+      if (box && box.classList.contains('active') && id === 'schedule') {
+        renderSection('schedule');
       }
     });
   }
@@ -1051,7 +1478,7 @@ function resetChecklist(clId) {
 }
 
 function resetAllChecklists() {
-  if (!window.confirm('Сбросить все чек-листы?')) return;
+  if (!window.confirm('Сбросить прогресс всех чек-листов за сегодня?')) return;
   for (var i = 0; i < CL_IDS.length; i++) {
     KOJOState.clearChecklist(CL_IDS[i]);
   }
@@ -1067,7 +1494,6 @@ function resetAllChecklists() {
   for (var k = 0; k < CL_IDS.length; k++) {
     updateProgress(CL_IDS[k]);
   }
-  closeStatsModal();
   scheduleCloudPush();
   showToast('🔄 Все чек-листы сброшены', 'warning');
 }
@@ -2032,91 +2458,6 @@ function showToast(message, type) {
 }
 
 // === СТАТИСТИКА + ЭКСПОРТ/ИМПОРТ ===
-function showStatsModal() {
-  var html = '<div style="display:grid;gap:8px;margin:8px 0 16px">';
-  var total = 0;
-  var done = 0;
-  for (var i = 0; i < CL_IDS.length; i++) {
-    var clId = CL_IDS[i];
-    var s = getChecklistStats(clId);
-    total += s.total;
-    done += s.done;
-    if (s.total > 0) {
-      html += '<div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border)">';
-      html += '<span>' + (D.checklistStatsLabels[clId] || clId) + '</span>';
-      html += '<span><strong>' + s.done + '</strong> / ' + s.total + '</span>';
-      html += '</div>';
-    }
-  }
-  html += '<div style="display:flex;justify-content:space-between;padding:8px 0;font-weight:700;font-size:16px;border-top:2px solid var(--border)">';
-  html += '<span>Всего</span><span><strong>' + done + '</strong> / ' + total + '</span>';
-  html += '</div>';
-  html += '<div style="display:flex;justify-content:space-between;font-size:13px;color:var(--muted)">';
-  html += '<span>Прогресс</span><span>' + (total > 0 ? Math.round((done / total) * 100) : 0) + '%</span>';
-  html += '</div>';
-  html += '</div>';
-
-  var content = $('stats-content');
-  if (content) content.innerHTML = html;
-
-  var modal = $('stats-modal');
-  if (modal) modal.classList.add('visible');
-}
-
-function closeStatsModal() {
-  var el = $('stats-modal');
-  if (el) el.classList.remove('visible');
-}
-
-function exportProgress() {
-  var payload = {
-    app: D.appName,
-    version: D.version,
-    exportedAt: new Date().toISOString(),
-    user: currentUser() || '',
-    checklists: KOJOState.exportData(CL_IDS).checklists
-  };
-  var blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
-  var url = URL.createObjectURL(blob);
-  var a = document.createElement('a');
-  a.href = url;
-  a.download = 'kojo-guide-progress.json';
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  setTimeout(function () { try { URL.revokeObjectURL(url); } catch (e) {} }, 1000);
-  showToast('⬇️ Прогресс сохранён в файл', 'success');
-}
-
-function importProgressFromFile(file) {
-  if (!file) return;
-  var reader = new FileReader();
-  reader.onload = function () {
-    try {
-      var payload = JSON.parse(reader.result);
-      if (!payload || payload.app !== D.appName) {
-        showToast('⚠️ Это не файл прогресса KOJO Guide', 'error');
-        return;
-      }
-      var applied = KOJOState.importData(payload, CL_IDS);
-      if (applied.length === 0) {
-        showToast('⚠️ В файле нет данных чек-листов', 'warning');
-        return;
-      }
-      refreshAllViews();
-      scheduleCloudPush();
-      showToast('⬆️ Прогресс импортирован (' + applied.length + ' чек-листов)', 'success');
-    } catch (e) {
-      console.error('KOJO import:', e);
-      showToast('⚠️ Не удалось прочитать файл', 'error');
-    }
-  };
-  reader.onerror = function () {
-    showToast('⚠️ Не удалось прочитать файл', 'error');
-  };
-  reader.readAsText(file);
-}
-
 // === СЛУШАТЕЛИ ===
 function setupSearchListeners() {
   var input = $('search');
@@ -2214,9 +2555,9 @@ document.addEventListener('click', function (e) {
       toggleTheme();
       return;
     }
-    if (action === 'show-stats') {
+    if (action === 'show-stats' || action === 'reset-all' || action === 'close-modal' ||
+        action === 'export-progress' || action === 'import-progress') {
       e.preventDefault();
-      showStatsModal();
       return;
     }
     if (action === 'show-profile') {
@@ -2332,9 +2673,78 @@ document.addEventListener('click', function (e) {
         if (box && box.classList.contains('active') && box.querySelector('.screen-title')) {
           var title = box.querySelector('.screen-title').textContent;
           if (title.indexOf('Контроль') !== -1) renderSection('control');
+          if (title.indexOf('График') !== -1) renderScheduleSection(box);
         }
         showToast('🔄 Данные обновлены', 'success');
       });
+      return;
+    }
+    if (action === 'sched-prev' || action === 'sched-next') {
+      e.preventDefault();
+      var vm = schedGetViewMonth();
+      if (action === 'sched-prev') {
+        vm.m--;
+        if (vm.m < 1) { vm.m = 12; vm.y--; }
+      } else {
+        vm.m++;
+        if (vm.m > 12) { vm.m = 1; vm.y++; }
+      }
+      var boxS = $('section-screen');
+      if (boxS) renderScheduleSection(boxS);
+      return;
+    }
+    if (action === 'sched-pick') {
+      e.preventDefault();
+      var loginPick = decodeURIComponent(target.getAttribute('data-login') || '');
+      var dayPick = target.getAttribute('data-day') || '';
+      var pickBox = $('section-screen');
+      if (pickBox) {
+        var old = pickBox.querySelector('.sched-picker');
+        if (old) old.remove();
+        var div = document.createElement('div');
+        div.className = 'sched-picker';
+        div.innerHTML = schedCheckShiftBtn(loginPick, dayPick);
+        pickBox.appendChild(div);
+      }
+      return;
+    }
+    if (action === 'sched-set') {
+      e.preventDefault();
+      var lg = decodeURIComponent(target.getAttribute('data-login') || '');
+      var dy = target.getAttribute('data-day') || '';
+      var shId = target.getAttribute('data-shift') || '';
+      schedSetCell(lg, dy, shId);
+      var boxT = $('section-screen');
+      if (boxT) renderScheduleSection(boxT);
+      showToast('✔️ Смена назначена', 'success');
+      return;
+    }
+    if (action === 'sched-clear') {
+      e.preventDefault();
+      var lgC = decodeURIComponent(target.getAttribute('data-login') || '');
+      var dyC = target.getAttribute('data-day') || '';
+      schedSetCell(lgC, dyC, null);
+      var boxC = $('section-screen');
+      if (boxC) renderScheduleSection(boxC);
+      return;
+    }
+    if (action === 'sched-close-pick') {
+      e.preventDefault();
+      var pb = $('section-screen');
+      if (pb) {
+        var oldP = pb.querySelector('.sched-picker');
+        if (oldP) oldP.remove();
+      }
+      return;
+    }
+    if (action === 'sched-add-shift') {
+      e.preventDefault();
+      schedAddShift();
+      return;
+    }
+    if (action === 'sched-set-rate') {
+      e.preventDefault();
+      schedSetRate();
       return;
     }
     if (action === 'logout') {
@@ -2414,7 +2824,6 @@ document.addEventListener('click', function (e) {
     }
     if (action === 'close-modal') {
       e.preventDefault();
-      closeStatsModal();
       return;
     }
     if (action === 'close-sync-modal') {
@@ -2422,15 +2831,8 @@ document.addEventListener('click', function (e) {
       closeSyncModal();
       return;
     }
-    if (action === 'export-progress') {
+    if (action === 'export-progress' || action === 'import-progress') {
       e.preventDefault();
-      exportProgress();
-      return;
-    }
-    if (action === 'import-progress') {
-      e.preventDefault();
-      var fileInput = $('import-file');
-      if (fileInput) fileInput.click();
       return;
     }
     if (action === 'copy-order') {
@@ -2514,16 +2916,11 @@ document.addEventListener('keydown', function (e) {
         if (pmodal && pmodal.classList.contains('visible')) {
           closeProfileModal();
         } else {
-          var statsModal = $('stats-modal');
-          if (statsModal && statsModal.classList.contains('visible')) {
-            closeStatsModal();
-          } else {
-            var syncModal = $('sync-modal');
-            if (syncModal && syncModal.classList.contains('visible')) {
-              closeSyncModal();
-            } else if (document.querySelector('.screen.active')) {
-              goHome();
-            }
+          var syncModal = $('sync-modal');
+          if (syncModal && syncModal.classList.contains('visible')) {
+            closeSyncModal();
+          } else if (document.querySelector('.screen.active')) {
+            goHome();
           }
         }
       }
@@ -2609,12 +3006,6 @@ function initApp() {
     setupSearchListeners();
     setupInstallBanner();
 
-    var modal = $('stats-modal');
-    if (modal) {
-      modal.addEventListener('click', function (e) {
-        if (e.target === e.currentTarget) closeStatsModal();
-      });
-    }
     var smodal = $('sync-modal');
     if (smodal) {
       smodal.addEventListener('click', function (e) {
@@ -2663,19 +3054,16 @@ function initApp() {
     }
     document.addEventListener('visibilitychange', function () {
       if (!document.hidden && isAuthenticated() && currentUser()) {
-        syncAllFromCloud(function () {});
+        syncAllFromCloud(function () {
+          var box = $('section-screen');
+          if (box && box.classList.contains('active')) {
+            var titleEl = box.querySelector('.screen-title');
+            var title = titleEl ? titleEl.textContent : '';
+            if (title.indexOf('Контроль') !== -1) renderSection('control');
+          }
+        });
       }
     });
-
-    var fileInput = $('import-file');
-    if (fileInput) {
-      fileInput.addEventListener('change', function () {
-        if (fileInput.files && fileInput.files.length > 0) {
-          importProgressFromFile(fileInput.files[0]);
-          fileInput.value = '';
-        }
-      });
-    }
 
     registerServiceWorker();
 

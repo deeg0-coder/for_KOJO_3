@@ -2026,3 +2026,113 @@ details[open] summary .expand-icon {
   border-radius: 8px; padding: 6px 9px; font-size: 12px; cursor: pointer;
 }
 .recipe-run-btn:active, .recipe-edit-btn:active { opacity: 0.7; }
+
+/* === ГРАФИК СМЕН === */
+.sched-nav { display: flex; align-items: center; justify-content: center; gap: 12px; margin: 4px 0 10px; }
+.sched-month-label { font-size: 16px; font-weight: 700; min-width: 96px; text-align: center; }
+.sched-admin-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 10px; }
+.sched-wrap { overflow-x: auto; border: 1px solid var(--border); border-radius: 12px; background: var(--bg); margin-bottom: 14px; }
+.sched-table { border-collapse: collapse; width: 100%; font-size: 12px; }
+.sched-table th, .sched-table td { border: 1px solid var(--border); padding: 4px 2px; text-align: center; vertical-align: middle; }
+.sched-table thead th { background: var(--bg-soft); position: sticky; top: 0; z-index: 1; font-weight: 600; }
+.sched-name-col { min-width: 130px; text-align: left !important; position: sticky; left: 0; background: var(--bg); z-index: 2; font-weight: 600; }
+.sched-name { padding: 0 8px; display: block; white-space: nowrap; }
+.sched-day { min-width: 34px; cursor: default; }
+.sched-day[data-action] { cursor: pointer; }
+.sched-day[data-action]:active { background: var(--accent-soft); }
+.sched-day.today { background: var(--accent-soft); }
+.sched-day.filled { background: var(--bg-soft); }
+.sched-wd { display: block; font-size: 9px; color: var(--muted); }
+.sched-dnum { display: block; font-size: 11px; font-weight: 600; }
+.sched-sum-col { min-width: 28px; font-weight: 700; color: var(--info); }
+.sched-chip {
+  display: inline-block; border-radius: 6px; padding: 2px 5px; font-size: 10px; font-weight: 700;
+  white-space: nowrap; border: 1px solid rgba(0, 0, 0, 0.08);
+}
+.sched-picker {
+  position: sticky; bottom: 10px; margin: 10px 0; padding: 12px;
+  border: 1px solid var(--border-strong); border-radius: 12px; background: var(--bg);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18); display: grid; gap: 8px;
+}
+.sched-pick-head { font-size: 13px; font-weight: 600; }
+.sched-pick-btn {
+  border: 1px solid var(--border-strong); border-radius: 10px; padding: 10px 12px;
+  font-size: 14px; font-weight: 600; cursor: pointer; text-align: left; color: var(--text);
+}
+.sched-pick-btn:active { opacity: 0.75; }
+.sched-pick-btn[data-action="sched-clear"] { background: var(--danger-bg); border-color: var(--danger); }
+.sched-pick-btn[data-action="sched-close-pick"] { background: var(--bg-soft); }
+.sched-report { margin-top: 4px; }
+.sched-report-title { font-size: 13px; font-weight: 700; margin: 0 0 8px; }
+.sched-summary { border-collapse: collapse; width: 100%; font-size: 13px; border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+.sched-summary th, .sched-summary td { border: 1px solid var(--border); padding: 6px 8px; text-align: left; }
+.sched-summary thead th { background: var(--bg-soft); font-size: 11px; text-transform: uppercase; letter-spacing: 0.03em; }
+.sched-summary .money { font-weight: 700; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.sched-grand td { background: var(--bg-soft); font-weight: 700; }
+.sched-legend { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; font-size: 12px; color: var(--muted); }
+.sched-legend-item { display: inline-flex; align-items: center; gap: 6px; }
+
+/* === ВИДЖЕТ ГРАФИКА НА ГЛАВНОМ ЭКРАНЕ === */
+.sched-home-section { margin-bottom: 14px; }
+.sched-home {
+  overflow-x: auto;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--bg);
+}
+.sched-home-head, .sched-home-row {
+  display: grid;
+  grid-template-columns: minmax(96px, 1.4fr) repeat(7, 1fr) 28px;
+  gap: 2px;
+  align-items: center;
+  padding: 4px 6px;
+  font-size: 10px;
+  min-width: 460px;
+}
+.sched-home-head {
+  background: var(--bg-soft);
+  font-weight: 600;
+  color: var(--muted);
+  border-bottom: 1px solid var(--border);
+}
+.sched-home-row { border-bottom: 1px solid var(--border); }
+.sched-home-row:last-child { border-bottom: none; }
+.sched-home-who {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  padding: 0 4px;
+  font-size: 11px;
+}
+.sched-home-day { text-align: center; }
+.sched-home-day.today { color: var(--info); font-weight: 700; }
+.sched-home-cell {
+  height: 22px;
+  border-radius: 5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.sched-home-cell .sched-chip {
+  font-size: 9px;
+  padding: 1px 4px;
+  max-width: 30px;
+  overflow: hidden;
+}
+.sched-home-h { text-align: center; font-weight: 700; color: var(--info); }
+.sched-home-sum {
+  padding: 8px 12px;
+  font-size: 12px;
+  color: var(--muted);
+  border-top: 1px solid var(--border);
+  background: var(--bg-soft);
+  min-width: 460px;
+}
+.sched-home-empty {
+  border: 1px dashed var(--border-strong);
+  border-radius: 12px;
+  padding: 10px 12px;
+  font-size: 12px;
+  color: var(--muted);
+  background: var(--bg);
+}

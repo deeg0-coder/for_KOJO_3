@@ -130,80 +130,107 @@ var KOJOCloud = (function () {
   function get(cb) {
     var s = getSettings();
     if (!s.binId) { cb && cb(null, 'не настроено'); return; }
-    var xhr = new XMLHttpRequest();
-    xhr.open('GET', BASE + s.binId, true);
-    xhr.timeout = 15000;
-    xhr.onload = function () {
-      try {
-        if (xhr.status >= 200 && xhr.status < 300) {
-          var body = JSON.parse(xhr.responseText);
-          var record = body && body.record !== undefined ? body.record : body;
-          markSync(true, '');
-          addLog(true, 'чтение');
-          cb && cb(record, null);
-        } else if (xhr.status === 404) {
-          // Блоб удалён или ID на устройстве устарел — автоматически
-          // переключаемся на общий блоб (или создаём новый).
-          autoFix404(function (recovered) {
-            cb && cb(recovered, recovered ? null : 'не удалось восстановить блоб');
-          });
-        } else {
-          markSync(false, 'HTTP ' + xhr.status);
-          addLog(false, 'чтение HTTP ' + xhr.status);
-          cb && cb(null, 'HTTP ' + xhr.status);
+    var attempt = 0;
+    var go = function () {
+      var xhr = new XMLHttpRequest();
+      xhr.open('GET', BASE + s.binId, true);
+      xhr.timeout = 30000;
+      xhr.onload = function () {
+        try {
+          if (xhr.status >= 200 && xhr.status < 300) {
+            var body = JSON.parse(xhr.responseText);
+            var record = body && body.record !== undefined ? body.record : body;
+            markSync(true, '');
+            addLog(true, 'чтение');
+            cb && cb(record, null);
+          } else if (xhr.status === 404) {
+            autoFix404(function (recovered) {
+              cb && cb(recovered, recovered ? null : 'не удалось восстановить блоб');
+            });
+          } else {
+            markSync(false, 'HTTP ' + xhr.status);
+            addLog(false, 'чтение HTTP ' + xhr.status);
+            cb && cb(null, 'HTTP ' + xhr.status);
+          }
+        } catch (e) {
+          markSync(false, 'ошибка ответа');
+          addLog(false, 'чтение: ошибка ответа');
+          cb && cb(null, 'ошибка ответа');
         }
-      } catch (e) {
-        markSync(false, 'ошибка ответа');
-        addLog(false, 'чтение: ошибка ответа');
-        cb && cb(null, 'ошибка ответа');
+      };
+      xhr.onerror = function () { retry('сеть недоступна'); };
+      xhr.ontimeout = function () { retry('таймаут'); };
+      xhr.send();
+    };
+    var retry = function (reason) {
+      attempt++;
+      if (attempt < 2) {
+        addLog(false, 'чтение: ' + reason + ' — повтор');
+        setTimeout(go, 1200);
+      } else {
+        markSync(false, reason);
+        addLog(false, 'чтение: ' + reason);
+        cb && cb(null, reason);
       }
     };
-    xhr.onerror = function () { markSync(false, 'сеть недоступна'); addLog(false, 'чтение: сеть недоступна'); cb && cb(null, 'сеть недоступна'); };
-    xhr.ontimeout = function () { markSync(false, 'таймаут'); addLog(false, 'чтение: таймаут'); cb && cb(null, 'таймаут'); };
-    xhr.send();
+    go();
   }
 
   function set(payload, cb) {
     var s = getSettings();
     if (!s.binId) { cb && cb(null, 'не настроено'); return; }
-    var finish = function (status, text) {
-      if (status >= 200 && status < 300) {
-        markSync(true, '');
-        addLog(true, 'запись');
-        try {
-          cb && cb(JSON.parse(text), null);
-        } catch (e) { cb && cb({}, null); }
-      } else if (status === 404) {
-        // Блоб удалён или ещё не создан — создаём новый и пишем в него
-        markSync(false, 'облако удалено (404)');
-        addLog(false, 'запись: блоб 404 — создаю заново');
-        createBin(payload, function (id) {
-          if (id) {
-            markSync(true, '');
-            addLog(true, 'создан новый блоб + запись');
-            cb && cb({}, null);
-          } else {
-            markSync(false, 'не удалось создать блоб');
-            addLog(false, 'создание блоба не удалось');
-            cb && cb(null, 'не удалось создать блоб');
-          }
-        });
+    var attempt = 0;
+    var go = function () {
+      var finish = function (status, text) {
+        if (status >= 200 && status < 300) {
+          markSync(true, '');
+          addLog(true, 'запись');
+          try {
+            cb && cb(JSON.parse(text), null);
+          } catch (e) { cb && cb({}, null); }
+        } else if (status === 404) {
+          markSync(false, 'облако удалено (404)');
+          addLog(false, 'запись: блоб 404 — создаю заново');
+          createBin(payload, function (id) {
+            if (id) {
+              markSync(true, '');
+              addLog(true, 'создан новый блоб + запись');
+              cb && cb({}, null);
+            } else {
+              markSync(false, 'не удалось создать блоб');
+              addLog(false, 'создание блоба не удалось');
+              cb && cb(null, 'не удалось создать блоб');
+            }
+          });
+        } else {
+          markSync(false, 'HTTP ' + status);
+          addLog(false, 'запись HTTP ' + status);
+          cb && cb(null, 'HTTP ' + status);
+        }
+      };
+      var xhr = new XMLHttpRequest();
+      xhr.open('PUT', BASE + s.binId, true);
+      xhr.setRequestHeader('Content-Type', 'application/json');
+      xhr.timeout = 30000;
+      xhr.onload = function () {
+        try { finish(xhr.status, xhr.responseText); } catch (e) { cb && cb(null, 'ошибка ответа'); }
+      };
+      xhr.onerror = function () { retry('сеть недоступна'); };
+      xhr.ontimeout = function () { retry('таймаут'); };
+      xhr.send(JSON.stringify(payload));
+    };
+    var retry = function (reason) {
+      attempt++;
+      if (attempt < 2) {
+        addLog(false, 'запись: ' + reason + ' — повтор через ' + (attempt * 1500) + ' мс');
+        setTimeout(go, attempt * 1500);
       } else {
-        markSync(false, 'HTTP ' + status);
-        addLog(false, 'запись HTTP ' + status);
-        cb && cb(null, 'HTTP ' + status);
+        markSync(false, reason);
+        addLog(false, 'запись: ' + reason);
+        cb && cb(null, reason);
       }
     };
-    var xhr = new XMLHttpRequest();
-    xhr.open('PUT', BASE + s.binId, true);
-    xhr.setRequestHeader('Content-Type', 'application/json');
-    xhr.timeout = 15000;
-    xhr.onload = function () {
-      try { finish(xhr.status, xhr.responseText); } catch (e) { cb && cb(null, 'ошибка ответа'); }
-    };
-    xhr.onerror = function () { markSync(false, 'сеть недоступна'); addLog(false, 'запись: сеть недоступна'); cb && cb(null, 'сеть недоступна'); };
-    xhr.ontimeout = function () { markSync(false, 'таймаут'); addLog(false, 'запись: таймаут'); cb && cb(null, 'таймаут'); };
-    xhr.send(JSON.stringify(payload));
+    go();
   }
 
   function createBin(initial, cb) {
