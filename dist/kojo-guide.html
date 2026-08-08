@@ -49,7 +49,7 @@ body {
 }
 
 .app {
-  max-width: 960px;
+  max-width: 720px;
   margin: 0 auto;
   padding: 16px 16px calc(100px + env(safe-area-inset-bottom));
   position: relative;
@@ -277,6 +277,247 @@ body.red .header {
   font-size: 15px;
   line-height: 1;
   padding: 2px;
+}
+
+/* Кнопка-аватар профиля в шапке */
+.avatar-btn {
+  width: 40px;
+  height: 40px;
+  border-radius: 999px;
+  border: 2px solid var(--border);
+  background: var(--bg-soft);
+  background-size: cover;
+  background-position: center;
+  color: var(--text);
+  font-size: 17px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  touch-action: manipulation;
+  transition: all var(--transition);
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.avatar-btn:hover {
+  border-color: var(--text);
+  transform: scale(1.06);
+}
+
+body.dark .avatar-btn,
+body.red .avatar-btn {
+  background: var(--accent-soft);
+}
+
+/* Профиль */
+.profile-modal {
+  max-width: 420px;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.profile-head {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.profile-avatar {
+  width: 72px;
+  height: 72px;
+  border-radius: 999px;
+  flex-shrink: 0;
+  background: var(--accent-soft);
+  background-size: cover;
+  background-position: center;
+  border: 2px solid var(--border);
+  color: var(--text);
+  font-size: 30px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.profile-user {
+  min-width: 0;
+}
+
+.profile-name {
+  font-size: 17px;
+  font-weight: 700;
+  line-height: 1.3;
+  overflow-wrap: break-word;
+}
+
+.profile-role {
+  font-size: 13px;
+  color: var(--muted);
+  margin-top: 2px;
+}
+
+.profile-meta {
+  font-size: 11px;
+  color: var(--muted);
+  margin-top: 4px;
+}
+
+.profile-photo-btn {
+  display: block;
+  margin-top: 12px;
+  padding: 10px;
+  text-align: center;
+  border-radius: 999px;
+  border: 1px dashed var(--border-strong);
+  color: var(--muted);
+  font-size: 13px;
+  cursor: pointer;
+  touch-action: manipulation;
+  transition: all var(--transition);
+  background: var(--bg);
+  user-select: none;
+}
+
+.profile-photo-btn:hover {
+  border-color: var(--text);
+  color: var(--text);
+  border-style: solid;
+}
+
+.profile-label {
+  margin-top: 16px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--muted);
+}
+
+.profile-notes {
+  width: 100%;
+  min-height: 90px;
+  margin-top: 6px;
+  padding: 10px 12px;
+  border: 1px solid var(--border-strong);
+  border-radius: 12px;
+  background: var(--bg);
+  color: var(--text);
+  font-size: 14px;
+  font-family: inherit;
+  resize: vertical;
+  outline: none;
+  transition: border-color var(--transition);
+  box-sizing: border-box;
+}
+
+.profile-notes:focus {
+  border-color: var(--text);
+}
+
+.profile-saved {
+  min-height: 16px;
+  font-size: 11px;
+  color: var(--success);
+  margin-top: 4px;
+  text-align: right;
+  opacity: 0;
+  transition: opacity var(--transition);
+}
+
+.profile-saved.visible {
+  opacity: 1;
+}
+
+.profile-section-label {
+  margin: 16px 0 6px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--muted);
+}
+
+.profile-menu {
+  display: grid;
+  gap: 8px;
+}
+
+.profile-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 12px 14px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: var(--bg-soft);
+  color: var(--text);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  touch-action: manipulation;
+  transition: all var(--transition);
+  text-align: left;
+}
+
+.profile-item:hover {
+  border-color: var(--text);
+}
+
+.profile-item.danger {
+  color: var(--danger);
+}
+
+.profile-item.danger:hover {
+  border-color: var(--danger);
+  background: var(--danger-bg);
+}
+
+/* Адаптивность для маленьких экранов */
+@media (max-width: 420px) {
+  .app {
+    padding: 12px 12px calc(80px + env(safe-area-inset-bottom));
+  }
+
+  .login-card {
+    padding: 28px 20px 22px;
+  }
+
+  .grid {
+    gap: 8px;
+  }
+
+  .tile {
+    padding: 12px 10px;
+  }
+
+  .tile .tile-icon {
+    font-size: 18px;
+  }
+
+  .modal-content {
+    padding: 18px;
+  }
+
+  .hero-title {
+    font-size: 21px;
+  }
+
+  .checklist-stats,
+  .quick-checklist-access {
+    gap: 6px;
+  }
+
+  .stat-card {
+    padding: 8px 6px;
+  }
+
+  .stat-card .stat-value {
+    font-size: 16px;
+  }
 }
 
 .icon-btn {
@@ -1750,15 +1991,7 @@ details[open] summary .expand-icon {
       </div>
       <div class="header-actions">
         <span class="header-sync-badge" id="sync-badge" title="Статус синхронизации">☁️</span>
-        <button class="icon-btn theme-toggle" data-action="toggle-theme" aria-label="Переключить тему" title="Светлая / тёмная / красная тема">🌙</button>
-        <button class="icon-btn" data-action="show-stats" aria-label="Статистика" title="Статистика">📊</button>
-        <button class="icon-btn" id="btn-control" data-action="show-control" aria-label="Контроль" title="Контроль (для администраторов)" style="display:none">📋</button>
-        <button class="icon-btn" data-action="logout" aria-label="Выйти" title="Выйти">🔒</button>
-        <div class="header-user">
-          <div class="header-user-name" id="current-user-name"></div>
-          <div class="header-user-role" id="current-user-role"></div>
-        </div>
-        <div class="header-tag">внутренний справочник <span id="app-version-marker"></span></div>
+        <button class="avatar-btn" id="header-avatar" data-action="show-profile" aria-label="Профиль" title="Профиль"></button>
       </div>
     </header>
 
@@ -1788,6 +2021,35 @@ details[open] summary .expand-icon {
       <div id="sync-modal-content"></div>
       <div class="modal-actions">
         <button data-action="close-sync-modal">Закрыть</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="profile-modal">
+    <div class="modal-content profile-modal">
+      <div class="profile-head">
+        <div class="profile-avatar" id="profile-avatar"></div>
+        <div class="profile-user">
+          <div class="profile-name" id="profile-name"></div>
+          <div class="profile-role" id="profile-role"></div>
+          <div class="profile-meta" id="profile-meta"></div>
+        </div>
+      </div>
+      <label class="profile-photo-btn" for="photo-file">📷 Изменить фото</label>
+      <input type="file" id="photo-file" accept="image/*" class="hidden" />
+      <div class="profile-label">📝 Мои заметки</div>
+      <textarea id="profile-notes" class="profile-notes" placeholder="Личные заметки… (сохраняются на этом устройстве)"></textarea>
+      <div class="profile-saved" id="notes-saved"></div>
+      <div class="profile-section-label">Меню</div>
+      <div class="profile-menu">
+        <button class="profile-item" data-action="toggle-theme">🌙 Тема (светлая / тёмная / красная)</button>
+        <button class="profile-item" data-action="show-stats">📊 Статистика и экспорт</button>
+        <button class="profile-item" id="btn-control" data-action="show-control" style="display:none">📋 Контроль</button>
+        <button class="profile-item" data-action="open-sync-settings">⚙️ Синхронизация</button>
+        <button class="profile-item danger" data-action="logout">🔒 Выйти</button>
+      </div>
+      <div class="modal-actions">
+        <button data-action="close-profile">Закрыть</button>
       </div>
     </div>
   </div>
@@ -2683,6 +2945,8 @@ var KOJOState = (function () {
   var AUTH_KEY = 'kojo-auth';
   var USER_KEY = 'kojo-current-user';
   var SYNC_PREFIX = 'kojo-cloud';
+  var NOTES_PREFIX = 'kojo_notes_';
+  var PHOTO_PREFIX = 'kojo_photo_';
 
   function keyOf(account, clId, date) {
     var d = date || kojoToday();
@@ -2759,6 +3023,22 @@ var KOJOState = (function () {
     cleanOldDates: function (keep) {
       cleanOldDates(keep);
     },
+    getNotes: function (account) {
+      var acc = account || KOJOState.getCurrentUser() || 'kojo';
+      return KOJOStore.get(NOTES_PREFIX + acc) || '';
+    },
+    setNotes: function (text, account) {
+      var acc = account || KOJOState.getCurrentUser() || 'kojo';
+      KOJOStore.set(NOTES_PREFIX + acc, text);
+    },
+    getPhoto: function (account) {
+      var acc = account || KOJOState.getCurrentUser() || 'kojo';
+      return KOJOStore.get(PHOTO_PREFIX + acc) || '';
+    },
+    setPhoto: function (dataUrl, account) {
+      var acc = account || KOJOState.getCurrentUser() || 'kojo';
+      KOJOStore.set(PHOTO_PREFIX + acc, dataUrl);
+    },
     exportData: function (clIds, account) {
       var acc = account || KOJOState.getCurrentUser() || 'kojo';
       var out = { account: acc, date: kojoToday(), checklists: {} };
@@ -2787,18 +3067,20 @@ var KOJOState = (function () {
   <script>
 'use strict';
 
-// === НАСТРОЙКИ ОБЛАЧНОЙ СИНХРОНИЗАЦИИ (jsonbin.io) ===
-// Bin создан заранее; Bin ID и Master Key зашиты, поэтому каждое устройство
-// синхронизируется автоматически сразу после входа — настройка не нужна.
+// === НАСТРОЙКИ ОБЛАЧНОЙ СИНХРОНИЗАЦИИ (jsonblob.com) ===
+// Бесплатное хранилище без ключей и регистрации: зашитый ID «облака» уже
+// создан, каждое устройство автоматически работает с ним. Записи становятся
+// видны сразу после PUT — никаких задержек консистентности.
 var KOJO_SYNC_DEFAULTS = {
   enabled: true,
-  binId: '6a75d369da38895dfec61877',
-  masterKey: '$2a$10$m2hF9IKYOm4BwwKTjeGXX.pLSVOSiLPwY373P7uklbWhL5ln3P0Su'
+  binId: '019fe258-7de6-7a69-9f0d-ad75ff01de5c',
+  masterKey: ''
 };
 
 var KOJOCloud = (function () {
-  var BASE = 'https://api.jsonbin.io/v3/b/';
+  var BASE = 'https://jsonblob.com/api/jsonBlob/';
   var SETTINGS_KEY = 'kojo-sync-settings';
+  var LOG_KEY = 'kojo-sync-log';
   var lastSync = { ok: null, error: '', at: '' };
 
   function markSync(ok, error) {
@@ -2811,37 +3093,63 @@ var KOJOCloud = (function () {
     return lastSync;
   }
 
+  function addLog(ok, msg) {
+    try {
+      var log = [];
+      var raw = KOJOStore.get(LOG_KEY);
+      if (raw) { try { log = JSON.parse(raw) || []; } catch (e) { log = []; } }
+      log.push({
+        t: new Date().toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit', second: '2-digit' }),
+        ok: !!ok,
+        msg: String(msg || '')
+      });
+      if (log.length > 20) log = log.slice(log.length - 20);
+      KOJOStore.set(LOG_KEY, JSON.stringify(log));
+    } catch (e) {}
+  }
+
+  function getLog() {
+    try {
+      var raw = KOJOStore.get(LOG_KEY);
+      return raw ? (JSON.parse(raw) || []) : [];
+    } catch (e) { return []; }
+  }
+
+  function clearLog() {
+    try { KOJOStore.remove(LOG_KEY); } catch (e) {}
+  }
+
   function getSettings() {
     var s = { binId: '', masterKey: '' };
     try {
       var raw = KOJOStore.get(SETTINGS_KEY);
       if (raw) {
         var parsed = JSON.parse(raw);
-        if (parsed) { s.binId = parsed.binId || ''; s.masterKey = parsed.masterKey || ''; }
+        if (parsed && parsed.binId) {
+          s.binId = parsed.binId;
+          s.masterKey = parsed.masterKey || '';
+        }
       }
     } catch (e) {}
-    // Вшитые по умолчанию значения всегда приоритетны — единый общий Bin на всех устройствах
-    if (KOJO_SYNC_DEFAULTS.binId) s.binId = KOJO_SYNC_DEFAULTS.binId;
-    if (KOJO_SYNC_DEFAULTS.masterKey) s.masterKey = KOJO_SYNC_DEFAULTS.masterKey;
+    // Если пользователь ничего не менял — берём встроенный общий блоб
+    if (!s.binId && KOJO_SYNC_DEFAULTS.binId) s.binId = KOJO_SYNC_DEFAULTS.binId;
+    if (!s.masterKey && KOJO_SYNC_DEFAULTS.masterKey) s.masterKey = KOJO_SYNC_DEFAULTS.masterKey;
     return s;
   }
 
   function saveSettings(binId, masterKey) {
-    try { KOJOStore.set(SETTINGS_KEY, JSON.stringify({ binId: binId, masterKey: masterKey })); } catch (e) {}
+    try { KOJOStore.set(SETTINGS_KEY, JSON.stringify({ binId: binId, masterKey: masterKey || '' })); } catch (e) {}
   }
 
   function isConfigured() {
-    var s = getSettings();
-    return !!(s.binId && s.masterKey);
+    return !!(getSettings().binId);
   }
 
   function get(cb) {
     var s = getSettings();
-    if (!isConfigured()) { cb && cb(null, 'не настроено'); return; }
+    if (!s.binId) { cb && cb(null, 'не настроено'); return; }
     var xhr = new XMLHttpRequest();
-    xhr.open('GET', BASE + s.binId + '/latest', true);
-    xhr.setRequestHeader('X-Master-Key', s.masterKey);
-    xhr.setRequestHeader('X-Bin-Meta', 'false');
+    xhr.open('GET', BASE + s.binId, true);
     xhr.timeout = 15000;
     xhr.onload = function () {
       try {
@@ -2849,65 +3157,89 @@ var KOJOCloud = (function () {
           var body = JSON.parse(xhr.responseText);
           var record = body && body.record !== undefined ? body.record : body;
           markSync(true, '');
+          addLog(true, 'чтение');
           cb && cb(record, null);
         } else {
           markSync(false, 'HTTP ' + xhr.status);
+          addLog(false, 'чтение HTTP ' + xhr.status);
           cb && cb(null, 'HTTP ' + xhr.status);
         }
-      } catch (e) { markSync(false, 'ошибка ответа'); cb && cb(null, 'ошибка ответа'); }
+      } catch (e) {
+        markSync(false, 'ошибка ответа');
+        addLog(false, 'чтение: ошибка ответа');
+        cb && cb(null, 'ошибка ответа');
+      }
     };
-    xhr.onerror = function () { markSync(false, 'сеть недоступна'); cb && cb(null, 'сеть недоступна'); };
-    xhr.ontimeout = function () { markSync(false, 'таймаут'); cb && cb(null, 'таймаут'); };
+    xhr.onerror = function () { markSync(false, 'сеть недоступна'); addLog(false, 'чтение: сеть недоступна'); cb && cb(null, 'сеть недоступна'); };
+    xhr.ontimeout = function () { markSync(false, 'таймаут'); addLog(false, 'чтение: таймаут'); cb && cb(null, 'таймаут'); };
     xhr.send();
   }
 
   function set(payload, cb) {
     var s = getSettings();
-    if (!isConfigured()) { cb && cb(null, 'не настроено'); return; }
+    if (!s.binId) { cb && cb(null, 'не настроено'); return; }
+    var finish = function (status, text) {
+      if (status >= 200 && status < 300) {
+        markSync(true, '');
+        addLog(true, 'запись');
+        try {
+          cb && cb(JSON.parse(text), null);
+        } catch (e) { cb && cb({}, null); }
+      } else if (status === 404) {
+        // Блоб удалён или ещё не создан — создаём новый и пишем в него
+        markSync(false, 'облако удалено (404)');
+        addLog(false, 'запись: блоб 404 — создаю заново');
+        createBin(payload, function (id) {
+          if (id) {
+            markSync(true, '');
+            addLog(true, 'создан новый блоб + запись');
+            cb && cb({}, null);
+          } else {
+            markSync(false, 'не удалось создать блоб');
+            addLog(false, 'создание блоба не удалось');
+            cb && cb(null, 'не удалось создать блоб');
+          }
+        });
+      } else {
+        markSync(false, 'HTTP ' + status);
+        addLog(false, 'запись HTTP ' + status);
+        cb && cb(null, 'HTTP ' + status);
+      }
+    };
     var xhr = new XMLHttpRequest();
     xhr.open('PUT', BASE + s.binId, true);
-    xhr.setRequestHeader('X-Master-Key', s.masterKey);
     xhr.setRequestHeader('Content-Type', 'application/json');
-    xhr.setRequestHeader('X-Bin-Meta', 'false');
     xhr.timeout = 15000;
     xhr.onload = function () {
-      try {
-        if (xhr.status >= 200 && xhr.status < 300) {
-          markSync(true, '');
-          cb && cb(JSON.parse(xhr.responseText), null);
-        } else {
-          markSync(false, 'HTTP ' + xhr.status);
-          cb && cb(null, 'HTTP ' + xhr.status);
-        }
-      } catch (e) { markSync(false, 'ошибка ответа'); cb && cb(null, 'ошибка ответа'); }
+      try { finish(xhr.status, xhr.responseText); } catch (e) { cb && cb(null, 'ошибка ответа'); }
     };
-    xhr.onerror = function () { markSync(false, 'сеть недоступна'); cb && cb(null, 'сеть недоступна'); };
-    xhr.ontimeout = function () { markSync(false, 'таймаут'); cb && cb(null, 'таймаут'); };
+    xhr.onerror = function () { markSync(false, 'сеть недоступна'); addLog(false, 'запись: сеть недоступна'); cb && cb(null, 'сеть недоступна'); };
+    xhr.ontimeout = function () { markSync(false, 'таймаут'); addLog(false, 'запись: таймаут'); cb && cb(null, 'таймаут'); };
     xhr.send(JSON.stringify(payload));
   }
 
   function createBin(initial, cb) {
     var s = getSettings();
-    if (!s.masterKey) { cb && cb(null); return; }
     var xhr = new XMLHttpRequest();
-    xhr.open('POST', 'https://api.jsonbin.io/v3/b', true);
-    xhr.setRequestHeader('X-Master-Key', s.masterKey);
+    xhr.open('POST', 'https://jsonblob.com/api/jsonBlob', true);
     xhr.setRequestHeader('Content-Type', 'application/json');
-    xhr.setRequestHeader('X-Bin-Meta', 'false');
     xhr.timeout = 20000;
     xhr.onload = function () {
       try {
-        var body = JSON.parse(xhr.responseText);
-        if (body && body.metadata && body.metadata.id) {
-          saveSettings(body.metadata.id, s.masterKey);
-          cb && cb(body.metadata.id);
-        } else {
-          cb && cb(null);
-        }
-      } catch (e) { cb && cb(null); }
+        if (xhr.status >= 200 && xhr.status < 300) {
+          var loc = xhr.getResponseHeader('Location') || '';
+          var parts = loc.split('/');
+          var id = parts[parts.length - 1];
+          if (id) {
+            saveSettings(id, s.masterKey || '');
+            addLog(true, 'создан новый блоб: ' + id.slice(0, 8) + '…');
+            cb && cb(id);
+          } else { addLog(false, 'создание: ID не в ответе'); cb && cb(null); }
+        } else { addLog(false, 'создание HTTP ' + xhr.status); cb && cb(null); }
+      } catch (e) { addLog(false, 'создание: ошибка'); cb && cb(null); }
     };
-    xhr.onerror = function () { cb && cb(null); };
-    xhr.ontimeout = function () { cb && cb(null); };
+    xhr.onerror = function () { addLog(false, 'создание: сеть недоступна'); cb && cb(null); };
+    xhr.ontimeout = function () { addLog(false, 'создание: таймаут'); cb && cb(null); };
     xhr.send(JSON.stringify(initial));
   }
 
@@ -2918,7 +3250,9 @@ var KOJOCloud = (function () {
     get: get,
     set: set,
     createBin: createBin,
-    getLastSync: getLastSync
+    getLastSync: getLastSync,
+    getLog: getLog,
+    clearLog: clearLog
   };
 })();
 
@@ -3128,7 +3462,7 @@ function topicByClId(clId) {
 
 var CL_IDS = checklistIds();
 
-var APP_VERSION = 8;
+var APP_VERSION = 9;
 
 function appVersionMarker() {
   var el = $('app-version-marker');
@@ -3529,21 +3863,35 @@ function updateControlStatus() {
 
 function showSyncSettingsModal() {
   var s = KOJOCloud.getSettings();
+  var ls = KOJOCloud.getLastSync();
   var html = '<div style="display:grid;gap:10px;padding:4px 0">';
-  html += '<label style="font-size:13px;color:var(--muted)">Bin ID (jsonbin.io)</label>';
-  html += '<input type="text" id="sync-bin" class="login-input" value="' + (s.binId || '') + '" placeholder="Вставьте Bin ID" />';
-  html += '<label style="font-size:13px;color:var(--muted)">X-Master-Key</label>';
-  html += '<input type="text" id="sync-key" class="login-input" value="' + (s.masterKey || '') + '" placeholder="Вставьте Master Key" />';
-  html += '<button class="login-btn" data-action="save-sync-settings" style="margin-top:4px">Сохранить</button>';
-  html += '<button class="reset-btn" data-action="auto-create-bin" style="margin-top:8px">✨ Создать Bin автоматически (только Master Key)</button>';
-  html += '<button class="reset-btn" data-action="test-connection" style="margin-top:8px">🔌 Проверка связи с облаком</button>';
+  html += '<p style="font-size:13px;color:var(--muted);margin:0">Все устройства автоматически используют одно общее облако (JSONBlob). Данные каждого аккаунта обновляются на всех устройствах раз в 45 секунд (при включённом экране) и сразу после отметки пунктов.</p>';
+  html += '<div style="font-size:13px;background:var(--bg-soft);border:1px solid var(--border);border-radius:12px;padding:10px 12px">';
+  html += 'Облако: <b>' + (s.binId ? s.binId.slice(0, 8) + '…' : 'не настроено') + '</b>';
+  if (ls.ok === true) html += '<br>✅ Последняя синхронизация: ' + ls.at;
+  else if (ls.ok === false) html += '<br>⚠️ Последняя синхронизация: ошибка (' + (ls.error || '?') + ') · ' + ls.at;
+  else html += '<br>⏳ Синхронизация ещё не выполнялась';
+  html += '</div>';
+  html += '<button class="login-btn" data-action="test-connection">🔌 Проверить связь с облаком</button>';
   html += '<p id="sync-test-result" style="font-size:13px;color:var(--muted);margin:0"></p>';
-  html += '<p style="font-size:12px;color:var(--muted)">Схема: на ПЕРВОМ устройстве вставьте Master Key (jsonbin.io) и нажмите «Создать Bin» — появится Bin ID. На ВСЕХ остальных устройствах вставьте этот же Bin ID и Master Key и нажмите «Сохранить». Данные всех аккаунтов будут автоматически обновляться на всех устройствах каждые 45 секунд (при включённом экране).</p>';
+  html += '<div class="profile-label">Журнал синхронизации</div>';
+  html += '<div id="sync-log" style="font-size:12px;max-height:170px;overflow-y:auto;background:var(--bg-soft);border:1px solid var(--border);border-radius:12px;padding:8px 10px">' + syncLogHtml() + '</div>';
   html += '</div>';
   var content = $('sync-modal-content');
   if (content) content.innerHTML = html;
   var modal = $('sync-modal');
   if (modal) modal.classList.add('visible');
+}
+
+function syncLogHtml() {
+  var log = KOJOCloud.getLog();
+  if (!log.length) return '<span style="color:var(--muted)">Пока пусто — журнал ведётся с этой версии.</span>';
+  var out = [];
+  for (var i = log.length - 1; i >= 0; i--) {
+    var e = log[i];
+    out.push('<div>' + (e.ok ? '✅' : '❌') + ' <b>' + e.t + '</b> ' + e.msg + '</div>');
+  }
+  return out.join('');
 }
 
 function closeSyncSettingsFromForm() {
@@ -3649,6 +3997,12 @@ function pushCloud(cb, freshDoc) {
       var arr = KOJOState.getChecklist(clId, user);
       if (arr) doc.users[user][clId] = arr;
     }
+    var meta = {};
+    var ph = KOJOState.getPhoto(user);
+    if (ph) meta.photo = ph;
+    var nt = KOJOState.getNotes(user);
+    if (nt) meta.notes = nt;
+    if (Object.keys(meta).length) doc.users[user].meta = meta;
     KOJOState.saveCloudDoc(doc);
     KOJOCloud.set(doc, function (res, err2) {
       if (!err2) cloudDirty = false;
@@ -3694,11 +4048,22 @@ function syncAllFromCloud(cb) {
       // остаются целыми. Просто ждём следующего цикла опроса.
       if (err) { finished(); return; }
       var today = kojoToday();
-      if (!doc || doc.date !== today || !doc.users) {
-        // Новый день или bin ещё пуст — безопасно начать с чистого документа.
+      if (!doc || !doc.users) {
+        // Облако пустое или ещё не создано — безопасно начать с чистого документа.
         doc = { date: today, users: {} };
         KOJOState.saveCloudDoc(doc);
         KOJOCloud.set(doc, function (res, err2) { finished(); });
+      } else if (doc.date !== today) {
+        if (doc.date < today) {
+          // Наступил новый день — начинаем с чистого документа.
+          doc = { date: today, users: {} };
+          KOJOState.saveCloudDoc(doc);
+          KOJOCloud.set(doc, function (res, err2) { finished(); });
+        } else {
+          // Дата в облаке позже (устройство с другим часовым поясом/календарём) —
+          // данные не трогаем и не пишем, чтобы ничего не потерять.
+          finished();
+        }
       } else {
         // переносим облачные данные в локальное хранилище для каждого аккаунта
         for (var user in doc.users) {
@@ -3706,6 +4071,10 @@ function syncAllFromCloud(cb) {
           if (!u) continue;
           for (var clId in u) {
             if (Array.isArray(u[clId])) KOJOState.saveChecklist(clId, u[clId], user);
+          }
+          if (u.meta) {
+            if (u.meta.photo) KOJOState.setPhoto(u.meta.photo, user);
+            if (u.meta.notes) KOJOState.setNotes(u.meta.notes, user);
           }
         }
         KOJOState.saveCloudDoc(doc);
@@ -3953,9 +4322,120 @@ function updateStats() {
 }
 
 function updateHeaderUserBadge() {
-  var el = $('current-user-name');
-  if (el) el.textContent = currentUser() || '';
+  refreshAvatar();
   updateHeaderAdminButtons();
+}
+
+// === ПРОФИЛЬ ===
+function notesKeyFor(user) {
+  return 'kojo_notes_' + user;
+}
+
+function photoKeyFor(user) {
+  return 'kojo_photo_' + user;
+}
+
+function refreshAvatar() {
+  var user = currentUser();
+  var photo = user ? KOJOState.getPhoto(user) : '';
+  var av = $('header-avatar');
+  if (av) {
+    if (photo) {
+      av.style.backgroundImage = 'url(' + photo + ')';
+      av.textContent = '';
+    } else {
+      av.style.backgroundImage = '';
+      av.textContent = user ? user.charAt(0) : '👤';
+    }
+  }
+  var pav = $('profile-avatar');
+  if (pav) {
+    if (photo) {
+      pav.style.backgroundImage = 'url(' + photo + ')';
+      pav.textContent = '';
+    } else {
+      pav.style.backgroundImage = '';
+      pav.textContent = user ? user.charAt(0) : '👤';
+    }
+  }
+}
+
+function showProfileModal() {
+  var modal = $('profile-modal');
+  if (!modal) return;
+  var user = currentUser();
+  var acc = currentAccount();
+  var nameEl = $('profile-name');
+  if (nameEl) nameEl.textContent = user || '';
+  var roleEl = $('profile-role');
+  if (roleEl) roleEl.textContent = acc ? KOJO_ROLE_LABELS[acc.role] : '';
+  var meta = $('profile-meta');
+  if (meta) meta.textContent = 'Сегодня: ' + kojoToday() + ' · версия ' + APP_VERSION;
+  var notesEl = $('profile-notes');
+  if (notesEl) notesEl.value = user ? (KOJOState.getNotes(user) || '') : '';
+  var savedEl = $('notes-saved');
+  if (savedEl) savedEl.classList.remove('visible');
+  refreshAvatar();
+  updateHeaderAdminButtons();
+  modal.classList.add('visible');
+}
+
+function closeProfileModal() {
+  saveProfileNotes();
+  var modal = $('profile-modal');
+  if (modal) modal.classList.remove('visible');
+}
+
+function saveProfileNotes() {
+  var user = currentUser();
+  var notesEl = $('profile-notes');
+  if (!user || !notesEl) return;
+  KOJOState.setNotes(notesEl.value, user);
+  var savedEl = $('notes-saved');
+  if (savedEl) {
+    savedEl.textContent = '💾 Сохранено ' + new Date().toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
+    savedEl.classList.add('visible');
+  }
+}
+
+function handlePhotoFile(file) {
+  var user = currentUser();
+  if (!file || !user) return;
+  if (file.size > 4 * 1024 * 1024) {
+    showToast('⚠️ Фото слишком большое (до 4 МБ)', 'warning');
+    return;
+  }
+  var reader = new FileReader();
+  reader.onload = function () {
+    var img = new Image();
+    img.onload = function () {
+      var MAX = 256;
+      var w = img.width, h = img.height;
+      if (w > MAX || h > MAX) {
+        var k = Math.min(MAX / w, MAX / h);
+        w = Math.round(w * k);
+        h = Math.round(h * k);
+      }
+      var canvas = document.createElement('canvas');
+      canvas.width = w;
+      canvas.height = h;
+      var ctx = canvas.getContext('2d');
+      ctx.drawImage(img, 0, 0, w, h);
+      var dataUrl;
+      try { dataUrl = canvas.toDataURL('image/jpeg', 0.82); } catch (e) { dataUrl = reader.result; }
+      if (dataUrl.length > 220000) {
+        try { dataUrl = canvas.toDataURL('image/jpeg', 0.6); } catch (e) {}
+      }
+      KOJOState.setPhoto(dataUrl, user);
+      refreshAvatar();
+      showToast('📷 Фото профиля обновлено', 'success');
+    };
+    img.onerror = function () {
+      showToast('⚠️ Не удалось прочитать изображение', 'warning');
+    };
+    img.src = reader.result;
+  };
+  reader.readAsDataURL(file);
 }
 
 function updateHeaderAdminButtons() {
@@ -4403,6 +4883,16 @@ document.addEventListener('click', function (e) {
       showStatsModal();
       return;
     }
+    if (action === 'show-profile') {
+      e.preventDefault();
+      showProfileModal();
+      return;
+    }
+    if (action === 'close-profile') {
+      e.preventDefault();
+      closeProfileModal();
+      return;
+    }
     if (action === 'show-control') {
       e.preventDefault();
       showSection('control');
@@ -4598,15 +5088,20 @@ document.addEventListener('keydown', function (e) {
       if (inp) inp.focus();
     }
     if (e.key === 'Escape') {
-      var statsModal = $('stats-modal');
-      if (statsModal && statsModal.classList.contains('visible')) {
-        closeStatsModal();
+      var pmodal = $('profile-modal');
+      if (pmodal && pmodal.classList.contains('visible')) {
+        closeProfileModal();
       } else {
-        var syncModal = $('sync-modal');
-        if (syncModal && syncModal.classList.contains('visible')) {
-          closeSyncModal();
-        } else if (document.querySelector('.screen.active')) {
-          goHome();
+        var statsModal = $('stats-modal');
+        if (statsModal && statsModal.classList.contains('visible')) {
+          closeStatsModal();
+        } else {
+          var syncModal = $('sync-modal');
+          if (syncModal && syncModal.classList.contains('visible')) {
+            closeSyncModal();
+          } else if (document.querySelector('.screen.active')) {
+            goHome();
+          }
         }
       }
     }
@@ -4677,6 +5172,7 @@ function initApp() {
     updateAllMiniProgress();
     updateChecklistsBadge();
     updateStats();
+    refreshAvatar();
     updateHeaderAdminButtons();
     scheduleCloudPush();
     syncAllFromCloud(function () {
@@ -4701,6 +5197,27 @@ function initApp() {
     if (smodal) {
       smodal.addEventListener('click', function (e) {
         if (e.target === e.currentTarget) closeSyncModal();
+      });
+    }
+    var pmodal = $('profile-modal');
+    if (pmodal) {
+      pmodal.addEventListener('click', function (e) {
+        if (e.target === e.currentTarget) closeProfileModal();
+      });
+    }
+    var photoFile = $('photo-file');
+    if (photoFile) {
+      photoFile.addEventListener('change', function () {
+        if (photoFile.files && photoFile.files.length > 0) {
+          handlePhotoFile(photoFile.files[0]);
+          photoFile.value = '';
+        }
+      });
+    }
+    var notesEl2 = $('profile-notes');
+    if (notesEl2) {
+      notesEl2.addEventListener('input', function () {
+        saveProfileNotes();
       });
     }
 

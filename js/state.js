@@ -50,6 +50,8 @@ var KOJOState = (function () {
   var AUTH_KEY = 'kojo-auth';
   var USER_KEY = 'kojo-current-user';
   var SYNC_PREFIX = 'kojo-cloud';
+  var NOTES_PREFIX = 'kojo_notes_';
+  var PHOTO_PREFIX = 'kojo_photo_';
 
   function keyOf(account, clId, date) {
     var d = date || kojoToday();
@@ -125,6 +127,22 @@ var KOJOState = (function () {
     },
     cleanOldDates: function (keep) {
       cleanOldDates(keep);
+    },
+    getNotes: function (account) {
+      var acc = account || KOJOState.getCurrentUser() || 'kojo';
+      return KOJOStore.get(NOTES_PREFIX + acc) || '';
+    },
+    setNotes: function (text, account) {
+      var acc = account || KOJOState.getCurrentUser() || 'kojo';
+      KOJOStore.set(NOTES_PREFIX + acc, text);
+    },
+    getPhoto: function (account) {
+      var acc = account || KOJOState.getCurrentUser() || 'kojo';
+      return KOJOStore.get(PHOTO_PREFIX + acc) || '';
+    },
+    setPhoto: function (dataUrl, account) {
+      var acc = account || KOJOState.getCurrentUser() || 'kojo';
+      KOJOStore.set(PHOTO_PREFIX + acc, dataUrl);
     },
     exportData: function (clIds, account) {
       var acc = account || KOJOState.getCurrentUser() || 'kojo';

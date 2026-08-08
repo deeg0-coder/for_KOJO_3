@@ -12,7 +12,7 @@
   <link rel="manifest" href="manifest.webmanifest" />
   <link rel="icon" href="icons/favicon.svg" type="image/svg+xml" />
   <link rel="apple-touch-icon" href="icons/icon-192.png" />
-  <link rel="stylesheet" href="css/styles.css?v=8" />
+  <link rel="stylesheet" href="css/styles.css?v=9" />
 </head>
 <body>
   <div class="login-screen" id="login-screen">
@@ -60,15 +60,7 @@
       </div>
       <div class="header-actions">
         <span class="header-sync-badge" id="sync-badge" title="Статус синхронизации">☁️</span>
-        <button class="icon-btn theme-toggle" data-action="toggle-theme" aria-label="Переключить тему" title="Светлая / тёмная / красная тема">🌙</button>
-        <button class="icon-btn" data-action="show-stats" aria-label="Статистика" title="Статистика">📊</button>
-        <button class="icon-btn" id="btn-control" data-action="show-control" aria-label="Контроль" title="Контроль (для администраторов)" style="display:none">📋</button>
-        <button class="icon-btn" data-action="logout" aria-label="Выйти" title="Выйти">🔒</button>
-        <div class="header-user">
-          <div class="header-user-name" id="current-user-name"></div>
-          <div class="header-user-role" id="current-user-role"></div>
-        </div>
-        <div class="header-tag">внутренний справочник <span id="app-version-marker"></span></div>
+        <button class="avatar-btn" id="header-avatar" data-action="show-profile" aria-label="Профиль" title="Профиль"></button>
       </div>
     </header>
 
@@ -102,6 +94,35 @@
     </div>
   </div>
 
+  <div class="modal-overlay" id="profile-modal">
+    <div class="modal-content profile-modal">
+      <div class="profile-head">
+        <div class="profile-avatar" id="profile-avatar"></div>
+        <div class="profile-user">
+          <div class="profile-name" id="profile-name"></div>
+          <div class="profile-role" id="profile-role"></div>
+          <div class="profile-meta" id="profile-meta"></div>
+        </div>
+      </div>
+      <label class="profile-photo-btn" for="photo-file">📷 Изменить фото</label>
+      <input type="file" id="photo-file" accept="image/*" class="hidden" />
+      <div class="profile-label">📝 Мои заметки</div>
+      <textarea id="profile-notes" class="profile-notes" placeholder="Личные заметки… (сохраняются на этом устройстве)"></textarea>
+      <div class="profile-saved" id="notes-saved"></div>
+      <div class="profile-section-label">Меню</div>
+      <div class="profile-menu">
+        <button class="profile-item" data-action="toggle-theme">🌙 Тема (светлая / тёмная / красная)</button>
+        <button class="profile-item" data-action="show-stats">📊 Статистика и экспорт</button>
+        <button class="profile-item" id="btn-control" data-action="show-control" style="display:none">📋 Контроль</button>
+        <button class="profile-item" data-action="open-sync-settings">⚙️ Синхронизация</button>
+        <button class="profile-item danger" data-action="logout">🔒 Выйти</button>
+      </div>
+      <div class="modal-actions">
+        <button data-action="close-profile">Закрыть</button>
+      </div>
+    </div>
+  </div>
+
   <div class="install-banner" id="install-banner">
     <span>📲 Установи KOJO Guide на телефон</span>
     <button class="install-primary" data-action="install-app">Установить</button>
@@ -110,10 +131,10 @@
 
   <input type="file" id="import-file" accept=".json,application/json" class="hidden" />
 
-  <script src="js/data.js?v=8"></script>
-  <script src="js/accounts.js?v=8"></script>
-  <script src="js/state.js?v=8"></script>
-  <script src="js/sync.js?v=8"></script>
-  <script src="js/app.js?v=8"></script>
+  <script src="js/data.js?v=9"></script>
+  <script src="js/accounts.js?v=9"></script>
+  <script src="js/state.js?v=9"></script>
+  <script src="js/sync.js?v=9"></script>
+  <script src="js/app.js?v=9"></script>
 </body>
 </html>

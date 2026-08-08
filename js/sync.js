@@ -1,17 +1,19 @@
 'use strict';
 
-// === НАСТРОЙКИ ОБЛАЧНОЙ СИНХРОНИЗАЦИИ (jsonbin.io) ===
-// Bin создан заранее; Bin ID и Master Key зашиты, поэтому каждое устройство
-// синхронизируется автоматически сразу после входа — настройка не нужна.
+// === НАСТРОЙКИ ОБЛАЧНОЙ СИНХРОНИЗАЦИИ (jsonblob.com) ===
+// Бесплатное хранилище без ключей и регистрации: зашитый ID «облака» уже
+// создан, каждое устройство автоматически работает с ним. Записи становятся
+// видны сразу после PUT — никаких задержек консистентности.
 var KOJO_SYNC_DEFAULTS = {
   enabled: true,
-  binId: '6a75d369da38895dfec61877',
-  masterKey: '$2a$10$m2hF9IKYOm4BwwKTjeGXX.pLSVOSiLPwY373P7uklbWhL5ln3P0Su'
+  binId: '019fe258-7de6-7a69-9f0d-ad75ff01de5c',
+  masterKey: ''
 };
 
 var KOJOCloud = (function () {
-  var BASE = 'https://api.jsonbin.io/v3/b/';
+  var BASE = 'https://jsonblob.com/api/jsonBlob/';
   var SETTINGS_KEY = 'kojo-sync-settings';
+  var LOG_KEY = 'kojo-sync-log';
   var lastSync = { ok: null, error: '', at: '' };
 
   function markSync(ok, error) {
@@ -24,37 +26,63 @@ var KOJOCloud = (function () {
     return lastSync;
   }
 
+  function addLog(ok, msg) {
+    try {
+      var log = [];
+      var raw = KOJOStore.get(LOG_KEY);
+      if (raw) { try { log = JSON.parse(raw) || []; } catch (e) { log = []; } }
+      log.push({
+        t: new Date().toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit', second: '2-digit' }),
+        ok: !!ok,
+        msg: String(msg || '')
+      });
+      if (log.length > 20) log = log.slice(log.length - 20);
+      KOJOStore.set(LOG_KEY, JSON.stringify(log));
+    } catch (e) {}
+  }
+
+  function getLog() {
+    try {
+      var raw = KOJOStore.get(LOG_KEY);
+      return raw ? (JSON.parse(raw) || []) : [];
+    } catch (e) { return []; }
+  }
+
+  function clearLog() {
+    try { KOJOStore.remove(LOG_KEY); } catch (e) {}
+  }
+
   function getSettings() {
     var s = { binId: '', masterKey: '' };
     try {
       var raw = KOJOStore.get(SETTINGS_KEY);
       if (raw) {
         var parsed = JSON.parse(raw);
-        if (parsed) { s.binId = parsed.binId || ''; s.masterKey = parsed.masterKey || ''; }
+        if (parsed && parsed.binId) {
+          s.binId = parsed.binId;
+          s.masterKey = parsed.masterKey || '';
+        }
       }
     } catch (e) {}
-    // Вшитые по умолчанию значения всегда приоритетны — единый общий Bin на всех устройствах
-    if (KOJO_SYNC_DEFAULTS.binId) s.binId = KOJO_SYNC_DEFAULTS.binId;
-    if (KOJO_SYNC_DEFAULTS.masterKey) s.masterKey = KOJO_SYNC_DEFAULTS.masterKey;
+    // Если пользователь ничего не менял — берём встроенный общий блоб
+    if (!s.binId && KOJO_SYNC_DEFAULTS.binId) s.binId = KOJO_SYNC_DEFAULTS.binId;
+    if (!s.masterKey && KOJO_SYNC_DEFAULTS.masterKey) s.masterKey = KOJO_SYNC_DEFAULTS.masterKey;
     return s;
   }
 
   function saveSettings(binId, masterKey) {
-    try { KOJOStore.set(SETTINGS_KEY, JSON.stringify({ binId: binId, masterKey: masterKey })); } catch (e) {}
+    try { KOJOStore.set(SETTINGS_KEY, JSON.stringify({ binId: binId, masterKey: masterKey || '' })); } catch (e) {}
   }
 
   function isConfigured() {
-    var s = getSettings();
-    return !!(s.binId && s.masterKey);
+    return !!(getSettings().binId);
   }
 
   function get(cb) {
     var s = getSettings();
-    if (!isConfigured()) { cb && cb(null, 'не настроено'); return; }
+    if (!s.binId) { cb && cb(null, 'не настроено'); return; }
     var xhr = new XMLHttpRequest();
-    xhr.open('GET', BASE + s.binId + '/latest', true);
-    xhr.setRequestHeader('X-Master-Key', s.masterKey);
-    xhr.setRequestHeader('X-Bin-Meta', 'false');
+    xhr.open('GET', BASE + s.binId, true);
     xhr.timeout = 15000;
     xhr.onload = function () {
       try {
@@ -62,65 +90,89 @@ var KOJOCloud = (function () {
           var body = JSON.parse(xhr.responseText);
           var record = body && body.record !== undefined ? body.record : body;
           markSync(true, '');
+          addLog(true, 'чтение');
           cb && cb(record, null);
         } else {
           markSync(false, 'HTTP ' + xhr.status);
+          addLog(false, 'чтение HTTP ' + xhr.status);
           cb && cb(null, 'HTTP ' + xhr.status);
         }
-      } catch (e) { markSync(false, 'ошибка ответа'); cb && cb(null, 'ошибка ответа'); }
+      } catch (e) {
+        markSync(false, 'ошибка ответа');
+        addLog(false, 'чтение: ошибка ответа');
+        cb && cb(null, 'ошибка ответа');
+      }
     };
-    xhr.onerror = function () { markSync(false, 'сеть недоступна'); cb && cb(null, 'сеть недоступна'); };
-    xhr.ontimeout = function () { markSync(false, 'таймаут'); cb && cb(null, 'таймаут'); };
+    xhr.onerror = function () { markSync(false, 'сеть недоступна'); addLog(false, 'чтение: сеть недоступна'); cb && cb(null, 'сеть недоступна'); };
+    xhr.ontimeout = function () { markSync(false, 'таймаут'); addLog(false, 'чтение: таймаут'); cb && cb(null, 'таймаут'); };
     xhr.send();
   }
 
   function set(payload, cb) {
     var s = getSettings();
-    if (!isConfigured()) { cb && cb(null, 'не настроено'); return; }
+    if (!s.binId) { cb && cb(null, 'не настроено'); return; }
+    var finish = function (status, text) {
+      if (status >= 200 && status < 300) {
+        markSync(true, '');
+        addLog(true, 'запись');
+        try {
+          cb && cb(JSON.parse(text), null);
+        } catch (e) { cb && cb({}, null); }
+      } else if (status === 404) {
+        // Блоб удалён или ещё не создан — создаём новый и пишем в него
+        markSync(false, 'облако удалено (404)');
+        addLog(false, 'запись: блоб 404 — создаю заново');
+        createBin(payload, function (id) {
+          if (id) {
+            markSync(true, '');
+            addLog(true, 'создан новый блоб + запись');
+            cb && cb({}, null);
+          } else {
+            markSync(false, 'не удалось создать блоб');
+            addLog(false, 'создание блоба не удалось');
+            cb && cb(null, 'не удалось создать блоб');
+          }
+        });
+      } else {
+        markSync(false, 'HTTP ' + status);
+        addLog(false, 'запись HTTP ' + status);
+        cb && cb(null, 'HTTP ' + status);
+      }
+    };
     var xhr = new XMLHttpRequest();
     xhr.open('PUT', BASE + s.binId, true);
-    xhr.setRequestHeader('X-Master-Key', s.masterKey);
     xhr.setRequestHeader('Content-Type', 'application/json');
-    xhr.setRequestHeader('X-Bin-Meta', 'false');
     xhr.timeout = 15000;
     xhr.onload = function () {
-      try {
-        if (xhr.status >= 200 && xhr.status < 300) {
-          markSync(true, '');
-          cb && cb(JSON.parse(xhr.responseText), null);
-        } else {
-          markSync(false, 'HTTP ' + xhr.status);
-          cb && cb(null, 'HTTP ' + xhr.status);
-        }
-      } catch (e) { markSync(false, 'ошибка ответа'); cb && cb(null, 'ошибка ответа'); }
+      try { finish(xhr.status, xhr.responseText); } catch (e) { cb && cb(null, 'ошибка ответа'); }
     };
-    xhr.onerror = function () { markSync(false, 'сеть недоступна'); cb && cb(null, 'сеть недоступна'); };
-    xhr.ontimeout = function () { markSync(false, 'таймаут'); cb && cb(null, 'таймаут'); };
+    xhr.onerror = function () { markSync(false, 'сеть недоступна'); addLog(false, 'запись: сеть недоступна'); cb && cb(null, 'сеть недоступна'); };
+    xhr.ontimeout = function () { markSync(false, 'таймаут'); addLog(false, 'запись: таймаут'); cb && cb(null, 'таймаут'); };
     xhr.send(JSON.stringify(payload));
   }
 
   function createBin(initial, cb) {
     var s = getSettings();
-    if (!s.masterKey) { cb && cb(null); return; }
     var xhr = new XMLHttpRequest();
-    xhr.open('POST', 'https://api.jsonbin.io/v3/b', true);
-    xhr.setRequestHeader('X-Master-Key', s.masterKey);
+    xhr.open('POST', 'https://jsonblob.com/api/jsonBlob', true);
     xhr.setRequestHeader('Content-Type', 'application/json');
-    xhr.setRequestHeader('X-Bin-Meta', 'false');
     xhr.timeout = 20000;
     xhr.onload = function () {
       try {
-        var body = JSON.parse(xhr.responseText);
-        if (body && body.metadata && body.metadata.id) {
-          saveSettings(body.metadata.id, s.masterKey);
-          cb && cb(body.metadata.id);
-        } else {
-          cb && cb(null);
-        }
-      } catch (e) { cb && cb(null); }
+        if (xhr.status >= 200 && xhr.status < 300) {
+          var loc = xhr.getResponseHeader('Location') || '';
+          var parts = loc.split('/');
+          var id = parts[parts.length - 1];
+          if (id) {
+            saveSettings(id, s.masterKey || '');
+            addLog(true, 'создан новый блоб: ' + id.slice(0, 8) + '…');
+            cb && cb(id);
+          } else { addLog(false, 'создание: ID не в ответе'); cb && cb(null); }
+        } else { addLog(false, 'создание HTTP ' + xhr.status); cb && cb(null); }
+      } catch (e) { addLog(false, 'создание: ошибка'); cb && cb(null); }
     };
-    xhr.onerror = function () { cb && cb(null); };
-    xhr.ontimeout = function () { cb && cb(null); };
+    xhr.onerror = function () { addLog(false, 'создание: сеть недоступна'); cb && cb(null); };
+    xhr.ontimeout = function () { addLog(false, 'создание: таймаут'); cb && cb(null); };
     xhr.send(JSON.stringify(initial));
   }
 
@@ -131,6 +183,8 @@ var KOJOCloud = (function () {
     get: get,
     set: set,
     createBin: createBin,
-    getLastSync: getLastSync
+    getLastSync: getLastSync,
+    getLog: getLog,
+    clearLog: clearLog
   };
 })();
