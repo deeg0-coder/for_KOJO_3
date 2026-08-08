@@ -202,7 +202,7 @@ function topicByClId(clId) {
 
 var CL_IDS = checklistIds();
 
-var APP_VERSION = 12;
+var APP_VERSION = 13;
 
 function appVersionMarker() {
   var el = $('app-version-marker');
@@ -734,19 +734,38 @@ function pushCloud(cb, freshDoc) {
     if (!ok) { updateHeaderSyncBadge(); if (cb) cb(); return; }
     if (cloud && cloud.date === today && cloud.users) doc.users = cloud.users;
     doc.users[user] = {};
+    var tsMap = {};
     for (var i = 0; i < CL_IDS.length; i++) {
       var clId = CL_IDS[i];
       var arr = KOJOState.getChecklist(clId, user);
-      if (arr) doc.users[user][clId] = arr;
+      if (arr) {
+        doc.users[user][clId] = arr;
+      } else {
+        // нет локальных данных (сброс или ещё не отмечали) — убираем запись,
+        // чтобы облако не «оживало» после сброса чек-листа
+        delete doc.users[user][clId];
+      }
+      var lts = KOJOState.getChecklistTs(clId, user);
+      if (lts > 0) tsMap[clId] = lts;
     }
+    var hasTs = false;
+    for (var k in tsMap) { if (tsMap.hasOwnProperty(k)) { hasTs = true; break; } }
+    if (hasTs) doc.users[user].ts = tsMap;
     var meta = {};
-    var ph = KOJOState.getPhoto(user);
-    if (ph) meta.photo = ph;
+    var metaTs = {};
     var nt = KOJOState.getNotes(user);
-    if (nt) meta.notes = nt;
+    var noteTs = KOJOState.getNotesTs(user);
+    if (nt !== '' || noteTs > 0) { meta.notes = nt || ''; if (noteTs > 0) metaTs.notes = noteTs; }
+    var ph = KOJOState.getPhoto(user);
+    var photoTs = KOJOState.getPhotoTs(user);
+    if (ph) { meta.photo = ph; if (photoTs > 0) metaTs.photo = photoTs; }
     var rc = KOJOState.getRecipes(user);
-    if (rc && rc.length) meta.recipes = rc;
-    if (Object.keys(meta).length) doc.users[user].meta = meta;
+    var recipesTs = KOJOState.getRecipesTs(user);
+    if (rc && rc.length) { meta.recipes = rc; if (recipesTs > 0) metaTs.recipes = recipesTs; }
+    if (Object.keys(meta).length) {
+      if (Object.keys(metaTs).length) meta.ts = metaTs;
+      doc.users[user].meta = meta;
+    }
     KOJOState.saveCloudDoc(doc);
     KOJOCloud.set(doc, function (res, err2) {
       if (!err2) cloudDirty = false;
@@ -809,24 +828,52 @@ function syncAllFromCloud(cb) {
           finished();
         }
       } else {
-        // переносим облачные данные в локальное хранилище для каждого аккаунта
+        // переносим облачные данные в локальное хранилище для каждого аккаунта,
+        // НО не затираем более свежие локальные данные (merge по таймстампам):
+        // локальные правки, которые ещё не успели уйти в облако, должны выжить
+        // после перезагрузки страницы.
+        var mergeNeeded = false;
         for (var user in doc.users) {
           var u = doc.users[user];
           if (!u) continue;
+          var cloudTs = (u && typeof u.ts === 'object') ? u.ts : {};
           for (var clId in u) {
-            if (Array.isArray(u[clId])) KOJOState.saveChecklist(clId, u[clId], user);
+            if (!Array.isArray(u[clId])) continue;
+            var cTs = cloudTs[clId] || 0;
+            var lTs = KOJOState.getChecklistTs(clId, user);
+            var local = KOJOState.getChecklist(clId, user);
+            if (local !== null && lTs > cTs) {
+              // локальные данные новее — оставляем их и запланируем пуш
+              mergeNeeded = true;
+              continue;
+            }
+            KOJOState.saveChecklistKeepTs(clId, u[clId], cTs, user);
           }
+          var cloudMetaTs = (u.meta && typeof u.meta.ts === 'object') ? u.meta.ts : {};
           if (u.meta) {
-            if (u.meta.photo) KOJOState.setPhoto(u.meta.photo, user);
-            if (u.meta.notes) KOJOState.setNotes(u.meta.notes, user);
-            if (Array.isArray(u.meta.recipes)) KOJOState.setRecipes(u.meta.recipes, user);
+            var m = u.meta;
+            if (m.notes !== undefined) {
+              if (KOJOState.getNotesTs(user) <= (cloudMetaTs.notes || 0)) {
+                if (m.notes !== KOJOState.getNotes(user)) KOJOState.setNotesKeepTs(m.notes, cloudMetaTs.notes || 0, user);
+              } else { mergeNeeded = true; }
+            }
+            if (m.photo) {
+              if (KOJOState.getPhotoTs(user) <= (cloudMetaTs.photo || 0)) {
+                if (m.photo !== KOJOState.getPhoto(user)) KOJOState.setPhotoKeepTs(m.photo, cloudMetaTs.photo || 0, user);
+              } else { mergeNeeded = true; }
+            }
+            if (Array.isArray(m.recipes)) {
+              if (KOJOState.getRecipesTs(user) <= (cloudMetaTs.recipes || 0)) {
+                if (JSON.stringify(m.recipes) !== JSON.stringify(KOJOState.getRecipes(user))) KOJOState.setRecipesKeepTs(m.recipes, cloudMetaTs.recipes || 0, user);
+              } else { mergeNeeded = true; }
+            }
           }
         }
         KOJOState.saveCloudDoc(doc);
         try { KOJOState.cleanOldDates(today); } catch (e) {}
         // Записываем обратно ТОЛЬКО если что-то изменилось локально
         // (иначе лишний запрос и риск обнуления чужих данных).
-        if (cloudDirty) { pushCloud(finished, doc); } else { finished(); }
+        if (cloudDirty || mergeNeeded) { pushCloud(finished, doc); } else { finished(); }
       }
     } catch (e) { finished(); }
   });

@@ -60,6 +60,11 @@ var KOJOState = (function () {
     return 'checklist_' + d + '_' + account + '_' + clId;
   }
 
+  function tsKeyOf(account, clId, date) {
+    var d = date || kojoToday();
+    return 'checklist_ts_' + d + '_' + account + '_' + clId;
+  }
+
   function syncKey() {
     return SYNC_PREFIX;
   }
@@ -110,10 +115,23 @@ var KOJOState = (function () {
     saveChecklist: function (clId, arr, account, date) {
       var acc = account || KOJOState.getCurrentUser() || 'kojo';
       KOJOStore.set(keyOf(acc, clId, date), JSON.stringify(arr));
+      KOJOStore.set(tsKeyOf(acc, clId, date), String(Date.now()));
+    },
+    getChecklistTs: function (clId, account, date) {
+      var acc = account || KOJOState.getCurrentUser() || 'kojo';
+      var raw = KOJOStore.get(tsKeyOf(acc, clId, date));
+      var ts = parseInt(raw, 10);
+      return isNaN(ts) ? 0 : ts;
+    },
+    saveChecklistKeepTs: function (clId, arr, ts, account, date) {
+      var acc = account || KOJOState.getCurrentUser() || 'kojo';
+      KOJOStore.set(keyOf(acc, clId, date), JSON.stringify(arr));
+      if (ts > 0) KOJOStore.set(tsKeyOf(acc, clId, date), String(ts));
     },
     clearChecklist: function (clId, account, date) {
       var acc = account || KOJOState.getCurrentUser() || 'kojo';
       KOJOStore.remove(keyOf(acc, clId, date));
+      KOJOStore.remove(tsKeyOf(acc, clId, date));
     },
     getCloudDoc: function () {
       var raw = KOJOStore.get(syncKey());
@@ -123,6 +141,17 @@ var KOJOState = (function () {
         if (obj && obj.date && obj.users) return obj;
       } catch (e) {}
       return null;
+    },
+    isCloudDocNewer: function (doc) {
+      try {
+        var localDoc = KOJOState.getCloudDoc();
+        if (!localDoc) return true;
+        var l = localDoc._ts || 0;
+        var c = (doc && doc._ts) || 0;
+        return c > l;
+      } catch (e) {
+        return true;
+      }
     },
     saveCloudDoc: function (doc) {
       KOJOStore.set(syncKey(), JSON.stringify(doc));
@@ -137,6 +166,17 @@ var KOJOState = (function () {
     setNotes: function (text, account) {
       var acc = account || KOJOState.getCurrentUser() || 'kojo';
       KOJOStore.set(NOTES_PREFIX + acc, text);
+      KOJOStore.set(NOTES_PREFIX + 'ts_' + acc, String(Date.now()));
+    },
+    getNotesTs: function (account) {
+      var acc = account || KOJOState.getCurrentUser() || 'kojo';
+      var ts = parseInt(KOJOStore.get(NOTES_PREFIX + 'ts_' + acc), 10);
+      return isNaN(ts) ? 0 : ts;
+    },
+    setNotesKeepTs: function (text, ts, account) {
+      var acc = account || KOJOState.getCurrentUser() || 'kojo';
+      KOJOStore.set(NOTES_PREFIX + acc, text);
+      if (ts > 0) KOJOStore.set(NOTES_PREFIX + 'ts_' + acc, String(ts));
     },
     getPhoto: function (account) {
       var acc = account || KOJOState.getCurrentUser() || 'kojo';
@@ -145,6 +185,17 @@ var KOJOState = (function () {
     setPhoto: function (dataUrl, account) {
       var acc = account || KOJOState.getCurrentUser() || 'kojo';
       KOJOStore.set(PHOTO_PREFIX + acc, dataUrl);
+      KOJOStore.set(PHOTO_PREFIX + 'ts_' + acc, String(Date.now()));
+    },
+    getPhotoTs: function (account) {
+      var acc = account || KOJOState.getCurrentUser() || 'kojo';
+      var ts = parseInt(KOJOStore.get(PHOTO_PREFIX + 'ts_' + acc), 10);
+      return isNaN(ts) ? 0 : ts;
+    },
+    setPhotoKeepTs: function (dataUrl, ts, account) {
+      var acc = account || KOJOState.getCurrentUser() || 'kojo';
+      KOJOStore.set(PHOTO_PREFIX + acc, dataUrl);
+      if (ts > 0) KOJOStore.set(PHOTO_PREFIX + 'ts_' + acc, String(ts));
     },
     getRecipes: function (account) {
       var acc = account || KOJOState.getCurrentUser() || 'kojo';
@@ -159,6 +210,17 @@ var KOJOState = (function () {
     setRecipes: function (arr, account) {
       var acc = account || KOJOState.getCurrentUser() || 'kojo';
       KOJOStore.set(RECIPES_PREFIX + acc, JSON.stringify(Array.isArray(arr) ? arr : []));
+      KOJOStore.set(RECIPES_PREFIX + 'ts_' + acc, String(Date.now()));
+    },
+    getRecipesTs: function (account) {
+      var acc = account || KOJOState.getCurrentUser() || 'kojo';
+      var ts = parseInt(KOJOStore.get(RECIPES_PREFIX + 'ts_' + acc), 10);
+      return isNaN(ts) ? 0 : ts;
+    },
+    setRecipesKeepTs: function (arr, ts, account) {
+      var acc = account || KOJOState.getCurrentUser() || 'kojo';
+      KOJOStore.set(RECIPES_PREFIX + acc, JSON.stringify(Array.isArray(arr) ? arr : []));
+      if (ts > 0) KOJOStore.set(RECIPES_PREFIX + 'ts_' + acc, String(ts));
     },
     getReminders: function (account) {
       var acc = account || KOJOState.getCurrentUser() || 'kojo';

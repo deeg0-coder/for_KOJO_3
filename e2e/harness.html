@@ -12,7 +12,7 @@
   <link rel="manifest" href="manifest.webmanifest" />
   <link rel="icon" href="icons/favicon.svg" type="image/svg+xml" />
   <link rel="apple-touch-icon" href="icons/icon-192.png" />
-  <link rel="stylesheet" href="css/styles.css?v=12" />
+  <link rel="stylesheet" href="css/styles.css?v=13" />
 </head>
 <body>
   <div class="login-screen" id="login-screen">
@@ -241,11 +241,11 @@
 
   <input type="file" id="import-file" accept=".json,application/json" class="hidden" />
 
-  <script src="js/data.js?v=12"></script>
-  <script src="js/accounts.js?v=12"></script>
-  <script src="js/state.js?v=12"></script>
-  <script src="js/sync.js?v=12"></script>
-  <script src="js/app.js?v=12"></script>
+  <script src="js/data.js?v=13"></script>
+  <script src="js/accounts.js?v=13"></script>
+  <script src="js/state.js?v=13"></script>
+  <script src="js/sync.js?v=13"></script>
+  <script src="js/app.js?v=13"></script>
 </body>
 </html>
 <script>// E2E harness for KOJO v12
@@ -277,9 +277,9 @@ window.addEventListener('unhandledrejection', function (e) { e2eLog('UNHANDLED: 
     x.send(payload ? JSON.stringify(payload) : null);
   }
 
-  add('app loaded v12', function (done) {
-    if (typeof KOJOState === 'object' && typeof KOJOCloud === 'object' && APP_VERSION === 12) pass('app loaded v12');
-    else fail('app loaded v12', 'globals/version');
+  add('app loaded v13', function (done) {
+    if (typeof KOJOState === 'object' && typeof KOJOCloud === 'object' && APP_VERSION === 13) pass('app loaded v13');
+    else fail('app loaded v13', 'globals/version');
     done();
   });
 
@@ -370,6 +370,8 @@ window.addEventListener('unhandledrejection', function (e) { e2eLog('UNHANDLED: 
 
   add('notifyReminder fires once per day when checklist incomplete', function (done) {
     KOJOState.setCurrentUser('tester');
+    // Отключаем остальные напоминания, чтобы полоса показывала только «open»
+    KOJOState.setReminders({ open: { enabled: true, time: '00:00' }, close: { enabled: false, time: '' }, general: { enabled: false, time: '' } }, 'tester');
     var topic = topicByClId('open');
     var arr = [];
     for (var j = 0; j < topic.items.length; j++) arr.push(false);
@@ -413,6 +415,11 @@ window.addEventListener('unhandledrejection', function (e) { e2eLog('UNHANDLED: 
   });
 
   add('syncAllFromCloud pulls notes+recipes into local', function (done) {
+    // Очищаем локальные заметки, чтобы облачные применились (локальные пустые)
+    KOJOStore.remove('kojo_notes_tester');
+    KOJOStore.remove('kojo_notes_ts_tester');
+    KOJOStore.remove('kojo_recipes_tester');
+    KOJOStore.remove('kojo_recipes_ts_tester');
     syncAllFromCloud(function () {
       var n = KOJOState.getNotes('tester');
       var rc = KOJOState.getRecipes('tester');
@@ -433,6 +440,70 @@ window.addEventListener('unhandledrejection', function (e) { e2eLog('UNHANDLED: 
         else fail('pushCloud meta written', got ? JSON.stringify(got.users && got.users.tester) : 'no doc');
         done();
       });
+    });
+  });
+
+  add('refresh keeps local edits when cloud is stale (ts-merge)', function (done) {
+    var user = 'refresh-user';
+    KOJOState.setCurrentUser(user);
+    var want = [true, true, false, true];
+    KOJOState.saveChecklist('open', want, user);
+    var lTs = KOJOState.getChecklistTs('open', user);
+    if (!(lTs > 0)) { fail('refresh keeps local edits', 'no local ts'); done(); return; }
+    var staleDoc = { date: kojoToday(), users: {} };
+    staleDoc.users[user] = { open: [false, false, false, false] };
+    var origGet = KOJOCloud.get;
+    var origSet = KOJOCloud.set;
+    var pushed = null;
+    KOJOCloud.set = function (doc, cb) { pushed = doc; if (cb) cb(doc, null); };
+    KOJOCloud.get = function (cb) { cb(staleDoc, null); };
+    syncAllFromCloud(function () {
+      KOJOCloud.get = origGet;
+      KOJOCloud.set = origSet;
+      var got = KOJOState.getChecklist('open', user);
+      if (got && JSON.stringify(got) === JSON.stringify(want)) pass('refresh keeps local edits');
+      else fail('refresh keeps local edits', 'local=' + JSON.stringify(got));
+      done();
+    });
+  });
+
+  add('cloud merge: stale local with old ts overwritten by newer cloud', function (done) {
+    var user = 'merge-user';
+    KOJOState.setCurrentUser(user);
+    var staleTs = 1000;
+    KOJOState.saveChecklistKeepTs('open', [false, false, false], staleTs, user);
+    var cTs = 5000;
+    var cloudDoc = { date: kojoToday(), users: {} };
+    cloudDoc.users[user] = { open: [true, true, true], ts: { open: cTs } };
+    var origGet = KOJOCloud.get;
+    KOJOCloud.get = function (cb) { cb(cloudDoc, null); };
+    syncAllFromCloud(function () {
+      KOJOCloud.get = origGet;
+      var got = KOJOState.getChecklist('open', user);
+      var t = KOJOState.getChecklistTs('open', user);
+      if (got && got[0] === true && got[2] === true && t === cTs) pass('cloud merge newer wins');
+      else fail('cloud merge newer wins', JSON.stringify(got) + ' ts=' + t);
+      done();
+    });
+  });
+
+  add('pushCloud: empty checklist removes cloud entry', function (done) {
+    var user = 'empty-user';
+    KOJOState.setCurrentUser(user);
+    KOJOState.saveChecklistKeepTs('open', [true, true], 100, user);
+    KOJOState.clearChecklist('open', user);
+    var captured = null;
+    var origGet = KOJOCloud.get;
+    var origSet = KOJOCloud.set;
+    KOJOCloud.get = function (cb) { cb({ date: kojoToday(), users: { 'other-user': { close: [true] } } }, null); };
+    KOJOCloud.set = function (doc, cb) { captured = doc; if (cb) cb(doc, null); };
+    pushCloud(function () {
+      KOJOCloud.get = origGet;
+      KOJOCloud.set = origSet;
+      var ok = captured && captured.users[user] && !captured.users[user].open;
+      if (ok) pass('pushCloud removes empty checklist');
+      else fail('pushCloud removes empty checklist', captured ? JSON.stringify(captured.users[user]) : 'no set');
+      done();
     });
   });
 
