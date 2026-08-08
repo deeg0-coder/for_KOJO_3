@@ -74,6 +74,55 @@ var KOJOCloud = (function () {
     try { KOJOStore.set(SETTINGS_KEY, JSON.stringify({ binId: binId, masterKey: masterKey || '' })); } catch (e) {}
   }
 
+  function todayIso() {
+    try { return kojoToday(); } catch (e) { return new Date().toISOString().slice(0, 10); }
+  }
+
+  // Бина нет (404): устройство хранит устаревший/удалённый ID. Сначала пробуем
+  // общий блоб по умолчанию — так все устройства снова сходятся на одном облаке.
+  // Если и он мёртв — создаём новый блоб.
+  function autoFix404(cb) {
+    var s = getSettings();
+    var fallbacks = [];
+    if (KOJO_SYNC_DEFAULTS.binId && s.binId !== KOJO_SYNC_DEFAULTS.binId) fallbacks.push(KOJO_SYNC_DEFAULTS.binId);
+    var tryRead = function (i) {
+      if (i >= fallbacks.length) {
+        addLog(false, 'чтение: блоб 404 — создаю новый');
+        createBin({ date: todayIso(), users: {} }, function (id) {
+          if (id) {
+            markSync(true, '');
+            addLog(true, 'восстановлен блоб: ' + id.slice(0, 8) + '…');
+            cb && cb({ date: todayIso(), users: {} });
+          } else {
+            markSync(false, 'не удалось восстановить блоб');
+            addLog(false, 'восстановление блоба не удалось');
+            cb && cb(null);
+          }
+        });
+        return;
+      }
+      var xhr = new XMLHttpRequest();
+      xhr.open('GET', BASE + fallbacks[i], true);
+      xhr.timeout = 15000;
+      xhr.onload = function () {
+        try {
+          if (xhr.status >= 200 && xhr.status < 300) {
+            var body = JSON.parse(xhr.responseText);
+            var record = body && body.record !== undefined ? body.record : body;
+            saveSettings(fallbacks[i], s.masterKey || '');
+            markSync(true, '');
+            addLog(true, 'восстановлен общий блоб');
+            cb && cb(record);
+          } else { tryRead(i + 1); }
+        } catch (e) { tryRead(i + 1); }
+      };
+      xhr.onerror = function () { tryRead(i + 1); };
+      xhr.ontimeout = function () { tryRead(i + 1); };
+      xhr.send();
+    };
+    tryRead(0);
+  }
+
   function isConfigured() {
     return !!(getSettings().binId);
   }
@@ -92,6 +141,12 @@ var KOJOCloud = (function () {
           markSync(true, '');
           addLog(true, 'чтение');
           cb && cb(record, null);
+        } else if (xhr.status === 404) {
+          // Блоб удалён или ID на устройстве устарел — автоматически
+          // переключаемся на общий блоб (или создаём новый).
+          autoFix404(function (recovered) {
+            cb && cb(recovered, recovered ? null : 'не удалось восстановить блоб');
+          });
         } else {
           markSync(false, 'HTTP ' + xhr.status);
           addLog(false, 'чтение HTTP ' + xhr.status);

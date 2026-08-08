@@ -1,13 +1,13 @@
-var CACHE_NAME = 'kojo-guide-v9';
+var CACHE_NAME = 'kojo-guide-v10';
 var ASSETS = [
   './',
   './index.html',
-  './css/styles.css?v=9',
-  './js/data.js?v=9',
-  './js/accounts.js?v=9',
-  './js/state.js?v=9',
-  './js/sync.js?v=9',
-  './js/app.js?v=9',
+  './css/styles.css?v=10',
+  './js/data.js?v=10',
+  './js/accounts.js?v=10',
+  './js/state.js?v=10',
+  './js/sync.js?v=10',
+  './js/app.js?v=10',
   './manifest.webmanifest',
   './icons/favicon.svg',
   './icons/icon-192.png',
