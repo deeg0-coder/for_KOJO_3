@@ -20,12 +20,12 @@ $sync = Read-Utf8 'js\sync.js'
 $app  = Read-Utf8 'js\app.js'
 $favicon = Read-Utf8 'icons\favicon.svg'
 
-$html = $html.Replace('<link rel="stylesheet" href="css/styles.css" />', "<style>`n$css`n</style>")
-$html = $html.Replace('<script src="js/data.js"></script>', "<script>`n$data`n</script>")
-$html = $html.Replace('<script src="js/accounts.js"></script>', "<script>`n$accounts`n</script>")
-$html = $html.Replace('<script src="js/state.js"></script>', "<script>`n$state`n</script>")
-$html = $html.Replace('<script src="js/sync.js"></script>', "<script>`n$sync`n</script>")
-$html = $html.Replace('<script src="js/app.js"></script>', "<script>`n$app`n</script>")
+$html = $html -replace '<link rel="stylesheet" href="css/styles.css(\?v=\d+)?" />', "<style>`n$css`n</style>"
+$html = $html -replace '<script src="js/data.js(\?v=\d+)?"></script>', "<script>`n$data`n</script>"
+$html = $html -replace '<script src="js/accounts.js(\?v=\d+)?"></script>', "<script>`n$accounts`n</script>"
+$html = $html -replace '<script src="js/state.js(\?v=\d+)?"></script>', "<script>`n$state`n</script>"
+$html = $html -replace '<script src="js/sync.js(\?v=\d+)?"></script>', "<script>`n$sync`n</script>"
+$html = $html -replace '<script src="js/app.js(\?v=\d+)?"></script>', "<script>`n$app`n</script>"
 $html = $html.Replace('<link rel="manifest" href="manifest.webmanifest" />', '<link rel="manifest" href="data:application/json,{&quot;name&quot;:&quot;KOJO Guide&quot;,&quot;short_name&quot;:&quot;KOJO Guide&quot;,&quot;display&quot;:&quot;standalone&quot;}" />')
 $html = $html.Replace('<link rel="icon" href="icons/favicon.svg" type="image/svg+xml" />', '<link rel="icon" href="data:image/svg+xml,' + [System.Uri]::EscapeDataString($favicon) + '" type="image/svg+xml" />')
 $html = $html.Replace('<link rel="apple-touch-icon" href="icons/icon-192.png" />', '')

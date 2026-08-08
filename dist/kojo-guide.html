@@ -12,7 +12,1697 @@
   <link rel="manifest" href="data:application/json,{&quot;name&quot;:&quot;KOJO Guide&quot;,&quot;short_name&quot;:&quot;KOJO Guide&quot;,&quot;display&quot;:&quot;standalone&quot;}" />
   <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2280%22%20height%3D%2237%22%20viewBox%3D%220%200%2080%2037%22%20fill%3D%22none%22%3E%0A%3Cpath%20d%3D%22M5.60452%203.82117V12.928L13.2337%203.82933H19.9444V4.15181L10.707%2014.4914L21.2302%2026.0719V26.4841H14.4746L5.60452%2016.2385V26.4841H0V3.82117H5.60452Z%22%20fill%3D%22%23232323%22%2F%3E%0A%3Cpath%20d%3D%22M44.3057%2015.181C44.3057%2021.704%2039.8482%2026.9901%2032.4966%2026.9901C25.145%2026.9901%2020.7324%2021.704%2020.7324%2015.181C20.7324%208.65807%2025.2348%203.37195%2032.4476%203.37195C39.6604%203.37195%2044.3016%208.70297%2044.3016%2015.181H44.3057ZM26.3369%2015.181C26.3369%2018.6262%2028.4024%2021.8428%2032.4925%2021.8428C36.5826%2021.8428%2038.6481%2018.6262%2038.6481%2015.181C38.6481%2011.7359%2036.2602%208.4703%2032.4925%208.4703C28.4473%208.4703%2026.3369%2011.7808%2026.3369%2015.181Z%22%20fill%3D%22%23232323%22%2F%3E%0A%3Cpath%20d%3D%22M53.1923%200V27.5695C53.1923%2033.174%2050.7553%2036.8069%2045.657%2036.8069C44.0038%2036.8069%2042.2567%2036.3498%2040.6484%2035.2925L42.669%2030.9289C43.6323%2031.3902%2044.5549%2031.6188%2045.3794%2031.5739C47.2163%2031.4841%2047.6327%2030.0554%2047.6327%2027.5776V0H53.1923Z%22%20fill%3D%22%23232323%22%2F%3E%0A%3Cpath%20d%3D%22M79.999%2015.181C79.999%2021.704%2075.5415%2026.9901%2068.19%2026.9901C60.8384%2026.9901%2056.4258%2021.704%2056.4258%2015.181C56.4258%208.65807%2060.9282%203.37195%2068.141%203.37195C75.3538%203.37195%2079.995%208.70297%2079.995%2015.181H79.999ZM62.0303%2015.181C62.0303%2018.6262%2064.0998%2021.8428%2068.1859%2021.8428C72.2719%2021.8428%2074.3415%2018.6262%2074.3415%2015.181C74.3415%2011.7359%2071.9535%208.4703%2068.1859%208.4703C64.1407%208.4703%2062.0303%2011.7808%2062.0303%2015.181Z%22%20fill%3D%22%23232323%22%2F%3E%0A%3C%2Fsvg%3E%0A" type="image/svg+xml" />
   
-  <link rel="stylesheet" href="css/styles.css?v=6" />
+  <style>
+:root {
+  --bg: #ffffff;
+  --bg-soft: #f5f5f5;
+  --border: #e4e4e7;
+  --border-strong: #d4d4d8;
+  --text: #111827;
+  --muted: #6b7280;
+  --accent: #111827;
+  --accent-soft: #f4f4f5;
+  --success: #22c55e;
+  --success-bg: #f0fdf4;
+  --success-border: #86efac;
+  --danger: #dc2626;
+  --danger-bg: #fee2e2;
+  --warning: #f59e0b;
+  --warning-bg: #fffbeb;
+  --info: #3b82f6;
+  --info-bg: #eff6ff;
+  --radius: 16px;
+  --shadow: 0 1px 3px rgba(15, 23, 42, 0.06);
+  --shadow-lg: 0 4px 16px rgba(15, 23, 42, 0.1);
+  --transition: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, system-ui, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  transition: background var(--transition), color var(--transition);
+  -webkit-tap-highlight-color: transparent;
+}
+
+.app {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 16px 16px calc(100px + env(safe-area-inset-bottom));
+  position: relative;
+}
+
+.app.locked {
+  display: none;
+}
+
+.login-screen {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: var(--bg);
+}
+
+.login-screen.visible {
+  display: flex;
+}
+
+.login-card {
+  width: 100%;
+  max-width: 380px;
+  background: var(--bg-soft);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-lg);
+  padding: 36px 28px 28px;
+  text-align: center;
+}
+
+.login-logo svg {
+  width: 76px;
+  height: 36px;
+  color: var(--accent);
+}
+
+.login-title {
+  margin-top: 14px;
+  font-size: 20px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+}
+
+.login-sub {
+  margin-top: 4px;
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.login-form {
+  margin-top: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.login-input {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1px solid var(--border-strong);
+  border-radius: 12px;
+  background: var(--bg);
+  color: var(--text);
+  font-size: 16px;
+  outline: none;
+  transition: border-color var(--transition), box-shadow var(--transition);
+}
+
+.login-input:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(17, 24, 39, 0.08);
+}
+
+.login-error {
+  min-height: 18px;
+  font-size: 13px;
+  color: var(--danger);
+}
+
+.login-remember {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-size: 14px;
+  color: var(--muted);
+  cursor: pointer;
+  user-select: none;
+}
+
+.login-remember input {
+  accent-color: var(--accent);
+}
+
+.login-btn {
+  width: 100%;
+  padding: 13px;
+  border: none;
+  border-radius: 12px;
+  background: var(--accent);
+  color: var(--bg);
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: opacity var(--transition);
+}
+
+.login-btn:hover {
+  opacity: 0.88;
+}
+
+body.dark .login-btn {
+  color: #18181b;
+}
+
+body.red .login-btn {
+  color: #1a0a0a;
+}
+
+.login-hint {
+  margin-top: 20px;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.login-card.shake {
+  animation: shake 0.5s;
+}
+
+@keyframes shake {
+  10%, 90% { transform: translateX(-1px); }
+  20%, 80% { transform: translateX(2px); }
+  30%, 50%, 70% { transform: translateX(-3px); }
+  40%, 60% { transform: translateX(3px); }
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: calc(10px + env(safe-area-inset-top)) 0 8px;
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  background: rgba(255, 255, 255, 0.85);
+  transition: background var(--transition);
+}
+
+body.dark .header {
+  background: rgba(24, 24, 27, 0.85);
+}
+
+body.red .header {
+  background: rgba(26, 10, 10, 0.85);
+}
+
+.logo-wrap {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.logo {
+  height: 32px;
+  display: inline-flex;
+  align-items: center;
+}
+
+.logo svg {
+  height: 32px;
+  width: auto;
+  display: block;
+  color: var(--text);
+}
+
+.logo-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.logo-title {
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.logo-sub {
+  font-size: 10px;
+  color: var(--muted);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.header-tag {
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: var(--bg-soft);
+  color: var(--muted);
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  border: 1px solid var(--border);
+}
+
+.header-sync-badge {
+  font-size: 15px;
+  line-height: 1;
+  padding: 2px;
+}
+
+.icon-btn {
+  background: var(--bg-soft);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 16px;
+  transition: all var(--transition);
+  position: relative;
+  touch-action: manipulation;
+}
+
+.icon-btn:hover {
+  border-color: var(--text);
+  transform: scale(1.05);
+}
+
+.icon-btn .badge {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  background: var(--danger);
+  color: white;
+  font-size: 9px;
+  font-weight: 700;
+  width: 18px;
+  height: 18px;
+  border-radius: 999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+body.dark {
+  --bg: #18181b;
+  --bg-soft: #27272a;
+  --border: #3f3f46;
+  --border-strong: #52525b;
+  --text: #ffffff;
+  --muted: #a1a1aa;
+  --accent: #ffffff;
+  --accent-soft: #27272a;
+  --success-bg: #052e16;
+  --success-border: #166534;
+  --danger-bg: #450a0a;
+  --warning-bg: #451a03;
+  --info-bg: #172554;
+  --shadow: 0 1px 3px rgba(0,0,0,0.3);
+  --shadow-lg: 0 4px 16px rgba(0,0,0,0.4);
+}
+
+body.red {
+  --bg: #1a0a0a;
+  --bg-soft: #2d1313;
+  --border: #4a2020;
+  --border-strong: #6b2d2d;
+  --text: #ffffff;
+  --muted: #d4a0a0;
+  --accent: #e74c3c;
+  --accent-soft: #2d1313;
+  --success: #22c55e;
+  --success-bg: #052e16;
+  --success-border: #166534;
+  --danger: #ef4444;
+  --danger-bg: #450a0a;
+  --warning: #f59e0b;
+  --warning-bg: #451a03;
+  --info: #e74c3c;
+  --info-bg: #2d1313;
+  --radius: 16px;
+  --shadow: 0 1px 3px rgba(0,0,0,0.4);
+  --shadow-lg: 0 4px 16px rgba(0,0,0,0.5);
+  --transition: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+body.dark .tile,
+body.dark .screen-box,
+body.dark .checklist-item,
+body.dark details.item,
+body.dark .item-link,
+body.dark .hero,
+body.dark .modal-content {
+  background: #18181b;
+}
+
+body.dark .back-icon,
+body.dark .icon-btn {
+  background: #27272a;
+}
+
+body.dark .search input {
+  background: #27272a;
+  color: #ffffff;
+  border-color: #3f3f46;
+}
+
+body.dark .search input::placeholder {
+  color: #71717a;
+}
+
+body.dark .checklist-item.completed {
+  background: #052e16;
+  border-color: #166534;
+}
+
+body.dark .checklist-item.completed .checklist-text {
+  color: #86efac;
+}
+
+body.dark .quick-action {
+  background: #27272a;
+}
+
+body.dark .quick-action:hover {
+  background: #3f3f46;
+}
+
+body.red .tile,
+body.red .screen-box,
+body.red .checklist-item,
+body.red details.item,
+body.red .item-link,
+body.red .hero,
+body.red .modal-content {
+  background: #1a0a0a;
+}
+
+body.red .back-icon,
+body.red .icon-btn {
+  background: #2d1313;
+}
+
+body.red .search input {
+  background: #2d1313;
+  color: #ffffff;
+  border-color: #4a2020;
+}
+
+body.red .search input::placeholder {
+  color: #a06060;
+}
+
+body.red .checklist-item.completed {
+  background: #052e16;
+  border-color: #166534;
+}
+
+body.red .checklist-item.completed .checklist-text {
+  color: #86efac;
+}
+
+body.red .quick-action {
+  background: #2d1313;
+}
+
+body.red .quick-action:hover {
+  background: #4a2020;
+}
+
+#home-screen { margin-top: 16px; }
+
+.hero {
+  padding: 18px 16px 16px;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  background: #ffffff;
+  transition: background var(--transition), border-color var(--transition);
+}
+
+.hero-title {
+  margin: 0 0 6px;
+  font-size: 24px;
+  font-weight: 700;
+}
+
+.hero-sub {
+  margin: 0;
+  font-size: 14px;
+  color: var(--muted);
+  line-height: 1.6;
+}
+
+.quick-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 14px;
+  flex-wrap: wrap;
+}
+
+.quick-action {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: var(--bg-soft);
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text);
+  cursor: pointer;
+  transition: all var(--transition);
+  text-decoration: none;
+  touch-action: manipulation;
+  min-height: 44px;
+}
+
+.quick-action:hover {
+  border-color: var(--text);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow);
+}
+
+.quick-action .emoji {
+  font-size: 14px;
+}
+
+.quick-action.primary {
+  background: var(--text);
+  color: var(--bg);
+  border-color: var(--text);
+}
+
+.quick-action.primary:hover {
+  opacity: 0.85;
+  transform: translateY(-1px);
+}
+
+.search {
+  margin-top: 14px;
+  position: relative;
+}
+
+.search input {
+  width: 100%;
+  border-radius: 999px;
+  padding: 11px 40px 11px 40px;
+  border: 1px solid var(--border-strong);
+  background: #ffffff;
+  color: var(--text);
+  font-size: 16px;
+  outline: none;
+  transition: all var(--transition);
+}
+
+.search input:focus {
+  border-color: var(--text);
+  box-shadow: 0 0 0 3px rgba(17, 24, 39, 0.06);
+}
+
+.search .search-icon {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--muted);
+  font-size: 16px;
+  pointer-events: none;
+}
+
+.search .clear-btn {
+  position: absolute;
+  right: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: var(--muted);
+  cursor: pointer;
+  font-size: 16px;
+  padding: 8px;
+  display: none;
+}
+
+.search .clear-btn.visible {
+  display: block;
+}
+
+.search .clear-btn:hover {
+  color: var(--text);
+}
+
+.search-results-count {
+  font-size: 12px;
+  color: var(--muted);
+  margin-top: 6px;
+  padding-left: 4px;
+}
+
+.search-suggestions {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  margin-top: 4px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  box-shadow: var(--shadow-lg);
+  z-index: 200;
+  max-height: 300px;
+  overflow-y: auto;
+  display: none;
+}
+
+.search-suggestions.visible {
+  display: block;
+}
+
+.search-suggestions .suggestion-item {
+  padding: 10px 14px;
+  cursor: pointer;
+  touch-action: manipulation;
+  font-size: 13px;
+  border-bottom: 1px solid var(--border);
+  transition: background var(--transition);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.search-suggestions .suggestion-item > * { pointer-events: auto; }
+
+.search-suggestions .suggestion-item:last-child {
+  border-bottom: none;
+}
+
+.search-suggestions .suggestion-item:hover,
+.search-suggestions .suggestion-item.highlighted {
+  background: var(--accent-soft);
+}
+
+.search-suggestions .suggestion-item .sug-icon {
+  font-size: 14px;
+}
+
+.search-suggestions .suggestion-item .sug-section {
+  font-size: 10px;
+  color: var(--muted);
+  margin-left: auto;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.chips {
+  margin-top: 10px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.chip {
+  padding: 5px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: var(--bg-soft);
+  font-size: 11px;
+  color: var(--muted);
+  cursor: pointer;
+  touch-action: manipulation;
+  transition: all var(--transition);
+  user-select: none;
+}
+
+.chip:hover {
+  border-color: var(--text);
+  color: var(--text);
+  transform: translateY(-1px);
+}
+
+.chip.active {
+  border-color: var(--text);
+  background: var(--text);
+  color: var(--bg);
+}
+
+.section { margin-top: 24px; }
+
+.section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.section-header h2 {
+  font-size: 16px;
+  margin: 0;
+  font-weight: 600;
+}
+
+.section-header .see-all {
+  font-size: 12px;
+  color: var(--muted);
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 999px;
+  transition: all var(--transition);
+}
+
+.section-header .see-all:hover {
+  background: var(--bg-soft);
+  color: var(--text);
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.tile {
+  border-radius: var(--radius);
+  padding: 14px 12px;
+  background: #ffffff;
+  border: 1px solid var(--border);
+  cursor: pointer;
+  touch-action: manipulation;
+  transition: all var(--transition);
+  position: relative;
+  overflow: hidden;
+}
+.tile > * { pointer-events: auto; }
+
+.tile:hover {
+  border-color: var(--text);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+}
+
+.tile:active {
+  transform: scale(0.97);
+}
+
+.tile .tile-icon {
+  font-size: 20px;
+  margin-bottom: 6px;
+  display: block;
+}
+
+.tile-title {
+  font-size: 13px;
+  font-weight: 600;
+  margin: 0 0 4px;
+}
+
+.tile-text {
+  margin: 0;
+  font-size: 12px;
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+.tile .tile-badge {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  font-size: 10px;
+  background: var(--bg-soft);
+  padding: 2px 8px;
+  border-radius: 999px;
+  color: var(--muted);
+}
+
+.screen {
+  display: none;
+  margin-top: 16px;
+  animation: fadeSlideIn 0.3s ease;
+}
+
+.screen.active { display: block; }
+
+@keyframes fadeSlideIn {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.back {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: var(--muted);
+  cursor: pointer;
+  touch-action: manipulation;
+  padding: 4px 0;
+  margin-bottom: 8px;
+  transition: color var(--transition);
+}
+.back > * { pointer-events: auto; }
+
+.back:hover {
+  color: var(--text);
+}
+
+.back-icon {
+  width: 28px;
+  height: 28px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  background: #ffffff;
+  transition: all var(--transition);
+}
+
+.back:hover .back-icon {
+  border-color: var(--text);
+  background: var(--accent-soft);
+}
+
+.screen-box {
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  background: #ffffff;
+  padding: 16px 16px 14px;
+  transition: background var(--transition), border-color var(--transition);
+}
+
+.screen-title {
+  margin: 0 0 4px;
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.screen-sub {
+  margin: 0 0 14px;
+  font-size: 13px;
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+.list {
+  display: grid;
+  gap: 8px;
+}
+
+/* Единый стиль для всех элементов навигации как в "Что делать если" */
+.item-link {
+  width: 100%;
+  text-align: left;
+  border-radius: 12px;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  background: #ffffff;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  touch-action: manipulation;
+  transition: all var(--transition);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.item-link > * { pointer-events: auto; }
+
+.item-link:hover {
+  background: var(--bg-soft);
+  border-color: var(--text);
+  transform: translateX(4px);
+}
+
+.item-link .link-icon {
+  font-size: 16px;
+}
+
+.item-link .link-arrow {
+  margin-left: auto;
+  color: var(--muted);
+}
+
+/* Стиль для вложенных элементов в разделах (details) */
+details.item {
+  border-radius: 12px;
+  padding: 8px 10px;
+  border: 1px solid var(--border);
+  background: #ffffff;
+  transition: all var(--transition);
+}
+
+details.item[open] {
+  border-color: var(--text);
+  background: var(--accent-soft);
+}
+
+details summary {
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 500;
+  list-style: none;
+  user-select: none;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+details summary::-webkit-details-marker { display: none; }
+
+details summary .expand-icon {
+  margin-left: auto;
+  font-size: 12px;
+  color: var(--muted);
+  transition: transform var(--transition);
+}
+
+details[open] summary .expand-icon {
+  transform: rotate(180deg);
+}
+
+.item-body {
+  padding-top: 6px;
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--muted);
+}
+
+.checklist {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.checklist-item {
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  margin-bottom: 8px;
+  background: #ffffff;
+  transition: all var(--transition);
+  cursor: default;
+}
+
+.checklist-item:hover {
+  border-color: var(--border-strong);
+}
+
+.checklist-item.checklist-section-label {
+  background: transparent;
+  border: none;
+  padding: 16px 4px 6px;
+  margin-bottom: 2px;
+  cursor: default;
+  pointer-events: none;
+}
+
+.checklist-item.checklist-section-label span {
+  font-weight: 600;
+  font-size: 0.95rem;
+  letter-spacing: 0.3px;
+  color: var(--text);
+}
+
+.checklist-item.completed {
+  background: var(--success-bg);
+  border-color: var(--success-border);
+  opacity: 0.85;
+}
+
+.checklist-item.completed .checklist-text {
+  text-decoration: line-through;
+  color: var(--muted);
+}
+
+.checklist-label {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  cursor: pointer;
+  width: 100%;
+}
+
+.checklist-checkbox {
+  margin-top: 2px;
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+  cursor: pointer;
+  accent-color: var(--success);
+  transition: transform var(--transition);
+  appearance: none;
+  -webkit-appearance: none;
+  border: 2px solid var(--border-strong);
+  border-radius: 4px;
+  background: white;
+  position: relative;
+}
+
+.checklist-checkbox:checked {
+  background: var(--success);
+  border-color: var(--success);
+}
+
+.checklist-checkbox:checked::after {
+  content: '✓';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: white;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.checklist-checkbox:focus-visible {
+  outline: 2px solid var(--text);
+  outline-offset: 2px;
+}
+
+.checklist-text {
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1.4;
+}
+
+.checklist-item .step-text {
+  margin-left: 28px;
+  margin-top: 4px;
+  font-size: 12px;
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+.checklist-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.checklist-progress {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.progress-bar {
+  width: 80px;
+  height: 4px;
+  background: var(--border);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  background: var(--success);
+  border-radius: 999px;
+  transition: width 0.5s ease;
+  width: 0%;
+}
+
+.reset-btn {
+  padding: 4px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--border-strong);
+  background: var(--bg-soft);
+  color: var(--muted);
+  font-size: 11px;
+  cursor: pointer;
+  transition: all var(--transition);
+  touch-action: manipulation;
+}
+
+.reset-btn:hover {
+  background: var(--danger-bg);
+  border-color: var(--danger);
+  color: var(--danger);
+}
+
+.checklist-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.stat-card {
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: var(--bg-soft);
+  text-align: center;
+}
+
+.stat-card .stat-value {
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.stat-card .stat-label {
+  font-size: 10px;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.stat-card .stat-value.done { color: var(--success); }
+.stat-card .stat-value.pending { color: var(--warning); }
+
+.steps {
+  margin: 0;
+  padding-left: 18px;
+  font-size: 13px;
+  color: var(--text);
+}
+
+.steps li { margin-bottom: 10px; }
+
+.steps li strong { font-weight: 600; }
+
+.step-text {
+  margin-top: 4px;
+  color: var(--muted);
+  line-height: 1.6;
+}
+
+.step-text p {
+  margin: 0 0 10px;
+}
+
+.step-text p:last-child {
+  margin-bottom: 0;
+}
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0,0,0,0.5);
+  backdrop-filter: blur(4px);
+  z-index: 1000;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  animation: fadeIn 0.2s ease;
+}
+
+.modal-overlay.visible {
+  display: flex;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.modal-content {
+  background: var(--bg);
+  border-radius: var(--radius);
+  padding: 24px;
+  max-width: 400px;
+  width: 100%;
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-lg);
+  animation: slideUp 0.3s ease;
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(20px) scale(0.95); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.modal-content h3 {
+  margin: 0 0 8px;
+  font-size: 18px;
+}
+
+.modal-content p {
+  margin: 0 0 16px;
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.modal-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+.modal-actions button {
+  padding: 8px 16px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: var(--bg-soft);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all var(--transition);
+  touch-action: manipulation;
+}
+
+.modal-actions button.primary {
+  background: var(--text);
+  color: var(--bg);
+  border-color: var(--text);
+}
+
+.modal-actions button.primary:hover {
+  opacity: 0.85;
+}
+
+.modal-actions button:hover {
+  border-color: var(--text);
+}
+
+.toast-container {
+  position: fixed;
+  bottom: calc(20px + env(safe-area-inset-bottom));
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: center;
+  pointer-events: none;
+  max-width: 90%;
+}
+
+.toast {
+  padding: 10px 20px;
+  border-radius: 12px;
+  background: var(--text);
+  color: var(--bg);
+  font-size: 13px;
+  font-weight: 500;
+  box-shadow: var(--shadow-lg);
+  animation: toastSlide 0.3s ease;
+  pointer-events: auto;
+  max-width: 100%;
+  text-align: center;
+}
+
+.toast.success { background: var(--success); color: white; }
+.toast.error { background: var(--danger); color: white; }
+.toast.warning { background: var(--warning); color: white; }
+.toast.info { background: var(--info); color: white; }
+
+@keyframes toastSlide {
+  from { opacity: 0; transform: translateY(20px) scale(0.95); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.quick-checklist-access {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin: 12px 0 8px;
+}
+
+.quick-checklist-btn {
+  padding: 10px 8px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: var(--bg-soft);
+  text-align: center;
+  cursor: pointer;
+  transition: all var(--transition);
+  font-size: 12px;
+  font-weight: 500;
+  touch-action: manipulation;
+}
+
+.quick-checklist-btn:hover {
+  border-color: var(--text);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow);
+}
+
+.quick-checklist-btn .icon {
+  display: block;
+  font-size: 20px;
+  margin-bottom: 4px;
+}
+
+.quick-checklist-btn .progress-mini {
+  font-size: 10px;
+  color: var(--muted);
+  margin-top: 2px;
+}
+
+.keyboard-hint {
+  font-size: 10px;
+  color: var(--muted);
+  text-align: center;
+  margin-top: 12px;
+  letter-spacing: 0.04em;
+}
+
+.keyboard-hint kbd {
+  padding: 2px 6px;
+  border-radius: 4px;
+  border: 1px solid var(--border);
+  background: var(--bg-soft);
+  font-family: inherit;
+  font-size: 10px;
+}
+
+/* Калькулятор заявки */
+.calc-wrap {
+  margin-top: 10px;
+  display: grid;
+  gap: 10px;
+}
+
+.calc-section {
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--info);
+  margin-top: 12px;
+  padding-bottom: 4px;
+  border-bottom: 1px solid var(--border);
+}
+
+.calc-section:first-child {
+  margin-top: 0;
+}
+
+.calc-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.calc-row label {
+  font-size: 13px;
+  font-weight: 500;
+  min-width: 140px;
+}
+
+.calc-input {
+  width: 80px;
+  padding: 6px 10px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  font-size: 16px;
+  background: var(--bg);
+  color: var(--text);
+}
+
+.calc-row .calc-note {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.calc-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 16px;
+  flex-wrap: wrap;
+}
+
+.calc-copy-btn {
+  padding: 10px 20px;
+  border-radius: 10px;
+  border: none;
+  background: var(--info);
+  color: #fff;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+.calc-hint {
+  font-size: 11px;
+  color: var(--muted);
+  align-self: center;
+}
+
+.calc-footnote {
+  font-size: 11px;
+  color: var(--muted);
+  margin-top: 12px;
+}
+
+/* Баннер установки PWA */
+.install-banner {
+  position: fixed;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: calc(20px + env(safe-area-inset-bottom));
+  z-index: 9990;
+  background: var(--text);
+  color: var(--bg);
+  border-radius: 12px;
+  padding: 12px 16px;
+  box-shadow: var(--shadow-lg);
+  display: none;
+  gap: 10px;
+  align-items: center;
+  font-size: 13px;
+  font-weight: 500;
+  max-width: 90%;
+}
+
+.install-banner.visible {
+  display: flex;
+}
+
+.install-banner button {
+  border: none;
+  border-radius: 999px;
+  padding: 6px 14px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  touch-action: manipulation;
+  white-space: nowrap;
+}
+
+.install-banner .install-primary {
+  background: var(--info);
+  color: #fff;
+}
+
+.install-banner .install-close {
+  background: none;
+  color: var(--muted);
+  padding: 4px 6px;
+}
+
+.hidden { display: none !important; }
+
+/* === Выбор аккаунта при входе === */
+.account-picker-label {
+  font-size: 13px;
+  color: var(--muted);
+  margin-bottom: 10px;
+  text-align: left;
+}
+
+.account-picker-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.account-chip {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px solid var(--border-strong);
+  background: var(--bg);
+  color: var(--text);
+  cursor: pointer;
+  text-align: left;
+  transition: all var(--transition);
+  touch-action: manipulation;
+}
+
+.account-chip:hover {
+  border-color: var(--accent);
+}
+
+.account-chip.active {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+  box-shadow: inset 0 0 0 1px var(--accent);
+}
+
+.account-chip-name {
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.3;
+}
+
+.account-chip-role {
+  font-size: 10px;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+@media (max-width: 420px) {
+  .account-picker-grid { grid-template-columns: 1fr; }
+}
+
+/* === Текущий пользователь в шапке === */
+.header-user {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 1px;
+  min-width: 0;
+}
+
+.header-user-name {
+  display: none;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text);
+  max-width: 130px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.header-user-role {
+  font-size: 9px;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+@media (max-width: 640px) {
+  .header-user-name { max-width: 90px; }
+}
+
+/* === Раздел «Контроль» === */
+.control-syncline {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 14px;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.control-card {
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+  background: var(--bg);
+  margin-bottom: 14px;
+}
+
+.control-table-head,
+.control-row,
+.control-total {
+  display: grid;
+  grid-template-columns: 1fr auto minmax(80px, 130px);
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--border);
+}
+
+.control-table-head {
+  background: var(--bg-soft);
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+  font-weight: 600;
+}
+
+.control-user {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.control-name {
+  font-size: 13px;
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.control-role {
+  font-size: 10px;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.control-row.is-admin .control-name {
+  color: var(--info);
+}
+
+.control-count {
+  font-size: 13px;
+  white-space: nowrap;
+}
+
+.control-count.good { color: var(--success); }
+.control-count.mid { color: var(--warning); }
+
+.control-pct .progress-bar {
+  width: 100%;
+}
+
+.control-pct .progress-bar-fill.good { background: var(--success); }
+.control-pct .progress-bar-fill.mid { background: var(--warning); }
+
+.control-total {
+  border-bottom: none;
+  background: var(--bg-soft);
+  font-weight: 700;
+  font-size: 14px;
+}
+
+.control-account {
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--bg);
+  margin-bottom: 12px;
+  padding: 12px 14px;
+}
+
+.control-account-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.control-account-head .control-name {
+  font-size: 15px;
+}
+
+.control-account-head .control-name.admin {
+  color: var(--info);
+}
+
+.control-bars {
+  display: grid;
+  gap: 10px;
+}
+
+.control-bar-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 8px;
+  font-size: 12px;
+  color: var(--muted);
+  margin-bottom: 4px;
+}
+
+.control-bar .control-count {
+  font-size: 12px;
+}
+
+.control-bar .progress-bar {
+  width: 100%;
+  height: 6px;
+}
+
+.control-bar .progress-bar-fill.good { background: var(--success); }
+.control-bar .progress-bar-fill.mid { background: var(--warning); }
+
+.control-total-wrap {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--bg-soft);
+  font-size: 13px;
+  font-weight: 600;
+  margin-bottom: 14px;
+}
+
+.control-total-wrap .muted {
+  color: var(--muted);
+  font-weight: 400;
+}
+
+.screen-sub.small {
+  font-size: 12px;
+}
+
+.tile-admin {
+  border-color: var(--info);
+  background: var(--info-bg);
+}
+
+@media (max-width: 820px) {
+  .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .checklist-stats { grid-template-columns: repeat(3, 1fr); }
+  .quick-checklist-access { grid-template-columns: repeat(3, 1fr); }
+}
+
+@media (max-width: 640px) {
+  .app { padding: 16px 12px calc(40px + env(safe-area-inset-bottom)); }
+  .grid { grid-template-columns: 1fr; }
+  .checklist-stats { grid-template-columns: repeat(3, 1fr); }
+  .quick-checklist-access { grid-template-columns: repeat(3, 1fr); }
+  .hero-title { font-size: 20px; }
+  .header-tag { display: none; }
+  .progress-bar { width: 50px; }
+  .checklist-progress { font-size: 11px; }
+  .quick-actions { gap: 6px; }
+  .quick-action { font-size: 11px; padding: 6px 12px; }
+  .modal-content { margin: 10px; padding: 20px; }
+}
+
+@media (max-width: 420px) {
+  .checklist-stats { grid-template-columns: 1fr; gap: 4px; }
+  .quick-checklist-access { grid-template-columns: 1fr; }
+  .stat-card { padding: 6px 10px; }
+  .stat-card .stat-value { font-size: 16px; }
+}
+
+</style>
 </head>
 <body>
   <div class="login-screen" id="login-screen">
@@ -110,10 +1800,2879 @@
 
   <input type="file" id="import-file" accept=".json,application/json" class="hidden" />
 
-  <script src="js/data.js?v=6"></script>
-  <script src="js/accounts.js?v=6"></script>
-  <script src="js/state.js?v=6"></script>
-  <script src="js/sync.js?v=6"></script>
-  <script src="js/app.js?v=6"></script>
+  <script>
+'use strict';
+var KOJO_DATA = {
+  version: 1,
+  appName: 'kojo-guide',
+  sections: [
+    {
+      id: 'checklists',
+      icon: '✅',
+      title: 'Чек‑листы кофейни',
+      text: 'Открытие, закрытие, генуборка, замывка оборудования.',
+      screenTitle: 'Чек‑листы кофейни',
+      sub: 'Чек‑лист открытия кофейни, чек‑лист закрытия, чек‑лист генеральной уборки и инструкции по замывке оборудования.',
+      backLabel: 'К разделу «Чек‑листы кофейни»',
+      items: [
+        { id: 'open-coffee-shop', icon: '☀️', title: 'Открытие кофейни (чек‑лист)' },
+        { id: 'close-coffee-shop', icon: '🌙', title: 'Закрытие кофейни (чек‑лист)' },
+        { id: 'general-cleaning', icon: '🧹', title: 'Генеральная уборка кофейни' },
+        { id: 'steam-wand-cleaning', icon: '💨', title: 'Замывка паровика' },
+        { id: 'va-e1-cleaning', icon: '☕', title: 'Замывка Victoria Arduino Eagle One' },
+        { id: 'largo-cleaning', icon: '🧊', title: 'Мытьё Ларго' },
+        { id: 'ice-maker-cleaning', icon: '🧊', title: 'Замывка льдогенератора' },
+        { id: 'iiko-open', icon: '💳', title: 'Открытие кассовой смены в iiko' },
+        { id: 'iiko-close', icon: '💳', title: 'Закрытие кассовой смены в iiko' },
+        { id: 'iiko-writeoff', icon: '📝', title: 'Списание в iiko' },
+        { id: 'service-standards', icon: '🤝', title: 'Стандарты сервиса' }
+      ]
+    },
+    {
+      id: 'ifs',
+      icon: '⚠️',
+      title: 'Что делать если',
+      text: 'Потоп, не сходится касса, поломка техники, нет молока и др.',
+      screenTitle: 'Что делать если',
+      sub: 'Алгоритмы действий для нештатных ситуаций на точке.',
+      backLabel: 'К разделу «Что делать если»',
+      items: [
+        { id: 'case-no-filter-in-iiko', icon: '🔄', title: 'Зерно сварили на фильтр, а его нет в iiko' },
+        { id: 'case-grinder-dust', icon: '💨', title: 'Пылит кофемолка' },
+        { id: 'case-guest-for-order', icon: '👤', title: 'Гость пришёл за заказом' },
+        { id: 'case-cash-mismatch', icon: '💰', title: 'Не сходится касса' },
+        { id: 'case-flood', icon: '💧', title: 'На точке потоп' },
+        { id: 'case-something-broken', icon: '🔧', title: 'У меня что-то не работает' },
+        { id: 'case-no-milk', icon: '🥛', title: 'Закончились молоко или критичный продукт' },
+        { id: 'case-dont-know-shelf-life', icon: '📅', title: 'Я не знаю, сколько хранится та или иная продукция' },
+        { id: 'case-dont-know-receiving', icon: '📦', title: 'Я не знаю, как принимать поставку в Депо' },
+        { id: 'case-admins-docs', icon: '📄', title: 'Админы принесли документацию' },
+        { id: 'case-dont-know-order', icon: '📋', title: 'Я не знаю, чего и сколько заказывать в поставку' },
+        { id: 'case-dont-know-when-request', icon: '📨', title: 'Я не знаю, когда писать заявку на поставку' },
+        { id: 'case-food', icon: '🍽️', title: 'Что делать с питанием на смене?' },
+        { id: 'case-water-flow', icon: '🚰', title: 'Перестала идти фильтрованная вода' },
+        { id: 'case-inventory', icon: '📋', title: 'Сегодня инвентаризация' },
+        { id: 'case-no-tonic', icon: '🍊', title: 'Закончились тоник или апельсины' }
+      ]
+    },
+    {
+      id: 'important',
+      icon: '📌',
+      title: 'Важное',
+      text: 'Сроки годности, правила работы, график смен, чеки и заявки.',
+      screenTitle: 'Важное',
+      sub: 'Сроки годности, график смен, правила работы, чеки и заявки.',
+      backLabel: 'К разделу «Важное»',
+      items: [
+        { id: 'important-ttk', icon: '📖', title: 'Рецептура (ТТК)' },
+        { id: 'important-where-checklist', icon: '✅', title: 'Где найти чек-лист' },
+        { id: 'important-shelf-life', icon: '📅', title: 'Файл со сроками годности' },
+        { id: 'important-checks', icon: '🧾', title: 'Куда отправлять чеки за такси и еду?' },
+        { id: 'important-schedule', icon: '📋', title: 'Где найти график смен?' },
+        { id: 'important-request', icon: '📨', title: 'Когда писать заявку в депо?' },
+        { id: 'important-rules-warehouse', icon: '📦', title: 'Правила пользования складом' },
+        { id: 'important-rules-restock', icon: '📥', title: 'Правила пополнения склада' },
+        { id: 'important-rules-work', icon: '⚡', title: 'Как работать в течение смены?' },
+        { id: 'important-rules-change', icon: '💰', title: 'Для чего мы делаем внесение разменов?' },
+        { id: 'important-rules-reports', icon: '📊', title: 'Как работать с отчётами в iiko?' },
+        { id: 'important-delivery', icon: '🚚', title: 'Правила приёма поставки' },
+        { id: 'important-max-absence', icon: '⏱️', title: 'Максимальное время отсутствия на точке' }
+      ]
+    },
+    {
+      id: 'rules',
+      icon: '📖',
+      title: 'История и Философия',
+      text: 'История бренда и философия KOJO.',
+      screenTitle: 'История и Философия',
+      sub: 'Философские принципы и история бренда KOJO.',
+      backLabel: 'К разделу «История и Философия»',
+      items: [
+        { id: 'rules-philosophy', icon: '🧘', title: 'Философия KOJO' },
+        { id: 'rules-history', icon: '🏛️', title: 'История бренда KOJO' }
+      ]
+    }
+  ],
+  home: {
+    heroTitle: 'Все важное для смены',
+    heroSub: 'Чек‑листы кофейни, «что делать если», важное, история и философия Коджо — в одном месте.',
+    searchPlaceholder: 'Поиск: открыть смену, потоп, паровик, философия...',
+    quickActions: [
+      { action: 'quick-start-shift', emoji: '🚀', label: 'Начать смену', primary: true },
+      { action: 'quick-end-shift', emoji: '🏁', label: 'Закрыть смену' },
+      { action: 'quick-checklist', emoji: '✅', label: 'Чек-листы' },
+      { action: 'quick-search', emoji: '🔍', label: 'Поиск' }
+    ],
+    chips: [
+      { suggest: 'open-shift', label: 'открыть кассовую смену' },
+      { suggest: 'close-shift', label: 'закрыть кассовую смену' },
+      { suggest: 'steam-wand', label: 'замывать паровик' },
+      { suggest: 'va-e1', label: 'Victoria Arduino Eagle One' },
+      { suggest: 'largo', label: 'мыть Ларго' },
+      { suggest: 'philosophy', label: 'философия KOJO' },
+      { suggest: 'history', label: 'история бренда KOJO' }
+    ],
+    quickChecklists: [
+      { cl: 'open', icon: '☀️', label: 'Открытие' },
+      { cl: 'close', icon: '🌙', label: 'Закрытие' },
+      { cl: 'general', icon: '🧹', label: 'Генуборка' }
+    ],
+    tiles: [
+      { type: 'section', section: 'checklists', icon: '✅', title: 'Чек‑листы кофейни', text: 'Открытие, закрытие, генуборка, замывка оборудования.', badge: true },
+      { type: 'section', section: 'ifs', icon: '⚠️', title: 'Что делать если', text: 'Потоп, не сходится касса, поломка техники, нет молока и др.' },
+      { type: 'section', section: 'important', icon: '📌', title: 'Важное', text: 'Сроки годности, правила работы, график смен, чеки и заявки.' },
+      { type: 'section', section: 'rules', icon: '📖', title: 'История и Философия', text: 'История бренда и философия KOJO.' },
+      { type: 'topic', topic: 'order-request', icon: '📋', title: 'Заявка в депо', text: 'Расчёт остатков и написание заявки на поставку.' }
+    ]
+  },
+  topics: {
+    'open-coffee-shop': {
+      type: 'checklist',
+      clId: 'open',
+      icon: '☀️',
+      title: 'Чек‑лист открытия',
+      sub: 'Последовательность действий при открытии кофейни.',
+      back: 'checklists',
+      items: [
+        { text: '<strong>Прийти вовремя на смену.</strong>', hint: 'Приходи заранее, чтобы спокойно подготовиться.' },
+        { text: '<strong>Включить всё оборудование и свет.</strong>', hint: 'Включи кофемашины, кофемолки, холодильники.' },
+        { text: '<strong>Открыть кассовую смену в iiko.</strong> <a href="#" data-action="link-to-topic" data-topic="iiko-open" data-parent="checklists" style="color:var(--info);font-weight:600;">Подробнее →</a>', hint: null },
+        { text: '<strong>Надеть чистый фартук, убрать волосы.</strong>', hint: 'Выгляди опрятно — форма должна быть чистой, волосы убраны.' },
+        { text: '<strong>Проверить расходники в зоне гостя.</strong>', hint: 'Крышки, салфетки, трубочки — всё в достатке.' },
+        { text: '<strong>Проверить наличие апельсинов для фреша.</strong>', hint: 'Если апельсинов нет — закажи через ВкусВилл с рабочего телефона.' },
+        { text: '<strong>Обновить воду в графине для гостей.</strong>', hint: 'Налей свежую воду, протри графин от разводов.' },
+        { text: '<strong>Протереть от пыли зону кассы.</strong>', hint: 'Протри поверхность справа от кассового ящика.' },
+        { text: '<strong>Поставить вариться батч‑брю.</strong>', hint: 'Подготовь фильтр‑кофе по рецептуре.' },
+        { text: '<strong>Сварить 1 эспрессо на каждой группе.</strong>', hint: 'Финально прочисти группу после вечерней замывки химией.' },
+        { text: '<strong>Настроить эспрессо.</strong>', hint: 'Сделай пробные шоты, отрегулируй помол с учётом дальнейшего роста общей температуры в помещении.' },
+        { text: '<strong>Заполнить журналы.</strong>', hint: 'Отметь температуры холодильников.' },
+        { text: '<strong>Заполнить чек‑лист эспрессо и фильтра.</strong>', hint: 'Зафиксируй параметры.' },
+        { text: '<strong>Проверить заготовки и молоко.</strong>', hint: 'Проверь даты, внешний вид.' },
+        { text: '<strong>Проверить десерты и наполнить витрину.</strong>', hint: 'Проверь сроки, дополни витрину.' },
+        { text: '<strong>Протереть все поверхности.</strong>', hint: 'Бар, оборудование, витрина — без пыли.' },
+        { text: '<strong>Принять и разобрать поставку.</strong>', hint: 'Сверяй по накладной, соблюдай FIFO.' },
+        { text: '<strong>Улыбнуться и проверить готовность.</strong>', hint: 'Осмотрись со стороны гостя.' }
+      ]
+    },
+    'close-coffee-shop': {
+      type: 'checklist',
+      clId: 'close',
+      icon: '🌙',
+      title: 'Чек‑лист закрытия',
+      sub: 'Действия по кофейне перед закрытием. Выполняй последовательно.',
+      back: 'checklists',
+      items: [
+        { text: '<strong>Протереть бар.</strong>', hint: 'Всё чистое, без липких пятен. Убрать меню со стойки.' },
+        { text: '<strong>Проверить и вытащить заготовки на разморозку.</strong>', hint: 'Вытащи недостающие заготовки, промаркируй датой и временем.' },
+        { text: '<strong>Списать просрочку.</strong>', hint: 'Десерты, заготовки с истёкшим сроком — списать в iiko и утилизировать.' },
+        { text: '<strong>Помыть холодильник и соусники.</strong>', hint: 'Внутри и снаружи — чисто.' },
+        { text: '<strong>Помыть барный инвентарь.</strong>', hint: 'Питчеры, ложки, коврики — чистые.' },
+        { text: '<strong>Очистить кофемолки от смола.</strong>', hint: 'С помощью кисточки или сухой салфетки очисти поверхности кофемолок от кофейных масел и остатков. Не используй воду.' },
+        { text: '<strong>Замыть кофемашину.</strong>', hint: 'Корпус без подтёков, поддон промыт, группы прочищены — используй слепую корзину с кофизой. Холдеры не замачиваем (замачивание — в генуборку).' },
+        { text: '<strong>Протереть витрину.</strong>', hint: 'Стекло чистое, без крошек.' },
+        { text: '<strong>Помыть термосы и раковины.</strong>', hint: 'Без остатков кофе или молока.' },
+        { text: '<strong>Помыть ситечко для чая, соковыжималку, диспенсеры для мыла.</strong>', hint: 'Ситечко промыть, соковыжималку разобрать и вымыть, диспенсеры протереть. Тряпки постирать или выбросить.' },
+        { text: '<strong>Пополнить расходники в зоне гостя и на баре.</strong>', hint: 'Стаканы для холодных и горячих напитков, крышки, трубочки, салфетки — всё в достатке на следующую смену. Пополни полки с зерном на продажу.' },
+        { text: '<strong>Проверить наличие апельсинов для фреша.</strong>', hint: 'Если апельсинов нет — напиши в чат, что утром надо заказать через ВкусВилл с рабочего телефона.' },
+        { text: '<strong>Поставить на зарядку весы и рабочий телефон.</strong>', hint: 'Убедись, что весы и телефон на зарядке — к утру должны быть заряжены.' },
+        { text: '<strong>Заснять видео точки и сфоткать холодильники.</strong>', hint: 'Сними видео всей кофейни (корнер снаружи, бар, зал). Сфоткай холодильники, витрину. Отправь в чат.' },
+        { text: '<strong>Закрыть кассовую смену в iiko.</strong> <a href="#" data-action="link-to-topic" data-topic="iiko-close" data-parent="checklists" style="color:var(--info);font-weight:600;">Подробнее →</a>', hint: 'Для Депо: убедись, что все чеки закрыты, после Z-отчёта фото отправь в чат.' },
+        { text: '<strong>Вернуть ключ от склада и карточку «лифт».</strong>', hint: 'Не забудь сдать ключ и карточку на место.' },
+        { text: '<strong>Выключить оборудование и свет.</strong>', hint: 'Выключи кофемашину, кофемолки, льдогенератор, свет. Подсветка корнера отключается отдельным выключателем (уточни расположение у управляющей). Накрой кассу.' },
+        { text: '<strong>Выкинуть мусор.</strong>', hint: 'Вынеси пакеты, поставь новые.' }
+      ]
+    },
+    'general-cleaning': {
+      type: 'checklist',
+      clId: 'general',
+      icon: '🧹',
+      title: 'Чек‑лист генуборки',
+      sub: 'Глубокая уборка всех зон кофейни. Выполняется поочередно, каждую зону полностью.',
+      back: 'checklists',
+      items: [
+        { label: '🔧 Подготовка' },
+        { text: '<strong>Подготовить инвентарь и зоны.</strong>', hint: 'Расставить всё на свои места и подготовить пространство к генуборке — освободить рабочие поверхности, убрать лишнее, отключить от сети оборудование, которое будет разбираться.' },
+        { text: '<strong>Вынести мусор из всех зон.</strong>', hint: 'Собрать мусор со всех корзин (бар, зал, подсобка). Заменить мешки. Промыть корзины снаружи и внутри дезсредством.' },
+        { label: '☕ Зона бара — кофемашина' },
+        { text: '<strong>Кофемашина: корпус и внешние поверхности.</strong>', hint: 'Влажной тряпкой протереть весь корпус сверху донизу, включая крышку, бока, решётку под стаканы. Протереть панель управления (аккуратно, влажной тканью). Полировать нержавейку спецсредством до блеска.' },
+        { text: '<strong>Кофемашина: поддон и лоток для капель.</strong>', hint: 'Снять верхнюю решётку и поддон. Вылить воду, промыть с моющим средством, протереть насухо. Прочистить дренажное отверстие ершиком. Установить на место.' },
+        { text: '<strong>Кофемашина: группы и холдеры.</strong>', hint: 'Снять холдеры, разобрать на части. Замочить в горячей воде с Cafiza на 10–15 мин. Прочистить щёткой все каналы, включая отверстия в фильтрах. Тщательно прополоскать. Протереть посадочное место группы влажной тряпкой. Собрать и установить обратно.' },
+        { text: '<strong>Кофемашина: паровые трубки.</strong>', hint: 'Снять насадки (если съёмные). Замочить в растворе для молока. Прочистить отверстия специальной иглой. Протереть трубки влажной тряпкой после замачивания. Пропустить пар перед установкой, чтобы продуть.' },
+        { label: '🔄 Зона бара — кофемолки' },
+        { text: '<strong>Кофемолка эспрессо: внешняя очистка корпуса и бункера.</strong>', hint: 'Протереть корпус кофемолки снаружи влажной тряпкой. Бункер протереть с внешней стороны влажной тряпкой.' },
+        { text: '<strong>Кофемолка эспрессо: дозировочные каналы.</strong>', hint: 'Прочистить дозировочные каналы щёткой от масел. Протереть дозатор снаружи.' },
+        { text: '<strong>Кофемолка фильтр/дрип: внешняя очистка.</strong>', hint: 'Протереть корпус снаружи влажной тряпкой. Бункер протереть с внешней стороны влажной тряпкой.' },
+        { label: '🧊 Зона бара — остальное оборудование' },
+        { text: '<strong>Льдогенератор: внешняя и внутренняя чистка.</strong>', hint: 'Отключить от сети. Вынуть весь лёд (выбросить). Промыть внутреннюю камеру и лопатку дезсредством. Протереть все стенки и дверцу. Проверить и прочистить дренаж. Включить, дать первому циклу льда уйти в мусор.' },
+        { text: '<strong>Весы, блендер, чайник, термопот.</strong>', hint: 'Весы: разобрать (снять платформу), протереть влажной тряпкой, не замочить электронику. Блендер: разобрать стакан, промыть все части, протереть базу. Чайник/термопот: слить воду, промыть внутри, удалить накипь уксусом или лимонкой, прополоскать, протереть снаружи.' },
+        { text: '<strong>Сиропы, гейзеры, сахарница, контейнеры.</strong>', hint: 'Снять дозаторы/носики с сиропов, промыть их тёплой водой. Протереть бутылки с сиропами снаружи. Сахарницу и контейнеры для смесей/топпингов опустошить, вымыть с мылом, насухо протереть. Наполнить свежим.' },
+        { label: '🍽️ Зона бара — раковина, поверхности, полки' },
+        { text: '<strong>Мойка и раковина.</strong>', hint: 'Очистить раковину от остатков пищи и налёта. Промыть дезсредством. Прочистить слив ершиком. Протереть смеситель и краны. Убрать и промыть под раковиной: ведро, швабру, тряпки.' },
+        { text: '<strong>Полки, шкафы и ящики под баром.</strong>', hint: 'Опустошить полки и ящики. Протереть все поверхности влажной тряпкой с дезсредством. Разложить инвентарь по местам. Убрать лишнее, списать испорченное.' },
+        { text: '<strong>Стены, розетки, выключатели за баром.</strong>', hint: 'Влажной тряпкой протереть стены вокруг кофемашины и раковины. Сдуть/смести пыль с розеток и выключателей. Протереть выключатели сухой тряпкой. Удалить кофейные брызги со стен.' },
+        { label: '❄️ Холодильники и хранение' },
+        { text: '<strong>Отодвинуть холодильники и оборудование.</strong>', hint: 'Аккуратно отодвинуть все холодильники и барное оборудование от стен. Пропылесосить и вымыть пол в труднодоступных местах. Протереть задние стенки и вентиляционные решётки холодильников от пыли.' },
+        { text: '<strong>Холодильники: внутренняя очистка.</strong>', hint: 'Вынуть все продукты. Проверить сроки годности — всё просроченное списать в iiko и утилизировать. Очистить полки и ящики моющим средством. Протереть резиновые уплотнители дверей. Удалить подтёки на дне. Вернуть продукты с соблюдением FIFO.' },
+        { text: '<strong>Холодильники: внешняя очистка.</strong>', hint: 'Протереть дверцы, ручки, верх холодильников. Полировать нержавейку спецсредством. Проверить, что дверцы закрываются плотно.' },
+        { label: '🍰 Витрина и зона выдачи' },
+        { text: '<strong>Витрина десертов: разобрать и очистить.</strong>', hint: 'Снять все подносы, стеллажи, ценники. Каждый элемент промыть с моющим средством. Протереть стекло витрины изнутри и снаружи стеклоочистителем (без разводов). Убрать крошки и пыль с внутренних углов. Протереть лампы освещения (перед этим убедиться, что выключено). Собрать и расставить подносы, обновить ценники.' },
+        { text: '<strong>Зона выдачи и стойка для самовывоза.</strong>', hint: 'Протереть стойку выдачи, убрать остатки кофе, крошки, липкие пятна. Протереть подставки для стаканчиков. Организовать меню/таблички.' },
+        { label: '💳 Кассовая зона' },
+        { text: '<strong>Касса, монитор, терминал.</strong>', hint: 'Протереть корпус кассы, монитор, клавиатуру (если есть), терминал оплаты влажной салфеткой. Протереть провода и блоки питания от пыли. Убрать на кассовой стойке лишние предметы.' },
+        { label: '🪑 Зона зала для гостей' },
+        { text: '<strong>Столы и стулья: полная обработка.</strong>', hint: 'Протереть столешницы, ножки, края — включая нижнюю сторону и углы. Влажной тряпкой с дезсредством пройти каждый стул: сиденье, спинку, ножки, перекладины. Удалить жевательную резинку, липкие пятна.' },
+        { text: '<strong>Подоконники, батареи, вентиляция.</strong>', hint: 'Протереть подоконники влажной тряпкой. Пропылесосить или протереть батареи отопления. Протереть вентиляционную решётку от пыли.' },
+        { text: '<strong>Окна, стеклянные двери, зеркала.</strong>', hint: 'Вымыть окна со стороны зала стеклоочистителем. Протереть стеклянные двери входа (внутренняя сторона). Зеркала — до блеска, без разводов.' },
+        { text: '<strong>Осветительные приборы и декор.</strong>', hint: 'Сухой тряпкой смахнуть пыль с ламп, светильников, плафонов. Протереть декоративные элементы, растения (без листьев — протереть пыль с горшков).' },
+        { label: '📦 Склад и подсобка' },
+        { text: '<strong>Склад: перебрать и убрать.</strong>', hint: 'Разложить все запасы по категориям: молоко, зёрна, тоник/соки, сиропы, одноразовая посуда, упаковка. Проверить сроки — просрочку списать. Протереть стеллажи и полки. Подмести пол. Убрать коробки с пола.' },
+        { text: '<strong>Подсобка: порядок и чистота.</strong>', hint: 'Разобрать вещи, убрать лишнее. Протереть полки. Убрать инвентарь для уборки (вёдра, швабры) — они должны быть чистыми. Проверить наличие моющих средств, при необходимости дозаказать.' },
+        { label: '🧹 Завершение' },
+        { text: '<strong>Полы во всех зонах: финальная уборка.</strong>', hint: 'Подмести полы везде: бар, зал, склад, подсобка. Влажная уборка: вымыть пол дезсредством во всех зонах. Уделить внимание углам, плинтусам и под оборудованием. Оставить высыхать, установить табличку «Мокрый пол».' },
+        { text: '<strong>Финальный осмотр и включение оборудования.</strong>', hint: 'Включить всё оборудование обратно в сеть. Проверить, что холодильники набирают температуру. Убедиться, что везде порядок. Проверить, что инструменты и химия убраны. Сделать фото готовности (для отчёта).' }
+      ]
+    },
+    'steam-wand-cleaning': {
+      type: 'checklist',
+      clId: 'steam',
+      icon: '💨',
+      title: 'Замывка паровика',
+      sub: 'Правильная замывка паровика — залог чистоты и вкуса молока.',
+      back: 'checklists',
+      items: [
+        { text: '<strong>Протереть паровик сразу после вспенивания.</strong>', hint: 'После каждого вспенивания молока протри паровую трубку влажной чистой тканью, особенно наконечник, не давая молоку засохнуть.' },
+        { text: '<strong>Сделать короткую продувку паром.</strong>', hint: 'Отведи паровик в сторону, включи пар на 3–5 секунд, чтобы выдуть остатки молока изнутри. Делай это после каждого напитка.' },
+        { text: '<strong>Очистить в растворе в конце смены.</strong>', hint: 'Налей в питчер воду с чистящим средством для молочных контуров, опусти туда наконечник паровика, несколько раз подай пар, затем промой чистой водой.' },
+        { text: '<strong>Проверить отверстия на засорение.</strong>', hint: 'Если пар идёт слабо или в стороны, аккуратно прочисти отверстия иглой/щёткой, предусмотренной для обслуживания.' }
+      ]
+    },
+    'va-e1-cleaning': {
+      type: 'checklist',
+      clId: 'va',
+      icon: '☕',
+      title: 'Замывка Victoria Arduino Eagle One',
+      sub: 'Ежедневная замывка кофемашины Victoria Arduino Eagle One.',
+      back: 'checklists',
+      items: [
+        { text: '<strong>Протереть группы и душевые сетки.</strong>', hint: 'Сними портафильтры, промой группы водой и протри щёткой/тряпкой, убирая кофейные масла и частицы.' },
+        { text: '<strong>Сделать обратную промывку (backflush) с чистящим средством.</strong>', hint: 'Поставь слепой фильтр, добавь немного чистящего порошка для эспрессо‑машин, запусти программу авто‑очистки или вручную делай циклы включения/выключения помпы.' },
+        { text: '<strong>Повторить backflush с чистой водой.</strong>', hint: 'После химии сделай несколько циклов промывки только с водой, пока вода не станет чистой.' },
+        { text: '<strong>Очистить паровик.</strong>', hint: 'Используй тот же алгоритм, что и для обычного паровика: протирка после каждого напитка, продувка и ежедневная очистка в растворе.' },
+        { text: '<strong>Протереть корпус и поддон.</strong>', hint: 'Протри корпус, поддон и решётку мягкой влажной тканью, убрав остатки кофе и воды.' }
+      ]
+    },
+    'largo-cleaning': {
+      type: 'checklist',
+      clId: 'largo',
+      icon: '🧊',
+      title: 'Мытьё Ларго',
+      sub: 'Правильная очистка устройства Ларго.',
+      back: 'checklists',
+      items: [
+        { text: '<strong>Отделить резиновую часть от стеклянной.</strong>', hint: 'Аккуратно отсоедини резиновую часть Ларго от стеклянной колбы.' },
+        { text: '<strong>Достать металлическую сетку.</strong>', hint: 'Извлеки металлическую сетку из резиновой части.' },
+        { text: '<strong>Достать металлический шарик и пластиковый клапан.</strong>', hint: 'Аккуратно извлеки металлический шарик и пластиковый клапан — не потеряй их.' },
+        { text: '<strong>Всё тщательно промыть.</strong>', hint: 'Промой все детали тёплой водой с мягким моющим средством. Тщательно прополощи.' },
+        { text: '<strong>Собрать в обратном порядке.</strong>', hint: 'Собери Ларго: клапан → шарик → сетка → соедини резиновую часть со стеклянной. Убедись, что всё плотно сидит и ничего не течёт.' }
+      ]
+    },
+    'ice-maker-cleaning': {
+      type: 'checklist',
+      clId: 'ice',
+      icon: '🧊',
+      title: 'Замывка льдогенератора',
+      sub: 'Регулярная замывка льдогенератора — чистота льда и работа оборудования.',
+      back: 'checklists',
+      items: [
+        { text: '<strong>Отключить льдогенератор от сети.</strong>', hint: 'Перед началом очистки обязательно отключи прибор от розетки, чтобы избежать поражения током.' },
+        { text: '<strong>Слить воду и выбросить остатки льда.</strong>', hint: 'Слей всю воду из резервуара, выброси оставшийся лёд — он не подлежит использованию после замывки.' },
+        { text: '<strong>Снять и промыть съёмные детали.</strong>', hint: 'Сними лоток для льда, заслонку, фильтры. Промой их тёплой водой с мягким моющим средством, тщательно сполосни.' },
+        { text: '<strong>Очистить внутреннюю поверхность и испаритель.</strong>', hint: 'Протри внутренние стенки и испаритель мягкой тканью с раствором уксуса (1:1 с водой) или специальным средством для льдогенераторов. Не используй абразивы.' },
+        { text: '<strong>Пропустить чистящий раствор через систему.</strong>', hint: 'Залей в резервуар чистящий раствор (средство для льдогенераторов или уксусный раствор), включи прибор на 10–15 минут, слей раствор. Повтори с чистой водой 2–3 раза, чтобы убрать остатки.' },
+        { text: '<strong>Собрать и проверить работу.</strong>', hint: 'Верни все детали на место, включи прибор, дождись первого цикла и убедись, что лёд чистый, без запаха и привкуса.' }
+      ]
+    },
+    'iiko-open': {
+      type: 'checklist',
+      clId: 'iiko-open',
+      icon: '💳',
+      title: 'Открытие кассовой смены в iiko',
+      sub: 'Пошаговая инструкция открытия кассовой смены в iiko.',
+      back: 'checklists',
+      items: [
+        { text: '<strong>Войти в систему под своим PIN‑кодом.</strong>', hint: 'На терминале iiko введи свой личный PIN‑код, чтобы открыть личную смену.' },
+        { text: '<strong>Перейти в раздел «Касса» → «Кассовые операции».</strong>', hint: 'На главном экране выбери раздел «Касса», затем — «Кассовые операции».' },
+        { text: '<strong>Нажать «Открыть кассовую смену».</strong>', hint: 'Нажми кнопку открытия смены. Система предложит ввести сумму начального размена.' },
+        { text: '<strong>Ввести сумму начального размена.</strong>', hint: 'Пересчитай наличные в кассе и введи точную сумму размена. Убедись, что хватает купюр и монет для сдачи.' },
+        { text: '<strong>Подтвердить и дождаться отчёта.</strong>', hint: 'Подтверди ввод, дождись печати X‑отчёта (начального). Смена открыта — можно начинать работу.' },
+        { text: '<strong>Отправить отчёт в чат.</strong>', hint: 'Сфотографируй X‑отчёт и отправь в общий рабочий чат с пометкой «Смена открыта, [дата]».' }
+      ]
+    },
+    'iiko-close': {
+      type: 'checklist',
+      clId: 'iiko-close',
+      icon: '💳',
+      title: 'Закрытие кассовой смены в iiko',
+      sub: 'Пошаговая инструкция закрытия кассовой смены в iiko.',
+      back: 'checklists',
+      items: [
+        { text: '<strong>Проверить, что нет незакрытых чеков.</strong>', hint: 'Убедись, что все заказы проведены и оплачены. Незакрытые чеки не дадут закрыть смену.' },
+        { text: '<strong>Перейти в «Касса» → «Кассовые операции».</strong>', hint: 'На главном экране выбери раздел «Касса», затем — «Кассовые операции».' },
+        { text: '<strong>Нажать «Закрыть кассовую смену».</strong>', hint: 'Система предложит пересчитать наличные и ввести фактическую сумму в кассе.' },
+        { text: '<strong>Пересчитать наличные и ввести сумму.</strong>', hint: 'Пересчитай все купюры и монеты в кассе. Введи сумму, указанную в Х-отчёте, в графе «Наличные» + сумму размена. Если есть расхождение — пересчитай ещё раз.' },
+        { text: '<strong>Подтвердить и дождаться Z‑отчёта.</strong>', hint: 'Подтверди закрытие, дождись печати Z‑отчёта (итогового). Он подтверждает, что смена закрыта корректно.' },
+        { text: '<strong>Навести порядок в кассе.</strong>', hint: 'Соблюдай кассовую дисциплину: все купюры должны лежать одинаковой стороной и в своих ячейках. Убери мусор, проверь, что нет завалявшихся чеков.' },
+        { text: '<strong>Разложить деньги и выйти из личной смены.</strong>', hint: 'Убери наличные в сейф/инкассацию. Выйди из своей личной смены на терминале.' }
+      ]
+    },
+    'iiko-writeoff': {
+      type: 'checklist',
+      clId: 'writeoff',
+      icon: '📝',
+      title: 'Списание в iiko',
+      sub: 'Порядок списания продуктов и расходников в системе iiko.',
+      back: 'checklists',
+      items: [
+        { text: '<strong>Перейти в раздел «Склад» → «Списание».</strong>', hint: 'В главном меню iiko выбери раздел «Склад», затем — «Списание товаров».' },
+        { text: '<strong>Выбрать товар для списания.</strong>', hint: 'Найди нужный продукт в списке (можно через поиск). Выбери его.' },
+        { text: '<strong>Указать количество и причину списания.</strong>', hint: 'Введи точное количество. Выбери причину: «Просрочка», «Порча», «Недостача», «Технологические потери» и т.д.' },
+        { text: '<strong>Подтвердить списание.</strong>', hint: 'Проверь введённые данные и нажми «Подтвердить» или «Списать».' },
+        { text: '<strong>Убедиться, что остатки обновились.</strong>', hint: 'Вернись в раздел остатков и проверь, что количество изменилось. Если ошибка — сообщи управляющей.' }
+      ]
+    },
+    'service-standards': {
+      type: 'steps',
+      icon: '🤝',
+      title: 'Стандарты сервиса',
+      sub: 'Правила общения с гостем и подачи напитков в KOJO.',
+      back: 'checklists',
+      steps: [
+        { title: 'Встреча гостя.', text: 'Улыбнись, установи зрительный контакт, поприветствуй. Если гость у витрины — предложи помощь с выбором.' },
+        { title: 'Приём заказа.', text: 'Внимательно выслушай, уточни детали (температура, объём, альтернативное молоко). Повтори заказ перед подтверждением.' },
+        { title: 'Подача классических напитков.', text: 'Подавай в чистой посуде/стакане, с правильной температурой. Назови напиток, пожелай приятного.' },
+        { title: 'Подача Element‑меню.', text: 'Каждый напиток Element подаётся с карточкой и описанием. Расскажи гостю про текстуру, ингредиенты и «состояние» напитка.' },
+        { title: 'Прощание.', text: 'Поблагодари гостя, пригласи прийти снова. Если гость взял напиток с собой — проверь, что стакан запечатан, салфетка есть.' },
+        { title: 'Работа с возражениями.', text: 'Если гость недоволен — выслушай, не перебивай. Предложи решение: переделать напиток, вернуть деньги, позвать управляющую.' }
+      ]
+    },
+    'order-request': {
+      type: 'calc',
+      icon: '📋',
+      title: 'Написание заявки (расчёт остатков)',
+      sub: 'Введи текущий остаток продукта — система покажет, сколько нужно заказать до следующей поставки.',
+      back: 'home'
+    },
+    'case-no-filter-in-iiko': {
+      type: 'steps',
+      icon: '🔄',
+      title: 'Зерно сварили на фильтр, а его нет в iiko',
+      sub: 'Важно не терять расход и не оставлять ситуацию "за кадром".',
+      back: 'ifs',
+      steps: [
+        { title: 'Запиши название лота, который сварил.', text: 'Зафиксируй дату, время и сорт зерна.' },
+        { title: 'Проверь его стоимость на сайте.', text: 'Уточни цену лота для дальнейшего учёта.' },
+        { title: 'Напиши в наш общий чат о том, что данного зерна нет в iiko, с отметкой управляющего.', text: 'Опиши ситуацию и отметь управляющую.' },
+        { title: 'В течение некоторого времени мы добавим данный лот в кассу.', text: 'Дождись, пока лот появится в системе, и продолжай работу.' }
+      ]
+    },
+    'case-grinder-dust': {
+      type: 'steps',
+      icon: '💨',
+      title: 'Пылит кофемолка',
+      sub: 'Пыль — сигнал остановиться и проверить.',
+      back: 'ifs',
+      steps: [
+        { title: 'По возможности прекратить работу кофемолки.', text: 'Не продолжай молоть, чтобы избежать дальнейшего распыления.' },
+        { title: 'Зафиксировать на видео процесс смалывания зерна.', text: 'Сними видео, как кофемолка мелет зерно, чтобы показать проблему.' },
+        { title: 'Записать видео.', text: 'Убедись, что видео чёткое и проблема видна.' },
+        { title: 'Отправить его в чат с пометкой «Техникам».', text: 'Приложи видео и напиши, что кофемолка пылит — техники разберутся.' }
+      ]
+    },
+    'case-guest-for-order': {
+      type: 'steps',
+      icon: '👤',
+      title: 'Гость пришёл за заказом',
+      sub: 'Проверяем заказ, выдаём по последним цифрам.',
+      back: 'ifs',
+      steps: [
+        { title: 'Уточните у гостя последние четыре цифры заказа.', text: 'Попроси номер телефона или номер заказа — нужны последние 4 цифры.' },
+        { title: 'Найдите пакет с вкладышем с такими же последними четырьмя цифрами.', text: 'Внутри каждого пакета лежит вкладыш — сверь цифры с тем, что назвал гость.' },
+        { title: 'Проверьте всё ли в наличии в данном пакете по листку-вкладышу.', text: 'Открой пакет, сверь состав с вкладышем — все позиции должны быть на месте.' },
+        { title: 'Отдайте пакет гостю.', text: 'Листок-вкладыш можете оставить себе, отдавать гостю не обязательно.' }
+      ]
+    },
+    'case-cash-mismatch': {
+      type: 'steps',
+      icon: '💰',
+      title: 'Не сходится касса',
+      sub: 'Разница должна быть зафиксирована.',
+      back: 'ifs',
+      steps: [
+        { title: 'Пересчитать наличные.', text: 'Убедись, что нет ошибки в подсчёте.' },
+        { title: 'Проверить операции внесения/отмены.', text: 'Посмотри внесения, возвраты, отмены за смену.' },
+        { title: 'Сверить суммы из 048-отчёта / Х-отчёта с фактическим наличием.', text: 'Сравни данные системы с реальными деньгами в кассе.' },
+        { title: 'Снять с терминала отчёт об операциях (о сумме операций).', text: 'Распечатай или сфотографируй отчёт с терминала.' },
+        { title: 'Написать в чат о том, что не сходится касса, с отметкой управляющего.', text: 'Опиши ситуацию, приложи фото отчётов и отметь управляющую.' }
+      ]
+    },
+    'case-flood': {
+      type: 'steps',
+      icon: '💧',
+      title: 'На точке потоп',
+      sub: 'Сначала безопасность, потом отчёт.',
+      back: 'ifs',
+      steps: [
+        { title: 'Постарайтесь понять, откуда идёт потоп.', text: 'Осмотрись — где именно течёт: сверху, из-под оборудования, из стены.' },
+        { title: 'Сообщите в общий чат о том, что произошло, и попросите подойти техников (Депо).', text: 'Напиши в чат, опиши ситуацию и попроси прислать техников.' },
+        { title: 'Если техники говорят, что это ваши проблемы.', text: 'Не соглашайся сразу — зафиксируй их ответ.' },
+        { title: 'Пишите управляющему.', text: 'Отметь управляющую и объясни ситуацию — она решит, что делать дальше.' }
+      ]
+    },
+    'case-something-broken': {
+      type: 'steps',
+      icon: '🔧',
+      title: 'У меня что-то не работает',
+      sub: 'Не пытайся "додавить" сломанное.',
+      back: 'ifs',
+      steps: [
+        { title: 'Остановите использование прибора.', text: 'Не продолжай готовить на неисправном оборудовании.' },
+        { title: 'Проверьте простые вещи: включена ли вилка в розетку, включён ли сам прибор.', text: 'Убедись, что питание подаётся — часто проблема в элементарном.' },
+        { title: 'Если всё в порядке — написать в общий чат и сообщить управляющей, далее действовать по инструкциям управляющей.', text: 'Опиши проблему, отметь управляющую и следуй её указаниям.' }
+      ]
+    },
+    'case-no-milk': {
+      type: 'steps',
+      icon: '🥛',
+      title: 'Закончились молоко или критичный продукт',
+      sub: 'Не молчи про отсутствие ключевых продуктов.',
+      back: 'ifs',
+      steps: [
+        { title: 'Поздравляю — проверить наличие товара на складе.', text: 'Посмотри, может быть запас есть на складе — сходи проверь.' },
+        { title: 'Сообщить об этом в общем чате управляющему.', text: 'Напиши в чат и отметь управляющую.' },
+        { title: 'Если это классическое молоко (БМК), то после согласования с управляющей можно одолжить у кого-то до поставки, а затем заказать на это количество больше в следующую поставку.', text: 'Согласуй с управляющей, займи у соседей, а в следующей заявке увеличь объём.' }
+      ]
+    },
+    'case-dont-know-shelf-life': {
+      type: 'steps',
+      icon: '📅',
+      title: 'Я не знаю, сколько хранится продукция',
+      sub: 'Сроки годности — важная часть работы.',
+      back: 'ifs',
+      steps: [
+        { title: 'Проверить маркировку на упаковке.', text: 'На каждом продукте есть дата производства и срок годности.' },
+        { title: 'Посмотреть в файле со сроками годности.', text: 'Он хранится в общем доступе (чат/диск). Обновляется по регламенту.' },
+        { title: 'Спросить у управляющей или опытного коллеги.', text: 'Если не нашёл информацию — уточни у ответственного.' },
+        { title: 'При сомнении — не использовать продукт.', text: 'Лучше списать, чем рисковать качеством напитка и здоровьем гостя.' }
+      ]
+    },
+    'case-dont-know-receiving': {
+      type: 'steps',
+      icon: '📦',
+      title: 'Я не знаю, как принимать поставку в Депо',
+      sub: 'Приёмка поставки — ответственная процедура.',
+      back: 'ifs',
+      steps: [
+        { title: 'Выйти на деборкадор с тележкой.', text: 'Тележку можно найти на любом из этажей Депо.' },
+        { title: 'Встретить водителя с накладной.', text: 'Подойди к водителю, возьми накладную для сверки.' },
+        { title: 'Сверить накладную и фактически привезённое по объёму и количеству.', text: 'Посчитай коробки/места, проверь по накладной.' },
+        { title: 'Сверить с количеством позиций, указанных в заявке в чате «Закупки Депо».', text: 'Открой чат и проверь, всё ли совпадает с заявкой.' },
+        { title: 'Зафиксировать расхождения и написать в чат об этих расхождениях.', text: 'Если что-то не совпадает — сфотографируй и напиши в чат «Закупки Депо».' }
+      ]
+    },
+    'case-admins-docs': {
+      type: 'steps',
+      icon: '📄',
+      title: 'Админы принесли документацию',
+      sub: 'Документы от администрации фуд-молла требуют внимания.',
+      back: 'ifs',
+      steps: [
+        { title: 'Принять документы, подписать о принятии.', text: 'Поблагодари администраторов, подпиши бумаги о получении.' },
+        { title: 'Вскрыть белый конверт, сделать скан и отправить в чат с бухгалтером.', text: 'Белый конверт предназначен для бухгалтерии — отсканируй и отправь.' },
+        { title: 'В большинстве случаев приносят счета либо штрафы.', text: 'Оцени тип документа — счёт или штраф.' },
+        { title: 'Если приносят штрафы — сфотографировать и скинуть с отметкой о ситуации.', text: 'Сфотографируй штраф, отправь в чат и опиши обстоятельства.' }
+      ]
+    },
+    'case-dont-know-order': {
+      type: 'steps',
+      icon: '📋',
+      title: 'Я не знаю, чего и сколько заказывать',
+      sub: 'Заказ поставки делается по определённым правилам.',
+      back: 'ifs',
+      steps: [
+        { title: 'Посмотреть остатки на складе.', text: 'Проверь, что есть в наличии, что скоро закончится.' },
+        { title: 'Ориентироваться на среднедневной расход.', text: 'Управляющая предоставляет таблицу с нормами расхода.' },
+        { title: 'Проверить график поставок.', text: 'У каждой точки есть свои дни поставки.' },
+        { title: 'Спросить у управляющей.', text: 'Если сомневаешься — уточни список и количество.' },
+        { title: 'Не заказывать «на глаз».', text: 'Используй утверждённые формы и списки.' }
+      ]
+    },
+    'case-dont-know-when-request': {
+      type: 'steps',
+      icon: '📨',
+      title: 'Я не знаю, когда писать заявку на поставку',
+      sub: 'Заявки пишутся в установленные сроки.',
+      back: 'ifs',
+      steps: [
+        { title: 'Проверить график поставок.', text: 'В нём указаны дни и время подачи заявок.' },
+        { title: 'Поставки в Депо осуществляются по средам, предположительно в первой половине дня.', text: 'Заявку нужно успеть подать до этого времени.' },
+        { title: 'Заявки подаются за 1–2 дня до поставки.', text: 'Точные сроки зависят от поставщика и точки.' },
+        { title: 'Уточнить у управляющей.', text: 'Она напомнит, когда нужно отправлять заявку.' },
+        { title: 'Завести напоминание в телефоне.', text: 'Чтобы не пропустить дедлайн.' },
+        { title: 'Писать заявку сразу при нехватке.', text: 'Не жди конца смены — сообщи в чат о потребности.' }
+      ]
+    },
+    'case-food': {
+      type: 'steps',
+      icon: '🍽️',
+      title: 'Что делать с питанием на смене?',
+      sub: 'Два варианта: бартер или компенсация еды.',
+      back: 'ifs',
+      steps: [
+        { title: 'Бартер: до 6 (шести) напитков в течение смены.', text: 'Можно обменять 6 напитков из меню KOJO на какую-либо еду.' },
+        { title: 'Либо второй вариант: можно купить себе еду до 1000 руб., сохранить чек и отправить его в форму.', text: 'Деньги вернутся с зарплатой. Чеки нужно прикреплять до 7-го и до 22-го числа каждого месяца. Ссылка для отправки — в разделе <a href="#" data-action="link-to-topic" data-topic="important-checks" data-parent="important" style="color:var(--info);font-weight:600;">«Куда отправлять чеки за такси и еду?»</a>' }
+      ]
+    },
+    'case-water-flow': {
+      type: 'steps',
+      icon: '🚰',
+      title: 'Перестала идти фильтрованная вода',
+      sub: 'Снижение напора или полное отсутствие фильтрованной воды — частая проблема на точке.',
+      back: 'ifs',
+      steps: [
+        { title: 'Проверить подачу воды к фильтру.', text: 'Убедись, что кран подачи воды на фильтр открыт (обычно под мойкой).' },
+        { title: 'Проверить фильтр на засорение.', text: 'Если картридж фильтра давно не менялся, он мог забиться. Сообщи управляющей — возможно, пора заменить картридж.' },
+        { title: 'Осмотреть шланги на перегибы.', text: 'Проверь, не пережат ли шланг подачи воды, нет ли видимых повреждений.' },
+        { title: 'Проверить напор в кране холодной воды.', text: 'Если вода плохо идёт и из обычного крана — проблема в общей водоподаче точки/депо.' },
+        { title: 'Написать в чат и сообщить управляющей.', text: 'Опиши проблему и приложи фото, если видно повреждение. Не пытайся чинить фильтр самостоятельно.' },
+        { title: 'Использовать бутилированную воду временно.', text: 'Пока проблема не решена, используй бутилированную воду для приготовления напитков. Заявку на бутыли напиши в чат.' }
+      ]
+    },
+    'case-inventory': {
+      type: 'steps',
+      icon: '📋',
+      title: 'Сегодня инвентаризация',
+      sub: 'Плановая инвентаризация: пересчёт всех продуктов и расходников на точке.',
+      back: 'ifs',
+      steps: [
+        { title: 'Открыть приложение «Айка Инвентор» на рабочем телефоне (логин/пароль указать).', text: 'Найди приложение iiko Inventor на рабочем телефоне, войди в учётную запись (логин и пароль уточни у управляющей).' },
+        { title: 'Посчитать все позиции из инвентари.', text: 'Пересчитай каждую позицию согласно списку в приложении.' },
+        { title: 'Отправить отчёт об инвентаризации на сервер.', text: 'После подсчёта отправь данные через приложение.' },
+        { title: 'Сообщить об окончании инвентаризации.', text: 'Напиши в чат, что инвентаризация завершена.' }
+      ]
+    },
+    'case-no-tonic': {
+      type: 'steps',
+      icon: '🍊',
+      title: 'Закончились тоник или апельсины',
+      sub: 'Нужно решать быстро — через ВкусВилл.',
+      back: 'ifs',
+      steps: [
+        { title: 'Зайти в приложение «ВкусВилл» на рабочем телефоне.', text: 'Открой приложение, готовься к заказу.' },
+        { title: 'Войти в аккаунт ИП Макеев (логин/пароль — инструкция в чате Коджанутые).', text: 'Используй учётные данные из чата, чтобы войти в аккаунт.' },
+        { title: 'Заказать необходимое количество через этот аккаунт (либо написать, чтобы с утра сделали заказ).', text: 'Оформи заказ нужного количества тоника или апельсинов. Если не получается — напиши в чат, чтобы заказали с утра.' }
+      ]
+    },
+    'important-ttk': {
+      type: 'article',
+      icon: '📖',
+      title: 'Рецептура (ТТК)',
+      sub: 'Технико-технологические карты на все напитки KOJO.',
+      back: 'important',
+      body: 'ТТК (технико-технологические карты) хранятся в общем доступе. Содержат точную граммовку, последовательность приготовления и стандарты подачи каждого напитка. Актуальная версия — <a href="https://docs.google.com/spreadsheets/d/1Pu4_gcCyfcjt8HeyHLfoIKMcAEXCJeQQurQb6n2SMCo/edit?usp=drivesdk" target="_blank">открыть ТТК</a>.'
+    },
+    'important-where-checklist': {
+      type: 'article',
+      icon: '✅',
+      title: 'Где найти чек-лист',
+      sub: 'Все чек-листы кофейни собраны в этом справочнике.',
+      back: 'important',
+      body: 'Чек-листы находятся в разделе <strong>«Чек-листы кофейни»</strong> на главном экране. Открой нужный чек-лист (открытие, закрытие, генуборка, замывка оборудования) и отмечай выполнение. Прогресс сохраняется автоматически. Прямая ссылка на чек-лист: <a href="https://docs.google.com/spreadsheets/d/123Od-4_TeGxMTYf1laAwFbp4ALKei62KpyU7k8jZ06w/edit?gid=0#gid=0" target="_blank">открыть чек-лист</a>.'
+    },
+    'important-shelf-life': {
+      type: 'article',
+      icon: '📅',
+      title: 'Файл со сроками годности',
+      sub: 'Храни файл в доступном месте, обновляй по регламенту и проверяй перед сменой.',
+      back: 'important',
+      body: 'Файл со сроками годности — <a href="https://docs.google.com/spreadsheets/d/123Od-4_TeGxMTYf1laAwFbp4ALKei62KpyU7k8jZ06w/edit?gid=0#gid=0" target="_blank">открыть таблицу</a>. Обновляется управляющей по мере поступления новых продуктов. Перед каждой сменой проверяй актуальность данных.'
+    },
+    'important-checks': {
+      type: 'article',
+      icon: '🧾',
+      title: 'Куда отправлять чеки за такси и еду?',
+      sub: 'Укажи конкретный чат/почту и срок отправки, чтобы бухгалтерия успевала их проводить.',
+      back: 'important',
+      body: 'Чеки за такси и еду отправляй через форму: <a href="https://docs.google.com/forms/d/e/1FAIpQLSfPZWsoSkT0HzLSw872ryptykYW6P7bUxkdKkSAk_LAeLcvTA/viewform" target="_blank">открыть форму</a>. Заполняй в день получения, срок — до конца смены.'
+    },
+    'important-schedule': {
+      type: 'article',
+      icon: '📋',
+      title: 'Где найти график смен?',
+      sub: 'Добавь ссылку или путь к графику смен (чат, Google Sheets, система планирования).',
+      back: 'important',
+      body: 'График смен — <a href="https://docs.google.com/spreadsheets/d/1etbfpaMk6m9CZafpindUmMrqgQQc9i-DteDSffDbMpU/edit?gid=1499137350#gid=1499137350" target="_blank">открыть таблицу</a>. Также доступен в общем чате.'
+    },
+    'important-request': {
+      type: 'article',
+      icon: '📨',
+      title: 'Когда писать заявку в депо?',
+      sub: 'Заявка на пополнение склада пишется каждое воскресенье, поставка приезжает каждую среду.',
+      back: 'important',
+      body: 'Заявку в депо нужно писать <strong>каждое воскресенье</strong>. Поставка приезжает <strong>каждую среду</strong>. При нехватке расходников внепланово — пиши сразу, не откладывай на конец смены.'
+    },
+    'important-rules-warehouse': {
+      type: 'article',
+      icon: '📦',
+      title: 'Правила пользования складом',
+      sub: 'Склад — это основа бесперебойной работы кофейни. Порядок на складе = порядок на баре.',
+      back: 'important',
+      body: '<p>Поддерживай на складе <strong>безупречную чистоту и аккуратность</strong>: протирай полки, убирай рассыпанное, не ставь коробки на пол. Каждый продукт должен лежать на своём месте — так ты и коллеги всегда сможете быстро найти нужное.</p><p><strong>Контролируй сроки годности</strong> при каждом касании склада: берёшь продукт — проверь дату, ставишь новую партию — убери старую вперёд. Продукты с истекающим сроком используй в первую очередь, просрочку сразу списывай в iiko и утилизируй.</p><p>Соблюдай <strong>принцип ротации</strong>: новая партия ставится позади текущей, чтобы в работу шла более ранняя. Не смешивай разные партии одного продукта в одной ёмкости.</p><p>О любых расхождениях (не те позиции, повреждённая упаковка, нарушенные сроки) <strong>сообщай сразу</strong> — не откладывай до конца смены. Вовремя замеченная проблема решается быстрее.</p>'
+    },
+    'important-rules-restock': {
+      type: 'article',
+      icon: '📥',
+      title: 'Правила пополнения склада',
+      sub: 'Пополняй склад по списку, проверяй сроки и строго соблюдай ротацию.',
+      back: 'important',
+      body: '<p>При пополнении склада используй <strong>утверждённый список</strong> — бери только те позиции, которые указаны.</p><p><strong>Ротация</strong> — это порядок работы с запасами, при котором продукты с более ранним сроком годности используются раньше, чем те, у которых срок больше. Иными словами: «первым пришёл — первым ушёл» (FIFO). Соблюдение ротации предотвращает порчу продуктов и экономит ресурсы кофейни.</p><p>Проверяй сроки годности каждого продукта перед тем, как поставить его на полку. Расхождения (не та позиция, повреждённая упаковка, нарушенные сроки) фиксируй сразу.</p>'
+    },
+    'important-rules-work': {
+      type: 'article',
+      icon: '⚡',
+      title: 'Как работать в течение смены?',
+      sub: 'В течение смены поддерживай чистоту на баре, контролируй кассу и остатки, работай быстро и качественно. Не откладывай задачи.',
+      back: 'important',
+      body: '<p>В течение смены: поддерживай чистоту на баре, контролируй кассу и остатки, работай быстро и качественно. Не откладывай задачи.</p><p><strong>Паровик.</strong> После каждого взбивания протри паровик тряпкой для паровика, которая аккуратно лежит на блюдце. Это предотвращает пригорание молока и сохраняет гигиену.</p>'
+    },
+    'important-rules-change': {
+      type: 'article',
+      icon: '💰',
+      title: 'Для чего мы делаем внесение разменов?',
+      sub: 'Чтобы в кассе всегда был достаточный размен и учёт денег оставался прозрачным.',
+      back: 'important',
+      body: 'Внесение разменов необходимо для того, чтобы указать, что у нас в кассе есть деньги для того, чтобы дать сдачу гостю.'
+    },
+    'important-rules-reports': {
+      type: 'article',
+      icon: '📊',
+      title: 'Как работать с отчётами в iiko?',
+      sub: 'Регулярно проверяй 048-й отчёт и выручку по часам, чтобы быстро находить и устранять ошибки.',
+      back: 'important',
+      body: 'В течение смены проверяй отчёты по продажам, списаниям и возвратам — в основном <strong>048-й отчёт</strong> и <strong>выручку по часам</strong>. Это помогает вовремя заметить ошибки и скорректировать работу.'
+    },
+    'important-delivery': {
+      type: 'article',
+      icon: '🚚',
+      title: 'Правила приёма поставки',
+      sub: 'Чёткий порядок приёма товара: от пропуска до документов и накладных.',
+      back: 'important',
+      body: '<p><strong>Пропуск в лифт.</strong> Для проезда на склад и к лифту нужно заранее оформить пропуск — уточни у управляющей актуальный порядок. При входе на территорию Депо предъяви пропуск на охране.</p><p><strong>Приём поставки.</strong> Встречай курьера, сверяй количество мест с накладной. Проверь целостность упаковки каждой позиции. При повреждениях — сфотографируй и напиши в чат.</p><p><strong>Документы.</strong> Администраторы принимают у курьера следующие документы: <strong>накладную (ТОРГ-12 или УПД)</strong> и <strong>счёт-фактуру</strong>. Проверь, что в накладной указаны все позиции, которые приехали, и что количество совпадает.</p><p><strong>Куда передавать документы.</strong> Все принятые документы нужно <strong>сфотографировать</strong> и отправить в общий рабочий чат с пометкой «Поставка [дата]». Оригиналы бумаг сложи в <strong>папку «Поставки»</strong> — она лежит на полке с документами за баром.</p><p><strong>Накладные.</strong> Если в накладной есть расхождения (недовоз, пересорт, повреждения) — сделай пометку в накладной, сфотографируй и отправь в чат управляющей. Не подписывай накладную до выяснения.</p><p>После приёма разложи товар по местам хранения с соблюдением принципа ротации и обнови файл сроков годности.</p>'
+    },
+    'important-max-absence': {
+      type: 'article',
+      icon: '⏱️',
+      title: 'Максимальное время отсутствия на точке',
+      sub: 'Кофейня не должна оставаться без присмотра дольше установленного времени.',
+      back: 'important',
+      body: '<p><strong>Максимальное время отсутствия на точке — 15 минут.</strong></p><p>Если тебе нужно отойти (перерыв, туалет, срочные дела), убедись, что на точке остаётся хотя бы один сотрудник. Если ты работаешь один — закрой точку на замок, повесь табличку «Отлучился на 15 минут» и вернись в указанный срок. При выходе дольше 15 минут — предупреди управляющую.</p><p>Не оставляй кассу открытой и напитки без присмотра. Перед уходом выключи кофемолку и проверь, что плита и вода перекрыты.</p>'
+    },
+    'rules-philosophy': {
+      type: 'article',
+      icon: '🧘',
+      title: 'Философия KOJO',
+      sub: 'Глаз KOJO вдохновлён символом Kojo Baiden из культуры Ашанти и связан с интуицией, защитой и идеей, что всё во Вселенной взаимосвязано.',
+      back: 'rules',
+      body: '<p><strong>Глаз KOJO</strong> вдохновлён символом Kojo Baiden из культуры Ашанти и связан с интуицией, защитой и идеей, что всё во Вселенной взаимосвязано.</p><p><strong>Философия KOJO</strong> — через внимательный отбор и обжарку specialty‑кофе показать глубину вкуса и сделать её простой и понятной гостю.</p><p>KOJO работает как <strong>True Specialty</strong>: отбирает сорта от 85 баллов SCA и контролирует качество командой AST, Q‑капперов и обжарщиков.</p>'
+    },
+    'rules-history': {
+      type: 'article',
+      icon: '🏛️',
+      title: 'История бренда KOJO',
+      sub: 'KOJO — кофейный бренд родом из Москвы, который вырос из идеи specialty to go и собственного обжарочного производства.',
+      back: 'rules',
+      body: '<p><strong>KOJO</strong> — кофейный бренд родом из Москвы, который вырос из идеи specialty to go и собственного обжарочного производства.</p><p>KOJO Coffee Roasters обжаривает кофе для фильтра, эспрессо и дрип‑пакетов VFR, раскрывая потенциал спешелти‑зёрен из разных регионов мира.</p><p>Один из знаковых проектов — кофейня KOJO Coffee Roasters True Specialty в фудмолле «Три вокзала.Депо» в Москве.</p><p>Бренд продолжает развиваться, оставаясь верным принципам качества, прозрачности и любви к кофе.</p>'
+    }
+  },
+  calc: [
+    { section: 'Кофе и чай' },
+    { key: 'beans', label: 'Зёрна эспрессо (кг):', short: 'Зёрна эспрессо', unit: 'кг', norm: 5 },
+    { key: 'coffee-kenya', label: 'Кофе KOJO Кения Masai AA дрип-пакет:', short: 'Кофе Кения Masai AA', unit: 'шт', norm: 0 },
+    { key: 'coffee-peru', label: 'Кофе KOJO Перу Chirinos Dias дрип-пакет:', short: 'Кофе Перу Chirinos Dias', unit: 'шт', norm: 0 },
+    { key: 'tea-gun-ting', label: 'Чай Гун Тин Пуэр:', short: 'Чай Гун Тин Пуэр', unit: 'шт', norm: 0 },
+    { key: 'tea-kutsiao', label: 'Чай КуЦяо:', short: 'Чай КуЦяо', unit: 'шт', norm: 0 },
+    { key: 'tea-jasmine', label: 'Чай листовой KOJO «Жасминовый Моли Да Бай Хао»:', short: 'Чай Жасминовый Моли Да Бай Хао', unit: 'шт', norm: 0 },
+    { key: 'tea-tieguanyin', label: 'Чай листовой KOJO «Те Гуань Инь»:', short: 'Чай Те Гуань Инь', unit: 'шт', norm: 0 },
+    { key: 'tea-gaba', label: 'Чай листовой KOJO «Габа Фермерская»:', short: 'Чай Габа Фермерская', unit: 'шт', norm: 0 },
+    { key: 'tea-assam', label: 'Чай листовой KOJO «Ассам Мангалам»:', short: 'Чай Ассам Мангалам', unit: 'шт', norm: 0 },
+    { key: 'matcha', label: 'Матча:', short: 'Матча', unit: 'шт', norm: 0 },
+    { key: 'tea-hojicha', label: 'Японский чай ходзича:', short: 'Японский чай ходзича', unit: 'шт', norm: 0 },
+    { section: 'Молочные и кремовые основы' },
+    { key: 'milk-32', label: 'Молоко 3,2% БМК (л):', short: 'Молоко 3,2% БМК', unit: 'л', norm: 20 },
+    { key: 'milk-lacfree', label: 'Молоко безлактозное Parmalat 3,5% (л):', short: 'Молоко безлактозное Parmalat', unit: 'л', norm: 0 },
+    { key: 'milk-banana', label: 'Молоко «Банан» Альтернатива (л):', short: 'Молоко Банан', unit: 'л', norm: 0 },
+    { key: 'milk-coconut', label: 'Молоко «Кокос» Альтернатива (л):', short: 'Молоко Кокос', unit: 'л', norm: 0 },
+    { key: 'milk-almond', label: 'Молоко миндальное Альтернатива (л):', short: 'Молоко миндальное', unit: 'л', norm: 0 },
+    { key: 'milk-oat', label: 'Молоко овсяное Альтернатива (л):', short: 'Молоко овсяное', unit: 'л', norm: 0 },
+    { key: 'cream-10', label: 'Сливки 10% БМК (л):', short: 'Сливки 10% БМК', unit: 'л', norm: 0 },
+    { key: 'cream-33', label: 'Сливки 33% (л):', short: 'Сливки 33%', unit: 'л', norm: 0 },
+    { key: 'cream-coconut', label: 'Сливки кокосовые (л):', short: 'Сливки кокосовые', unit: 'л', norm: 0 },
+    { key: 'cream-5yes', label: 'Крем кокосовый ультрапастеризованный 26% «5YES» (л):', short: 'Крем кокосовый «5YES»', unit: 'л', norm: 0 },
+    { key: 'cheese-base', label: 'Сырная основа для кофе (кг):', short: 'Сырная основа', unit: 'кг', norm: 0 },
+    { key: 'cheese-base-essen', label: 'Сырная (сливочная) основа для кофе Essen (кг):', short: 'Сырная основа Essen', unit: 'кг', norm: 0 },
+    { key: 'berry-cream', label: 'Ягодный крем (кг):', short: 'Ягодный крем', unit: 'кг', norm: 0 },
+    { section: 'Сиропы, соки и основы' },
+    { key: 'tonic-rich', label: 'Rich Bitter индиан тоник 1 л:', short: 'Тоник Rich Bitter', unit: 'шт', norm: 12 },
+    { key: 'orange-flower-water', label: 'Вода померанцевая:', short: 'Вода померанцевая', unit: 'шт', norm: 0 },
+    { key: 'lyu-birch', label: 'Основа для напитка Лью «Берёзовый эль — Липа и Мята»:', short: 'Основа Лью Берёзовый эль', unit: 'шт', norm: 0 },
+    { key: 'lyu-blue-cheese', label: 'Основа для напитка Лью «Голубой сыр — бузина»:', short: 'Основа Лью Голубой сыр', unit: 'шт', norm: 0 },
+    { key: 'lyu-fig', label: 'Основа для напитка Лью «Инжир — Чабрец»:', short: 'Основа Лью Инжир', unit: 'шт', norm: 0 },
+    { key: 'lyu-frankincense', label: 'Основа для напитка Лью «Ладан — Кокос»:', short: 'Основа Лью Ладан', unit: 'шт', norm: 0 },
+    { key: 'cordial-nettle', label: 'Основа для напитков «Кордиал/Крапива-Клубника»:', short: 'Основа Кордиал Крапива', unit: 'шт', norm: 0 },
+    { section: 'Безалкогольные напитки' },
+    { key: 'noalc-bitter', label: 'Напиток безалкогольный «Биттер»:', short: 'Безалкогольный Биттер', unit: 'шт', norm: 0 },
+    { key: 'noalc-gin', label: 'Напиток безалкогольный «Джин»:', short: 'Безалкогольный Джин', unit: 'шт', norm: 0 },
+    { key: 'noalc-rum', label: 'Напиток безалкогольный «Ром»:', short: 'Безалкогольный Ром', unit: 'шт', norm: 0 },
+    { key: 'water-edis-gas', label: 'Вода EDIS газированная:', short: 'Вода EDIS газированная', unit: 'шт', norm: 0 },
+    { key: 'water-edis-still', label: 'Вода EDIS негазированная:', short: 'Вода EDIS негазированная', unit: 'шт', norm: 0 },
+    { key: 'water-svyatoi', label: 'Вода «Святой источник» газированная:', short: 'Вода Святой источник газ.', unit: 'шт', norm: 0 },
+    { section: 'Добавки и гарниши' },
+    { key: 'oranges', label: 'Апельсины (кг):', short: 'Апельсины', unit: 'кг', norm: 3 },
+    { key: 'puree-pear', label: 'Пюре груша (кг):', short: 'Пюре груша', unit: 'кг', norm: 0 },
+    { key: 'puree-blackberry', label: 'Пюре ежевика (кг):', short: 'Пюре ежевика', unit: 'кг', norm: 0 },
+    { key: 'puree-persimmon', label: 'Пюре хурма (кг):', short: 'Пюре хурма', unit: 'кг', norm: 0 },
+    { key: 'puree-blueberry', label: 'Пюре черника (кг):', short: 'Пюре черника', unit: 'кг', norm: 0 },
+    { key: 'cocoa-barry', label: 'Какао Extra Brut Cacao Barry (кг):', short: 'Какао Cacao Barry', unit: 'кг', norm: 0 },
+    { key: 'chocolate-bitter', label: 'Биттер «Шоколад»:', short: 'Биттер Шоколад', unit: 'шт', norm: 0 },
+    { key: 'agar', label: 'Агар-агар:', short: 'Агар-агар', unit: 'шт', norm: 0 },
+    { key: 'gelatin', label: 'Желатин:', short: 'Желатин', unit: 'шт', norm: 0 },
+    { key: 'isomalt', label: 'Изомальт (кг):', short: 'Изомальт', unit: 'кг', norm: 0 },
+    { key: 'sugar', label: 'Сахар-песок (кг):', short: 'Сахар-песок', unit: 'кг', norm: 0 },
+    { key: 'vanilla-sugar', label: 'Ванильный сахар:', short: 'Ванильный сахар', unit: 'шт', norm: 0 },
+    { key: 'brown-sugar', label: 'Тёмный тростниковый сахар (кг):', short: 'Тростниковый сахар', unit: 'кг', norm: 0 },
+    { key: 'sugar-portion', label: 'Сахар порционный KOJO:', short: 'Сахар порционный KOJO', unit: 'шт', norm: 0 },
+    { key: 'coconut-oil', label: 'Кокосовое масло:', short: 'Кокосовое масло', unit: 'шт', norm: 0 },
+    { key: 'glycerin', label: 'Глицерин пищевой:', short: 'Глицерин пищевой', unit: 'шт', norm: 0 },
+    { key: 'menthol', label: 'Ментол жидкий натуральный:', short: 'Ментол жидкий', unit: 'шт', norm: 0 },
+    { key: 'black-pepper', label: 'Перец чёрный горошком:', short: 'Перец чёрный горошком', unit: 'шт', norm: 0 },
+    { key: 'cinnamon', label: 'Приправа корица:', short: 'Приправа корица', unit: 'шт', norm: 0 },
+    { key: 'smoked-salt', label: 'Соль холодного копчения:', short: 'Соль холодного копчения', unit: 'шт', norm: 0 },
+    { key: 'flowers', label: 'Василёк синий, лепестки роз, можжевельник сушёный:', short: 'Василёк/розы/можжевельник', unit: 'шт', norm: 0 },
+    { key: 'black-carrot', label: 'Чёрная морковь порошок:', short: 'Чёрная морковь порошок', unit: 'шт', norm: 0 },
+    { key: 'squid-ink', label: 'Чернила каракатицы:', short: 'Чернила каракатицы', unit: 'шт', norm: 0 },
+    { key: 'food-color', label: 'Краситель пищевой:', short: 'Краситель пищевой', unit: 'шт', norm: 0 },
+    { key: 'candurin', label: 'Пищевой блеск (кандурин):', short: 'Пищевой блеск кандурин', unit: 'шт', norm: 0 },
+    { key: 'glitter', label: 'Глиттер:', short: 'Глиттер', unit: 'шт', norm: 0 },
+    { key: 'glitter-gold', label: 'Смесь «Глиттер Золото»:', short: 'Глиттер Золото', unit: 'шт', norm: 0 },
+    { key: 'cheese-balls', label: 'Сырные шарики:', short: 'Сырные шарики', unit: 'шт', norm: 0 },
+    { section: 'Оборудование для приготовления' },
+    { key: 'funnel-fuji', label: 'Керамические воронки Fuji:', short: 'Воронки Fuji', unit: 'шт', norm: 0 },
+    { key: 'v60-filters', label: 'Бумажные фильтры V60 отбелённые:', short: 'Фильтры V60', unit: 'шт', norm: 0 },
+    { key: 'aeropress-filters', label: 'Фильтры для Аэропресса:', short: 'Фильтры Аэропресс', unit: 'шт', norm: 0 },
+    { section: 'Подача напитков' },
+    { key: 'cups-lebo-100', label: 'Стаканы бумажные LEBO/KOJO 100 мл:', short: 'Стаканы 100 мл', unit: 'шт', norm: 0 },
+    { key: 'cups-lebo-250', label: 'Стаканы бумажные LEBO/KOJO 250 мл:', short: 'Стаканы 250 мл', unit: 'шт', norm: 0 },
+    { key: 'cups-lebo-350', label: 'Стаканы бумажные LEBO/KOJO 350 мл:', short: 'Стаканы 350 мл', unit: 'шт', norm: 0 },
+    { key: 'cups-ceramic-200', label: 'Керамические стаканы KOJO 200:', short: 'Стаканы керамика 200', unit: 'шт', norm: 0 },
+    { key: 'cups-ceramic-350', label: 'Керамические стаканы KOJO 350:', short: 'Стаканы керамика 350', unit: 'шт', norm: 0 },
+    { key: 'cups-matte', label: 'Стакан матовый KOJO:', short: 'Стакан матовый KOJO', unit: 'шт', norm: 0 },
+    { key: 'lids-d80', label: 'Крышки D80 бумажные:', short: 'Крышки D80', unit: 'шт', norm: 0 },
+    { key: 'lids-d90', label: 'Крышки D90 бумажные:', short: 'Крышки D90', unit: 'шт', norm: 0 },
+    { key: 'straws', label: 'Трубочки прямые красные и тонкие:', short: 'Трубочки', unit: 'шт', norm: 0 },
+    { key: 'stirrers', label: 'Размешиватель деревянный:', short: 'Размешиватели деревянные', unit: 'шт', norm: 0 }
+  ],
+  checklistStatsLabels: {
+    'open': '☀️ Открытие',
+    'close': '🌙 Закрытие',
+    'general': '🧹 Генуборка',
+    'steam': '💨 Паровик',
+    'va': '☕ Victoria Arduino',
+    'largo': '🧊 Ларго',
+    'ice': '🧊 Льдогенератор',
+    'iiko-open': '💳 Открытие смены iiko',
+    'iiko-close': '💳 Закрытие смены iiko',
+    'writeoff': '📝 Списание iiko'
+  },
+  completionNames: {
+    'open': 'открытия',
+    'close': 'закрытия',
+    'general': 'генеральной уборки',
+    'steam': 'замывки паровика',
+    'va': 'замывки Victoria Arduino',
+    'largo': 'мытья Ларго'
+  }
+};
+
+</script>
+  <script>
+'use strict';
+
+// === УЧЁТНЫЕ ЗАПИСИ KOJO GUIDE ===
+// Пароли:
+//   Сотрудники (4 шт):  1234
+//   Администраторы (3): admin1234
+var KOJO_ACCOUNTS = [
+  { login: 'Борисенко Екатерина', role: 'staff', passHash: '03ac674216f3e15c761ee1a5e255f067953623c8b388b4459e13f978d7c846f4' },
+  { login: 'Наумов Виктор', role: 'staff', passHash: '03ac674216f3e15c761ee1a5e255f067953623c8b388b4459e13f978d7c846f4' },
+  { login: 'Бер Никита', role: 'staff', passHash: '03ac674216f3e15c761ee1a5e255f067953623c8b388b4459e13f978d7c846f4' },
+  { login: 'Басина Антонина', role: 'staff', passHash: '03ac674216f3e15c761ee1a5e255f067953623c8b388b4459e13f978d7c846f4' },
+  { login: 'Бариста-администратор', role: 'admin', passHash: 'ac9689e2272427085e35b9d3e3e8bed88cb3434828b43b86fc0596cad4c6e270' },
+  { login: 'Дарья Пляшкевич', role: 'admin', passHash: 'ac9689e2272427085e35b9d3e3e8bed88cb3434828b43b86fc0596cad4c6e270' },
+  { login: 'Ульяна Ашер', role: 'admin', passHash: 'ac9689e2272427085e35b9d3e3e8bed88cb3434828b43b86fc0596cad4c6e270' }
+];
+
+var KOJO_ROLE_LABELS = { staff: 'Сотрудник', admin: 'Администратор' };
+
+function kojoAccountByLogin(login) {
+  for (var i = 0; i < KOJO_ACCOUNTS.length; i++) {
+    if (KOJO_ACCOUNTS[i].login === login) return KOJO_ACCOUNTS[i];
+  }
+  return null;
+}
+
+</script>
+  <script>
+'use strict';
+var KOJOStore = (function () {
+  var memory = {};
+  var available = false;
+  try {
+    var probe = '__kojo_probe__';
+    window.localStorage.setItem(probe, '1');
+    window.localStorage.removeItem(probe);
+    available = true;
+  } catch (e) {
+    available = false;
+  }
+  return {
+    isAvailable: function () {
+      return available;
+    },
+    get: function (key) {
+      try {
+        if (available) {
+          var v = window.localStorage.getItem(key);
+          if (v !== null) return v;
+        }
+      } catch (e) {}
+      return Object.prototype.hasOwnProperty.call(memory, key) ? memory[key] : null;
+    },
+    set: function (key, value) {
+      memory[key] = String(value);
+      try {
+        if (available) window.localStorage.setItem(key, String(value));
+      } catch (e) {}
+    },
+    remove: function (key) {
+      delete memory[key];
+      try {
+        if (available) window.localStorage.removeItem(key);
+      } catch (e) {}
+    }
+  };
+})();
+
+function kojoToday() {
+  var d = new Date();
+  var m = d.getMonth() + 1;
+  var day = d.getDate();
+  return d.getFullYear() + '-' + (m < 10 ? '0' + m : m) + '-' + (day < 10 ? '0' + day : day);
+}
+
+var KOJOState = (function () {
+  var THEME_KEY = 'kojo-theme';
+  var AUTH_KEY = 'kojo-auth';
+  var USER_KEY = 'kojo-current-user';
+  var SYNC_PREFIX = 'kojo-cloud';
+
+  function keyOf(account, clId, date) {
+    var d = date || kojoToday();
+    return 'checklist_' + d + '_' + account + '_' + clId;
+  }
+
+  function syncKey() {
+    return SYNC_PREFIX;
+  }
+
+  function cleanOldDates(keep) {
+    try {
+      var remove = [];
+      for (var i = 0; i < window.localStorage.length; i++) {
+        var k = window.localStorage.key(i);
+        if (k && k.indexOf('checklist_') === 0) {
+          var datePart = k.split('_')[1];
+          if (datePart && datePart !== keep) remove.push(k);
+        }
+      }
+      for (var j = 0; j < remove.length; j++) window.localStorage.removeItem(remove[j]);
+    } catch (e) {}
+  }
+
+  return {
+    getTheme: function () {
+      return KOJOStore.get(THEME_KEY);
+    },
+    setTheme: function (theme) {
+      KOJOStore.set(THEME_KEY, theme);
+    },
+    setAuth: function (value) {
+      KOJOStore.set(AUTH_KEY, value ? '1' : '0');
+    },
+    isAuth: function () {
+      return KOJOStore.get(AUTH_KEY) === '1';
+    },
+    getCurrentUser: function () {
+      return KOJOStore.get(USER_KEY);
+    },
+    setCurrentUser: function (login) {
+      KOJOStore.set(USER_KEY, login);
+    },
+    getChecklist: function (clId, account, date) {
+      var acc = account || KOJOState.getCurrentUser() || 'kojo';
+      var raw = KOJOStore.get(keyOf(acc, clId, date));
+      if (!raw) return null;
+      try {
+        var arr = JSON.parse(raw);
+        if (Array.isArray(arr)) return arr;
+      } catch (e) {}
+      return null;
+    },
+    saveChecklist: function (clId, arr, account, date) {
+      var acc = account || KOJOState.getCurrentUser() || 'kojo';
+      KOJOStore.set(keyOf(acc, clId, date), JSON.stringify(arr));
+    },
+    clearChecklist: function (clId, account, date) {
+      var acc = account || KOJOState.getCurrentUser() || 'kojo';
+      KOJOStore.remove(keyOf(acc, clId, date));
+    },
+    getCloudDoc: function () {
+      var raw = KOJOStore.get(syncKey());
+      if (!raw) return null;
+      try {
+        var obj = JSON.parse(raw);
+        if (obj && obj.date && obj.users) return obj;
+      } catch (e) {}
+      return null;
+    },
+    saveCloudDoc: function (doc) {
+      KOJOStore.set(syncKey(), JSON.stringify(doc));
+    },
+    cleanOldDates: function (keep) {
+      cleanOldDates(keep);
+    },
+    exportData: function (clIds, account) {
+      var acc = account || KOJOState.getCurrentUser() || 'kojo';
+      var out = { account: acc, date: kojoToday(), checklists: {} };
+      for (var i = 0; i < clIds.length; i++) {
+        var id = clIds[i];
+        out.checklists[id] = KOJOState.getChecklist(id, acc) || [];
+      }
+      return out;
+    },
+    importData: function (payload, clIds, account) {
+      var acc = account || KOJOState.getCurrentUser() || 'kojo';
+      var applied = [];
+      for (var i = 0; i < clIds.length; i++) {
+        var id = clIds[i];
+        if (payload && payload.checklists && Array.isArray(payload.checklists[id])) {
+          KOJOState.saveChecklist(id, payload.checklists[id], acc);
+          applied.push(id);
+        }
+      }
+      return applied;
+    }
+  };
+})();
+
+</script>
+  <script>
+'use strict';
+
+// === НАСТРОЙКИ ОБЛАЧНОЙ СИНХРОНИЗАЦИИ (jsonbin.io) ===
+// Bin создан заранее; Bin ID и Master Key зашиты, поэтому каждое устройство
+// синхронизируется автоматически сразу после входа — настройка не нужна.
+var KOJO_SYNC_DEFAULTS = {
+  enabled: true,
+  binId: '6a75d369da38895dfec61877',
+  masterKey: '$2a$10$m2hF9IKYOm4BwwKTjeGXX.pLSVOSiLPwY373P7uklbWhL5ln3P0Su'
+};
+
+var KOJOCloud = (function () {
+  var BASE = 'https://api.jsonbin.io/v3/b/';
+  var SETTINGS_KEY = 'kojo-sync-settings';
+  var lastSync = { ok: null, error: '', at: '' };
+
+  function markSync(ok, error) {
+    lastSync.ok = ok;
+    lastSync.error = error || '';
+    lastSync.at = new Date().toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
+  }
+
+  function getLastSync() {
+    return lastSync;
+  }
+
+  function getSettings() {
+    var s = { binId: '', masterKey: '' };
+    try {
+      var raw = KOJOStore.get(SETTINGS_KEY);
+      if (raw) {
+        var parsed = JSON.parse(raw);
+        if (parsed) { s.binId = parsed.binId || ''; s.masterKey = parsed.masterKey || ''; }
+      }
+    } catch (e) {}
+    // Вшитые по умолчанию значения всегда приоритетны — единый общий Bin на всех устройствах
+    if (KOJO_SYNC_DEFAULTS.binId) s.binId = KOJO_SYNC_DEFAULTS.binId;
+    if (KOJO_SYNC_DEFAULTS.masterKey) s.masterKey = KOJO_SYNC_DEFAULTS.masterKey;
+    return s;
+  }
+
+  function saveSettings(binId, masterKey) {
+    try { KOJOStore.set(SETTINGS_KEY, JSON.stringify({ binId: binId, masterKey: masterKey })); } catch (e) {}
+  }
+
+  function isConfigured() {
+    var s = getSettings();
+    return !!(s.binId && s.masterKey);
+  }
+
+  function get(cb) {
+    var s = getSettings();
+    if (!isConfigured()) { cb && cb(null); return; }
+    var xhr = new XMLHttpRequest();
+    xhr.open('GET', BASE + s.binId + '/latest', true);
+    xhr.setRequestHeader('X-Master-Key', s.masterKey);
+    xhr.setRequestHeader('X-Bin-Meta', 'false');
+    xhr.timeout = 15000;
+    xhr.onload = function () {
+      try {
+        if (xhr.status >= 200 && xhr.status < 300) {
+          var body = JSON.parse(xhr.responseText);
+          var record = body && body.record !== undefined ? body.record : body;
+          markSync(true, '');
+          cb && cb(record);
+        } else {
+          markSync(false, 'HTTP ' + xhr.status);
+          cb && cb(null);
+        }
+      } catch (e) { markSync(false, 'ошибка ответа'); cb && cb(null); }
+    };
+    xhr.onerror = function () { markSync(false, 'сеть недоступна'); cb && cb(null); };
+    xhr.ontimeout = function () { markSync(false, 'таймаут'); cb && cb(null); };
+    xhr.send();
+  }
+
+  function set(payload, cb) {
+    var s = getSettings();
+    if (!isConfigured()) { cb && cb(null); return; }
+    var xhr = new XMLHttpRequest();
+    xhr.open('PUT', BASE + s.binId, true);
+    xhr.setRequestHeader('X-Master-Key', s.masterKey);
+    xhr.setRequestHeader('Content-Type', 'application/json');
+    xhr.setRequestHeader('X-Bin-Meta', 'false');
+    xhr.timeout = 15000;
+    xhr.onload = function () {
+      try {
+        if (xhr.status >= 200 && xhr.status < 300) {
+          markSync(true, '');
+          cb && cb(JSON.parse(xhr.responseText));
+        } else {
+          markSync(false, 'HTTP ' + xhr.status);
+          cb && cb(null);
+        }
+      } catch (e) { markSync(false, 'ошибка ответа'); cb && cb(null); }
+    };
+    xhr.onerror = function () { markSync(false, 'сеть недоступна'); cb && cb(null); };
+    xhr.ontimeout = function () { markSync(false, 'таймаут'); cb && cb(null); };
+    xhr.send(JSON.stringify(payload));
+  }
+
+  function createBin(initial, cb) {
+    var s = getSettings();
+    if (!s.masterKey) { cb && cb(null); return; }
+    var xhr = new XMLHttpRequest();
+    xhr.open('POST', 'https://api.jsonbin.io/v3/b', true);
+    xhr.setRequestHeader('X-Master-Key', s.masterKey);
+    xhr.setRequestHeader('Content-Type', 'application/json');
+    xhr.setRequestHeader('X-Bin-Meta', 'false');
+    xhr.timeout = 20000;
+    xhr.onload = function () {
+      try {
+        var body = JSON.parse(xhr.responseText);
+        if (body && body.metadata && body.metadata.id) {
+          saveSettings(body.metadata.id, s.masterKey);
+          cb && cb(body.metadata.id);
+        } else {
+          cb && cb(null);
+        }
+      } catch (e) { cb && cb(null); }
+    };
+    xhr.onerror = function () { cb && cb(null); };
+    xhr.ontimeout = function () { cb && cb(null); };
+    xhr.send(JSON.stringify(initial));
+  }
+
+  return {
+    getSettings: getSettings,
+    saveSettings: saveSettings,
+    isConfigured: isConfigured,
+    get: get,
+    set: set,
+    createBin: createBin,
+    getLastSync: getLastSync
+  };
+})();
+
+</script>
+  <script>
+'use strict';
+
+if (!Element.prototype.closest) {
+  Element.prototype.closest = function (sel) {
+    var el = this;
+    while (el) {
+      if (el.matches(sel)) return el;
+      el = el.parentElement;
+    }
+    return null;
+  };
+}
+if (!Element.prototype.matches) {
+  Element.prototype.matches = Element.prototype.msMatchesSelector || Element.prototype.webkitMatchesSelector;
+}
+
+window.onerror = function (msg, url, line) {
+  try { console.warn('KOJO Error:', msg, 'at line', line); } catch (e) {}
+  return true;
+};
+
+function safeScroll() {
+  try { window.scrollTo({ top: 0, behavior: 'smooth' }); }
+  catch (e) { try { window.scrollTo(0, 0); } catch (e2) {} }
+}
+
+var D = KOJO_DATA;
+var $ = function (id) { return document.getElementById(id); };
+var SECTION_LABELS = { checklists: 'Чек-листы', ifs: 'Что делать если', important: 'Важное', rules: 'История и Философия' };
+
+// === ТЕКУЩИЙ ПОЛЬЗОВАТЕЛЬ ===
+function currentUser() { return KOJOState.getCurrentUser(); }
+function currentAccount() { return kojoAccountByLogin(currentUser()); }
+function isAdmin() { var a = currentAccount(); return !!(a && a.role === 'admin'); }
+
+// === ВХОД (выбор учётной записи) ===
+
+function utf8Bytes(str) {
+  var out = [];
+  for (var i = 0; i < str.length; i++) {
+    var c = str.charCodeAt(i);
+    if (c < 128) { out.push(c); }
+    else if (c < 2048) { out.push(192 | (c >> 6), 128 | (c & 63)); }
+    else { out.push(224 | (c >> 12), 128 | ((c >> 6) & 63), 128 | (c & 63)); }
+  }
+  return out;
+}
+
+function sha256Hex(str) {
+  var msg = utf8Bytes(str);
+  var bitLen = msg.length * 8;
+  var K = [
+    0x428a2f98, 0x71374491, 0xb5c0fbcf, 0xe9b5dba5, 0x3956c25b, 0x59f111f1, 0x923f82a4, 0xab1c5ed5,
+    0xd807aa98, 0x12835b01, 0x243185be, 0x550c7dc3, 0x72be5d74, 0x80deb1fe, 0x9bdc06a7, 0xc19bf174,
+    0xe49b69c1, 0xefbe4786, 0x0fc19dc6, 0x240ca1cc, 0x2de92c6f, 0x4a7484aa, 0x5cb0a9dc, 0x76f988da,
+    0x983e5152, 0xa831c66d, 0xb00327c8, 0xbf597fc7, 0xc6e00bf3, 0xd5a79147, 0x06ca6351, 0x14292967,
+    0x27b70a85, 0x2e1b2138, 0x4d2c6dfc, 0x53380d13, 0x650a7354, 0x766a0abb, 0x81c2c92e, 0x92722c85,
+    0xa2bfe8a1, 0xa81a664b, 0xc24b8b70, 0xc76c51a3, 0xd192e819, 0xd6990624, 0xf40e3585, 0x106aa070,
+    0x19a4c116, 0x1e376c08, 0x2748774c, 0x34b0bcb5, 0x391c0cb3, 0x4ed8aa4a, 0x5b9cca4f, 0x682e6ff3,
+    0x748f82ee, 0x78a5636f, 0x84c87814, 0x8cc70208, 0x90befffa, 0xa4506ceb, 0xbef9a3f7, 0xc67178f2
+  ];
+  var H = [0x6a09e667, 0xbb67ae85, 0x3c6ef372, 0xa54ff53a, 0x510e527f, 0x9b05688c, 0x1f83d9ab, 0x5be0cd19];
+
+  msg.push(0x80);
+  while (msg.length % 64 !== 56) msg.push(0);
+  var hi = Math.floor(bitLen / 4294967296);
+  var lo = bitLen >>> 0;
+  msg.push((hi >>> 24) & 255, (hi >>> 16) & 255, (hi >>> 8) & 255, hi & 255);
+  msg.push((lo >>> 24) & 255, (lo >>> 16) & 255, (lo >>> 8) & 255, lo & 255);
+
+  function rotr(x, n) { return (x >>> n) | (x << (32 - n)); }
+  var w = [];
+  for (var i = 0; i < msg.length; i += 64) {
+    var j;
+    for (j = 0; j < 16; j++) {
+      var o = i + j * 4;
+      w[j] = ((msg[o] << 24) | (msg[o + 1] << 16) | (msg[o + 2] << 8) | msg[o + 3]) >>> 0;
+    }
+    for (j = 16; j < 64; j++) {
+      var s0 = rotr(w[j - 15], 7) ^ rotr(w[j - 15], 18) ^ (w[j - 15] >>> 3);
+      var s1 = rotr(w[j - 2], 17) ^ rotr(w[j - 2], 19) ^ (w[j - 2] >>> 10);
+      w[j] = (w[j - 16] + s0 + w[j - 7] + s1) >>> 0;
+    }
+    var a = H[0], b = H[1], c = H[2], d = H[3], e = H[4], f = H[5], g = H[6], h = H[7];
+    for (j = 0; j < 64; j++) {
+      var S1 = rotr(e, 6) ^ rotr(e, 11) ^ rotr(e, 25);
+      var ch = (e & f) ^ (~e & g);
+      var temp1 = (h + S1 + ch + K[j] + w[j]) >>> 0;
+      var S0 = rotr(a, 2) ^ rotr(a, 13) ^ rotr(a, 22);
+      var maj = (a & b) ^ (a & c) ^ (b & c);
+      var temp2 = (S0 + maj) >>> 0;
+      h = g; g = f; f = e; e = (d + temp1) >>> 0;
+      d = c; c = b; b = a; a = (temp1 + temp2) >>> 0;
+    }
+    H[0] = (H[0] + a) >>> 0; H[1] = (H[1] + b) >>> 0; H[2] = (H[2] + c) >>> 0; H[3] = (H[3] + d) >>> 0;
+    H[4] = (H[4] + e) >>> 0; H[5] = (H[5] + f) >>> 0; H[6] = (H[6] + g) >>> 0; H[7] = (H[7] + h) >>> 0;
+  }
+  var hex = '';
+  for (var k = 0; k < 8; k++) {
+    var v = H[k].toString(16);
+    while (v.length < 8) v = '0' + v;
+    hex += v;
+  }
+  return hex;
+}
+
+function isAuthenticated() {
+  return KOJOState.isAuth();
+}
+
+function showLoginScreen() {
+  var ls = $('login-screen');
+  var app = document.querySelector('.app');
+  if (ls) ls.classList.add('visible');
+  if (app) app.classList.add('locked');
+  renderAccountPicker();
+}
+
+function renderAccountPicker() {
+  var box = $('account-picker');
+  if (!box) return;
+  var html = '<div class="account-picker-label">Выбери свой аккаунт</div>';
+  html += '<div class="account-picker-grid">';
+  for (var i = 0; i < KOJO_ACCOUNTS.length; i++) {
+    var acc = KOJO_ACCOUNTS[i];
+    html += '<button type="button" class="account-chip" data-account="' + acc.login + '">';
+    html += '<span class="account-chip-name">' + acc.login + '</span>';
+    html += '<span class="account-chip-role">' + KOJO_ROLE_LABELS[acc.role] + '</span>';
+    html += '</button>';
+  }
+  html += '</div>';
+  html += '<input type="hidden" id="selected-account" value="" />';
+  box.innerHTML = html;
+}
+
+function hideLoginScreen() {
+  var ls = $('login-screen');
+  var app = document.querySelector('.app');
+  if (ls) ls.classList.remove('visible');
+  if (app) app.classList.remove('locked');
+}
+
+function tryLogin(login, pass) {
+  var acc = kojoAccountByLogin(login);
+  if (acc && sha256Hex(pass) === acc.passHash) {
+    var remember = $('login-remember');
+    KOJOState.setAuth(!!(!remember || remember.checked));
+    KOJOState.setCurrentUser(login);
+    hideLoginScreen();
+    initApp();
+    return true;
+  }
+  return false;
+}
+
+function submitLogin() {
+  var loginEl = $('login-user');
+  var passEl = $('login-pass');
+  var errEl = $('login-error');
+  var selEl = $('selected-account');
+  var login = (loginEl && loginEl.value.trim()) || (selEl && selEl.value) || '';
+  var pass = passEl ? passEl.value : '';
+  if (tryLogin(login, pass)) {
+    if (errEl) errEl.textContent = '';
+    if (passEl) passEl.value = '';
+    if (loginEl) loginEl.value = '';
+    showToast('🔓 Добро пожаловать, ' + login + '!', 'success');
+    return;
+  }
+  if (errEl) errEl.textContent = 'Неверный аккаунт или пароль';
+  if (passEl) { passEl.value = ''; passEl.focus(); }
+  var card = $('login-card');
+  if (card) {
+    card.classList.remove('shake');
+    void card.offsetWidth;
+    card.classList.add('shake');
+  }
+}
+
+function logout() {
+  try { stopCloudSyncPolling(); } catch (e) {}
+  try { KOJOState.setAuth(false); } catch (e) {}
+  try { goHome(); } catch (e) {}
+  var pu = $('login-user'); if (pu) pu.value = '';
+  showLoginScreen();
+}
+
+function checklistIds() {
+  var ids = [];
+  for (var key in D.topics) {
+    if (D.topics[key].type === 'checklist') ids.push(D.topics[key].clId);
+  }
+  return ids;
+}
+
+function topicByClId(clId) {
+  for (var key in D.topics) {
+    if (D.topics[key].type === 'checklist' && D.topics[key].clId === clId) return D.topics[key];
+  }
+  return null;
+}
+
+var CL_IDS = checklistIds();
+
+var APP_VERSION = 6;
+
+function appVersionMarker() {
+  var el = $('app-version-marker');
+  if (el) el.textContent = 'v' + APP_VERSION;
+}
+
+// === ТЕМА ===
+function getTheme() {
+  if (document.body.classList.contains('red')) return 'red';
+  if (document.body.classList.contains('dark')) return 'dark';
+  return 'light';
+}
+
+function setMetaTheme(color) {
+  var m = document.querySelector('meta[name="theme-color"]');
+  if (m) m.setAttribute('content', color);
+}
+
+function setTheme(theme) {
+  document.body.classList.remove('dark', 'red');
+  var btn = document.querySelector('.theme-toggle');
+  if (theme === 'dark') {
+    document.body.classList.add('dark');
+    if (btn) btn.textContent = '☀️';
+    setMetaTheme('#18181b');
+  } else if (theme === 'red') {
+    document.body.classList.add('red');
+    if (btn) btn.textContent = '🌑';
+    setMetaTheme('#1a0a0a');
+  } else {
+    if (btn) btn.textContent = '🌙';
+    setMetaTheme('#ffffff');
+  }
+  try { KOJOState.setTheme(theme); } catch (e) {}
+}
+
+function toggleTheme() {
+  var current = getTheme();
+  var next = current === 'light' ? 'dark' : current === 'dark' ? 'red' : 'light';
+  setTheme(next);
+}
+
+// === РЕНДЕР: ГЛАВНЫЙ ЭКРАН ===
+function renderHome() {
+  var homeEl = $('home-screen');
+  if (!homeEl) return;
+
+  var userWrap = $('current-user-name');
+  if (userWrap) {
+    var acc = currentAccount();
+    userWrap.textContent = currentUser() || '';
+    var roleEl = $('current-user-role');
+    if (roleEl) roleEl.textContent = acc ? (KOJO_ROLE_LABELS[acc.role]) : '';
+    userWrap.style.display = 'block';
+  }
+  updateHeaderAdminButtons();
+  appVersionMarker();
+
+  var h = D.home;
+  var html = '';
+
+  html += '<section class="hero">';
+  html += '<h1 class="hero-title">' + h.heroTitle + '</h1>';
+  html += '<p class="hero-sub">' + h.heroSub + '</p>';
+
+  html += '<div class="quick-actions">';
+  for (var i = 0; i < h.quickActions.length; i++) {
+    var qa = h.quickActions[i];
+    html += '<button class="quick-action' + (qa.primary ? ' primary' : '') + '" data-action="' + qa.action + '">';
+    html += '<span class="emoji">' + qa.emoji + '</span> ' + qa.label;
+    html += '</button>';
+  }
+  html += '</div>';
+
+  html += '<div class="search">';
+  html += '<span class="search-icon">🔍</span>';
+  html += '<input id="search" placeholder="' + h.searchPlaceholder + '" />';
+  html += '<button class="clear-btn" id="clear-search" data-action="clear-search" aria-label="Очистить поиск">✕</button>';
+  html += '<div class="search-results-count" id="search-count"></div>';
+  html += '<div class="search-suggestions" id="search-suggestions"></div>';
+  html += '</div>';
+
+  html += '<div class="chips">';
+  for (var c = 0; c < h.chips.length; c++) {
+    html += '<span class="chip" data-suggest="' + h.chips[c].suggest + '">' + h.chips[c].label + '</span>';
+  }
+  html += '</div>';
+  html += '</section>';
+
+  html += '<section class="section">';
+  html += '<div class="quick-checklist-access">';
+  for (var q = 0; q < h.quickChecklists.length; q++) {
+    var qc = h.quickChecklists[q];
+    html += '<div class="quick-checklist-btn" data-action="open-checklist" data-checklist="' + qc.cl + '">';
+    html += '<span class="icon">' + qc.icon + '</span>';
+    html += qc.label;
+    html += '<span class="progress-mini" id="' + qc.cl + '-mini">0/0</span>';
+    html += '</div>';
+  }
+  html += '</div>';
+  html += '</section>';
+
+  html += '<section class="section">';
+  html += '<div class="section-header">';
+  html += '<h2>Разделы</h2>';
+  html += '<span class="see-all" data-action="scroll-to-sections">все разделы →</span>';
+  html += '</div>';
+  html += '<div class="grid">';
+  for (var t = 0; t < h.tiles.length; t++) {
+    var tile = h.tiles[t];
+    if (tile.type === 'section') {
+      html += '<article class="tile" data-action="show-section" data-section="' + tile.section + '">';
+    } else {
+      html += '<article class="tile" data-action="open-topic" data-topic="' + tile.topic + '" data-parent="home">';
+    }
+    html += '<span class="tile-icon">' + tile.icon + '</span>';
+    html += '<p class="tile-title">' + tile.title + '</p>';
+    html += '<p class="tile-text">' + tile.text + '</p>';
+    if (tile.badge) html += '<span class="tile-badge" id="checklists-badge">0%</span>';
+    html += '</article>';
+  }
+  if (isAdmin()) {
+    html += '<article class="tile tile-admin" data-action="show-control">';
+    html += '<span class="tile-icon">📊</span>';
+    html += '<p class="tile-title">Контроль</p>';
+    html += '<p class="tile-text">Что и кто выполнил сегодня по всем аккаунтам.</p>';
+    html += '</article>';
+  }
+  html += '</div>';
+  html += '</section>';
+
+  homeEl.innerHTML = html;
+}
+
+// === РЕНДЕР: РАЗДЕЛ ===
+function renderSection(id) {
+  var box = $('section-screen');
+  if (!box) return;
+
+  if (id === 'control') { renderControlSection(box); box.classList.add('active'); return; }
+
+  var sec = null;
+  for (var i = 0; i < D.sections.length; i++) {
+    if (D.sections[i].id === id) { sec = D.sections[i]; break; }
+  }
+  if (!sec) return;
+
+  var html = '';
+  html += '<div class="back" data-back>';
+  html += '<div class="back-icon">←</div><span>На главный экран</span>';
+  html += '</div>';
+  html += '<div class="screen-box">';
+  html += '<h1 class="screen-title">' + sec.icon + ' ' + sec.screenTitle + '</h1>';
+  html += '<p class="screen-sub">' + sec.sub + '</p>';
+
+  if (id === 'checklists') {
+    html += '<div class="checklist-stats" id="checklist-stats">';
+    html += '<div class="stat-card"><div class="stat-value done" id="stat-done">0</div><div class="stat-label">Выполнено</div></div>';
+    html += '<div class="stat-card"><div class="stat-value pending" id="stat-pending">0</div><div class="stat-label">Осталось</div></div>';
+    html += '<div class="stat-card"><div class="stat-value" id="stat-total">0</div><div class="stat-label">Всего пунктов</div></div>';
+    html += '</div>';
+  }
+
+  html += '<div class="list">';
+  for (var j = 0; j < sec.items.length; j++) {
+    var it = sec.items[j];
+    html += '<button class="item-link" data-open-topic="' + it.id + '">';
+    html += '<span class="link-icon">' + it.icon + '</span>';
+    html += it.title;
+    html += '<span class="link-arrow">→</span>';
+    html += '</button>';
+  }
+  html += '</div>';
+  html += '</div>';
+
+  box.innerHTML = html;
+  box.classList.add('active');
+}
+
+// === РЕНДЕР: ТЕМА ===
+function renderTopic(key, parent) {
+  var box = $('topic-screen');
+  if (!box) return;
+  var topic = D.topics[key];
+  if (!topic) return;
+  if (!parent) parent = topic.back || 'home';
+  var backLabel = 'На главный экран';
+  for (var i = 0; i < D.sections.length; i++) {
+    if (D.sections[i].id === parent) { backLabel = D.sections[i].backLabel; break; }
+  }
+
+  var html = '';
+  html += '<div class="back" data-back-topic="' + parent + '">';
+  html += '<div class="back-icon">←</div><span>' + backLabel + '</span>';
+  html += '</div>';
+  html += '<div class="screen-box">';
+
+  if (topic.type === 'checklist') {
+    var clId = topic.clId;
+    var state = KOJOState.getChecklist(clId);
+    html += '<div class="checklist-header">';
+    html += '<h1 class="screen-title">' + topic.icon + ' ' + topic.title + '</h1>';
+    html += '<div class="checklist-progress">';
+    html += '<span><span id="' + clId + '-progress">0</span>/<span id="' + clId + '-total">0</span></span>';
+    html += '<div class="progress-bar"><div class="progress-bar-fill" id="' + clId + '-progress-bar"></div></div>';
+    html += '<button class="reset-btn" data-action="reset-checklist" data-checklist="' + clId + '">✕ Сбросить</button>';
+    html += '</div>';
+    html += '</div>';
+    html += '<p class="screen-sub">' + topic.sub + '</p>';
+    html += '<ul class="checklist">';
+
+    var idx = 0;
+    for (var n = 0; n < topic.items.length; n++) {
+      var it = topic.items[n];
+      if (it.label) {
+        html += '<li class="checklist-item checklist-section-label"><span>' + it.label + '</span></li>';
+        continue;
+      }
+      var checked = state && state[idx] === true;
+      html += '<li class="checklist-item' + (checked ? ' completed' : '') + '">';
+      html += '<label class="checklist-label">';
+      html += '<input type="checkbox" class="checklist-checkbox" data-checklist="' + clId + '"' + (checked ? ' checked' : '') + '>';
+      html += '<span class="checklist-text">' + it.text + '</span>';
+      html += '</label>';
+      if (it.hint) html += '<div class="step-text">' + it.hint + '</div>';
+      html += '</li>';
+      idx++;
+    }
+    html += '</ul>';
+  } else if (topic.type === 'steps') {
+    html += '<h1 class="screen-title">' + topic.icon + ' ' + topic.title + '</h1>';
+    html += '<p class="screen-sub">' + topic.sub + '</p>';
+    html += '<ol class="steps">';
+    for (var s = 0; s < topic.steps.length; s++) {
+      var st = topic.steps[s];
+      html += '<li><strong>' + st.title + '</strong><div class="step-text">' + st.text + '</div></li>';
+    }
+    html += '</ol>';
+  } else if (topic.type === 'article') {
+    html += '<h1 class="screen-title">' + topic.icon + ' ' + topic.title + '</h1>';
+    html += '<p class="screen-sub">' + topic.sub + '</p>';
+    html += '<div class="step-text">' + topic.body + '</div>';
+  } else if (topic.type === 'calc') {
+    html += '<h1 class="screen-title">' + topic.icon + ' ' + topic.title + '</h1>';
+    html += '<p class="screen-sub">' + topic.sub + '</p>';
+    html += '<div class="calc-wrap" id="order-calc">';
+    for (var r = 0; r < D.calc.length; r++) {
+      var row = D.calc[r];
+      if (row.section) {
+        html += '<div class="calc-section">' + row.section + '</div>';
+        continue;
+      }
+      html += '<div class="calc-row">';
+      html += '<label>' + row.label + '</label>';
+      html += '<input type="number" class="calc-input" id="stock-' + row.key + '" value="0" min="0" data-calc="' + row.key + '" data-norm="' + row.norm + '" />';
+      html += '<span class="calc-note">норма: ' + row.norm + ' ' + row.unit + ' → заказать: <strong id="order-' + row.key + '">' + row.norm + '</strong></span>';
+      html += '</div>';
+    }
+    html += '</div>';
+    html += '<div class="calc-actions">';
+    html += '<button class="calc-copy-btn" data-action="copy-order">📋 Копировать заявку</button>';
+    html += '<span class="calc-hint">Скопирует все позиции с количеством к заказу</span>';
+    html += '</div>';
+    html += '<p class="calc-footnote">Нормы рассчитаны на 3 дня до следующей поставки. Уточни нормы у управляющей.</p>';
+  }
+
+  html += '</div>';
+
+  box.innerHTML = html;
+  box.classList.add('active');
+
+  if (topic.type === 'checklist') {
+    updateProgress(topic.clId);
+  }
+}
+
+// === КОНТРОЛЬ (только для администраторов) ===
+function userProgressCount(login) {
+  var total = 0;
+  var done = 0;
+  for (var i = 0; i < CL_IDS.length; i++) {
+    var clId = CL_IDS[i];
+    var topic = topicByClId(clId);
+    if (!topic) continue;
+    var state = KOJOState.getChecklist(clId, login);
+    var idx = 0;
+    for (var j = 0; j < topic.items.length; j++) {
+      var it = topic.items[j];
+      if (it.label) continue;
+      total++;
+      if (state && state[idx] === true) done++;
+      idx++;
+    }
+  }
+  return { done: done, total: total };
+}
+
+var CONTROL_LEVELS = [
+  { clId: 'open', icon: '☀️', label: 'Открытие' },
+  { clId: 'close', icon: '🌙', label: 'Закрытие' },
+  { clId: 'general', icon: '🧹', label: 'Генуборка' }
+];
+
+function checklistProgressCount(login, clId) {
+  var topic = topicByClId(clId);
+  if (!topic) return { done: 0, total: 0 };
+  var state = KOJOState.getChecklist(clId, login);
+  var idx = 0;
+  var total = 0;
+  var done = 0;
+  for (var j = 0; j < topic.items.length; j++) {
+    var it = topic.items[j];
+    if (it.label) continue;
+    total++;
+    if (state && state[idx] === true) done++;
+    idx++;
+  }
+  return { done: done, total: total };
+}
+
+function renderControlSection(box) {
+  var today = kojoToday();
+  var html = '<div class="back" data-back>';
+  html += '<div class="back-icon">←</div><span>На главный экран</span>';
+  html += '</div>';
+  html += '<div class="screen-box">';
+  html += '<h1 class="screen-title">📊 Контроль</h1>';
+  html += '<p class="screen-sub">Открытие, закрытие и генеральная уборка за сегодня (' + today + ') по каждому аккаунту.</p>';
+
+  html += '<div class="control-syncline">';
+  html += '<span id="control-sync-status">Синхронизация: …</span>';
+  html += '<button class="reset-btn" data-action="sync-now">🔄 Обновить из облака</button>';
+  html += '<button class="reset-btn" data-action="open-sync-settings">⚙️ Синхронизация</button>';
+  html += '</div>';
+
+  var totals = { open: { done: 0, total: 0 }, close: { done: 0, total: 0 }, general: { done: 0, total: 0 } };
+
+  for (var i = 0; i < KOJO_ACCOUNTS.length; i++) {
+    var acc = KOJO_ACCOUNTS[i];
+    html += '<div class="control-account">';
+    html += '<div class="control-account-head">';
+    html += '<div class="control-name' + (acc.role === 'admin' ? ' admin' : '') + '">' + acc.login + '</div>';
+    html += '<div class="control-role">' + KOJO_ROLE_LABELS[acc.role] + '</div>';
+    html += '</div>';
+    html += '<div class="control-bars">';
+    for (var k = 0; k < CONTROL_LEVELS.length; k++) {
+      var lvl = CONTROL_LEVELS[k];
+      var p = checklistProgressCount(acc.login, lvl.clId);
+      totals[lvl.clId].done += p.done;
+      totals[lvl.clId].total += p.total;
+      var pct = p.total > 0 ? Math.round((p.done / p.total) * 100) : 0;
+      var cls = pct === 100 ? ' good' : (pct > 0 ? ' mid' : '');
+      html += '<div class="control-bar">';
+      html += '<div class="control-bar-top">';
+      html += '<span>' + lvl.icon + ' ' + lvl.label + '</span>';
+      html += '<span class="control-count' + cls + '"><strong>' + p.done + '</strong>/' + p.total + '</span>';
+      html += '</div>';
+      html += '<div class="progress-bar"><div class="progress-bar-fill' + cls + '" style="width:' + pct + '%"></div></div>';
+      html += '</div>';
+    }
+    html += '</div>';
+    html += '</div>';
+  }
+
+  html += '<div class="control-total-wrap">';
+  html += '<span class="muted">Итого по всем аккаунтам</span>';
+  for (var t = 0; t < CONTROL_LEVELS.length; t++) {
+    var lvl2 = CONTROL_LEVELS[t];
+    var tt = totals[lvl2.clId];
+    html += '<span>' + lvl2.icon + ' ' + tt.done + '/' + tt.total + ' (' + (tt.total > 0 ? Math.round((tt.done / tt.total) * 100) : 0) + '%)</span>';
+  }
+  html += '</div>';
+
+  html += '<p class="screen-sub small">Каждый новый день прогресс всех аккаунтов автоматически обнуляется.</p>';
+  html += '</div>';
+
+  box.innerHTML = html;
+  box.classList.add('active');
+  updateControlStatus();
+}
+
+function updateControlStatus() {
+  var el = $('control-sync-status');
+  if (!el) return;
+  if (KOJOCloud.isConfigured()) {
+    var ls = KOJOCloud.getLastSync();
+    if (ls.ok === true) {
+      el.textContent = '☁️ Синхронизация включена · обновлено в ' + ls.at;
+    } else if (ls.ok === false) {
+      el.textContent = '☁️ Синхронизация включена · ошибка: ' + (ls.error || 'неизвестно');
+    } else {
+      el.textContent = '☁️ Синхронизация включена · ожидание первой синхронизации…';
+    }
+  } else {
+    el.textContent = '⚠️ Облачная синхронизация не настроена — работает локально на этом устройстве';
+  }
+}
+
+function showSyncSettingsModal() {
+  var s = KOJOCloud.getSettings();
+  var html = '<div style="display:grid;gap:10px;padding:4px 0">';
+  html += '<label style="font-size:13px;color:var(--muted)">Bin ID (jsonbin.io)</label>';
+  html += '<input type="text" id="sync-bin" class="login-input" value="' + (s.binId || '') + '" placeholder="Вставьте Bin ID" />';
+  html += '<label style="font-size:13px;color:var(--muted)">X-Master-Key</label>';
+  html += '<input type="text" id="sync-key" class="login-input" value="' + (s.masterKey || '') + '" placeholder="Вставьте Master Key" />';
+  html += '<button class="login-btn" data-action="save-sync-settings" style="margin-top:4px">Сохранить</button>';
+  html += '<button class="reset-btn" data-action="auto-create-bin" style="margin-top:8px">✨ Создать Bin автоматически (только Master Key)</button>';
+  html += '<p style="font-size:12px;color:var(--muted)">Схема: на ПЕРВОМ устройстве вставьте Master Key (jsonbin.io) и нажмите «Создать Bin» — появится Bin ID. На ВСЕХ остальных устройствах вставьте этот же Bin ID и Master Key и нажмите «Сохранить». Данные всех аккаунтов будут автоматически обновляться на всех устройствах каждые 20 секунд.</p>';
+  html += '</div>';
+  var content = $('sync-modal-content');
+  if (content) content.innerHTML = html;
+  var modal = $('sync-modal');
+  if (modal) modal.classList.add('visible');
+}
+
+function closeSyncSettingsFromForm() {
+  var bin = $('sync-bin');
+  var key = $('sync-key');
+  if (!bin || !key) return;
+  KOJOCloud.saveSettings(bin.value.trim(), key.value.trim());
+  closeSyncModal();
+  showToast('⚙️ Настройки синхронизации сохранены', 'success');
+  startCloudSyncPolling();
+  syncAllFromCloud(function () {
+    var box = $('section-screen');
+    if (box && box.classList.contains('active') && box.querySelector('.screen-title')) {
+      var title = box.querySelector('.screen-title').textContent;
+      if (title.indexOf('Контроль') !== -1) renderSection('control');
+    }
+  });
+}
+
+function autoCreateBin() {
+  var key = $('sync-key');
+  if (!key) return;
+  var masterKey = key.value.trim();
+  if (!masterKey) {
+    showToast('⚠️ Сначала вставьте X-Master-Key', 'warning');
+    return;
+  }
+  KOJOCloud.saveSettings('', masterKey);
+  KOJOCloud.createBin({ date: kojoToday(), users: {} }, function (binId) {
+    if (binId) {
+      closeSyncModal();
+      showToast('✨ Bin создан и подключён!', 'success');
+      startCloudSyncPolling();
+      syncAllFromCloud(function () {
+        var box = $('section-screen');
+        if (box && box.classList.contains('active') && box.querySelector('.screen-title')) {
+          var title = box.querySelector('.screen-title').textContent;
+          if (title.indexOf('Контроль') !== -1) renderSection('control');
+        }
+      });
+    } else {
+      showToast('⚠️ Не удалось создать Bin — проверьте Master Key', 'error');
+    }
+  });
+}
+
+function closeSyncModal() {
+  var modal = $('sync-modal');
+  if (modal) modal.classList.remove('visible');
+}
+
+// === ОБЛАЧНАЯ СИНХРОНИЗАЦИЯ ===
+var syncTimer = null;
+var cloudSyncing = false;
+var cloudTimer = null;
+
+function pushCloud() {
+  var user = currentUser();
+  if (!user || !KOJOCloud.isConfigured()) return;
+  var doc = { date: kojoToday(), users: {} };
+  var cloud = KOJOState.getCloudDoc();
+  if (cloud && cloud.date === kojoToday() && cloud.users) doc.users = cloud.users;
+  doc.users[user] = {};
+  for (var i = 0; i < CL_IDS.length; i++) {
+    var clId = CL_IDS[i];
+    var arr = KOJOState.getChecklist(clId, user);
+    if (arr) doc.users[user][clId] = arr;
+  }
+  KOJOState.saveCloudDoc(doc);
+  KOJOCloud.set(doc, function (res) {
+    updateHeaderSyncBadge();
+    if (res) { if (console) console.log('KOJO sync ok'); }
+  });
+}
+
+function scheduleCloudPush() {
+  if (syncTimer) clearTimeout(syncTimer);
+  syncTimer = setTimeout(pushCloud, 800);
+}
+
+function syncAllFromCloud(cb) {
+  if (cloudSyncing) {
+    if (cb) cb();
+    return;
+  }
+  cloudSyncing = true;
+  KOJOCloud.get(function (doc) {
+    try {
+      var today = kojoToday();
+      if (!doc || doc.date !== today || !doc.users) {
+        doc = { date: today, users: {} };
+        KOJOState.saveCloudDoc(doc);
+        KOJOCloud.set(doc, function () {});
+      } else {
+        // переносим облачные данные в локальное хранилище для каждого аккаунта
+        for (var user in doc.users) {
+          var u = doc.users[user];
+          if (!u) continue;
+          for (var clId in u) {
+            if (Array.isArray(u[clId])) KOJOState.saveChecklist(clId, u[clId], user);
+          }
+        }
+        KOJOState.saveCloudDoc(doc);
+        pushCloud();
+      }
+      try { KOJOState.cleanOldDates(today); } catch (e) {}
+      if (cb) cb();
+      refreshAllViews();
+      updateHeaderSyncBadge();
+    } finally {
+      cloudSyncing = false;
+    }
+  });
+}
+
+function startCloudSyncPolling() {
+  stopCloudSyncPolling();
+  if (!KOJOCloud.isConfigured()) return;
+  cloudTimer = setInterval(function () {
+    try {
+      if (!isAuthenticated() || !currentUser()) return;
+      syncAllFromCloud(function () {
+        var box = $('section-screen');
+        if (box && box.classList.contains('active')) {
+          var titleEl = box.querySelector('.screen-title');
+          var title = titleEl ? titleEl.textContent : '';
+          if (title.indexOf('Контроль') !== -1) renderSection('control');
+        }
+      });
+    } catch (e) {}
+  }, 20000);
+}
+
+function stopCloudSyncPolling() {
+  if (cloudTimer) {
+    clearInterval(cloudTimer);
+    cloudTimer = null;
+  }
+}
+
+// === НАВИГАЦИЯ ===
+function hideAllScreens() {
+  var homeEl = $('home-screen');
+  var sec = $('section-screen');
+  var topic = $('topic-screen');
+  if (homeEl) homeEl.classList.add('hidden');
+  if (sec) sec.classList.remove('active');
+  if (topic) topic.classList.remove('active');
+}
+
+function showSection(id) {
+  if (!screensExists()) return;
+  if (id === 'control' && !isAdmin()) return;
+  var sec = null;
+  for (var i = 0; i < D.sections.length; i++) {
+    if (D.sections[i].id === id) { sec = D.sections[i]; break; }
+  }
+  if (id !== 'control' && !sec) return;
+  hideAllScreens();
+  renderSection(id);
+  if (id === 'checklists') {
+    updateStats();
+  }
+  if (id === 'control') {
+    syncAllFromCloud(function () {
+      var box = $('section-screen');
+      if (box && box.classList.contains('active') && id === 'control') {
+        renderSection('control');
+      }
+    });
+  }
+  safeScroll();
+}
+
+function goHome() {
+  if (!screensExists()) return;
+  hideAllScreens();
+  var homeEl = $('home-screen');
+  if (homeEl) homeEl.classList.remove('hidden');
+  updateAllMiniProgress();
+  updateChecklistsBadge();
+  safeScroll();
+}
+
+function openTopic(key, parent) {
+  if (!screensExists()) return;
+  var topic = D.topics[key];
+  if (!topic) return;
+  hideAllScreens();
+  renderTopic(key, parent);
+  safeScroll();
+}
+
+function goBackToSection(sectionKey) {
+  if (!screensExists()) return;
+  if (sectionKey === 'home') {
+    goHome();
+    return;
+  }
+  showSection(sectionKey);
+}
+
+function screensExists() {
+  return $('home-screen') && $('section-screen') && $('topic-screen');
+}
+
+// === ЧЕК-ЛИСТЫ ===
+function getChecklistStats(clId) {
+  var topic = topicByClId(clId);
+  if (!topic) return { done: 0, total: 0 };
+  var total = 0;
+  var done = 0;
+  var state = KOJOState.getChecklist(clId);
+  var idx = 0;
+  for (var i = 0; i < topic.items.length; i++) {
+    var it = topic.items[i];
+    if (it.label) continue;
+    total++;
+    if (state && state[idx] === true) done++;
+    idx++;
+  }
+  return { done: done, total: total };
+}
+
+function updateProgress(clId) {
+  var box = $('topic-screen');
+  if (!box) return;
+  var items = box.querySelectorAll('.checklist-checkbox[data-checklist="' + clId + '"]');
+  var checked = box.querySelectorAll('.checklist-checkbox[data-checklist="' + clId + '"]:checked');
+  var total = items.length;
+  var done = checked.length;
+
+  var progressSpan = $(clId + '-progress');
+  var totalSpan = $(clId + '-total');
+  var progressBar = $(clId + '-progress-bar');
+
+  if (progressSpan) progressSpan.textContent = done;
+  if (totalSpan) totalSpan.textContent = total;
+  if (progressBar) {
+    progressBar.style.width = total > 0 ? ((done / total) * 100) + '%' : '0%';
+  }
+
+  for (var i = 0; i < items.length; i++) {
+    var li = items[i].closest('.checklist-item');
+    if (li) li.classList.toggle('completed', items[i].checked);
+  }
+
+  saveChecklistState(clId);
+  updateMiniProgress(clId);
+  updateChecklistsBadge();
+  updateStats();
+  scheduleCloudPush();
+
+  if (done === total && total > 0) {
+    showToast('✅ Чек-лист выполнен!', 'success');
+  }
+}
+
+function saveChecklistState(clId) {
+  var box = $('topic-screen');
+  if (!box) return;
+  var items = box.querySelectorAll('.checklist-checkbox[data-checklist="' + clId + '"]');
+  var state = [];
+  for (var i = 0; i < items.length; i++) {
+    state.push(items[i].checked);
+  }
+  KOJOState.saveChecklist(clId, state);
+}
+
+function resetChecklist(clId) {
+  if (!window.confirm('Сбросить все пункты чек-листа?')) return;
+  KOJOState.clearChecklist(clId);
+  var box = $('topic-screen');
+  if (box) {
+    var items = box.querySelectorAll('.checklist-checkbox[data-checklist="' + clId + '"]');
+    for (var i = 0; i < items.length; i++) {
+      items[i].checked = false;
+      var li = items[i].closest('.checklist-item');
+      if (li) li.classList.remove('completed');
+    }
+  }
+  updateProgress(clId);
+  scheduleCloudPush();
+  showToast('🔄 Чек-лист сброшен', 'warning');
+}
+
+function resetAllChecklists() {
+  if (!window.confirm('Сбросить все чек-листы?')) return;
+  for (var i = 0; i < CL_IDS.length; i++) {
+    KOJOState.clearChecklist(CL_IDS[i]);
+  }
+  var box = $('topic-screen');
+  if (box) {
+    var items = box.querySelectorAll('.checklist-checkbox');
+    for (var j = 0; j < items.length; j++) {
+      items[j].checked = false;
+      var li = items[j].closest('.checklist-item');
+      if (li) li.classList.remove('completed');
+    }
+  }
+  for (var k = 0; k < CL_IDS.length; k++) {
+    updateProgress(CL_IDS[k]);
+  }
+  closeStatsModal();
+  scheduleCloudPush();
+  showToast('🔄 Все чек-листы сброшены', 'warning');
+}
+
+function updateMiniProgress(clId) {
+  var stats = getChecklistStats(clId);
+  var mini = $(clId + '-mini');
+  if (mini) mini.textContent = stats.done + '/' + stats.total;
+}
+
+function updateAllMiniProgress() {
+  var quick = D.home.quickChecklists;
+  for (var i = 0; i < quick.length; i++) {
+    updateMiniProgress(quick[i].cl);
+  }
+}
+
+function updateChecklistsBadge() {
+  var total = 0;
+  var done = 0;
+  for (var i = 0; i < CL_IDS.length; i++) {
+    var s = getChecklistStats(CL_IDS[i]);
+    total += s.total;
+    done += s.done;
+  }
+  var badge = $('checklists-badge');
+  if (badge) badge.textContent = total > 0 ? Math.round((done / total) * 100) + '%' : '0%';
+}
+
+function updateStats() {
+  var total = 0;
+  var done = 0;
+  for (var i = 0; i < CL_IDS.length; i++) {
+    var s = getChecklistStats(CL_IDS[i]);
+    total += s.total;
+    done += s.done;
+  }
+  var statDone = $('stat-done');
+  var statPending = $('stat-pending');
+  var statTotal = $('stat-total');
+  if (statDone) statDone.textContent = done;
+  if (statPending) statPending.textContent = total - done;
+  if (statTotal) statTotal.textContent = total;
+}
+
+function updateHeaderUserBadge() {
+  var el = $('current-user-name');
+  if (el) el.textContent = currentUser() || '';
+  updateHeaderAdminButtons();
+}
+
+function updateHeaderAdminButtons() {
+  var cnt = $('btn-control');
+  if (cnt) cnt.style.display = isAdmin() ? '' : 'none';
+}
+
+function updateHeaderSyncBadge() {
+  var badge = $('sync-badge');
+  if (!badge) return;
+  if (!KOJOCloud.isConfigured()) {
+    badge.textContent = '☁️';
+    badge.title = 'Синхронизация не настроена';
+    return;
+  }
+  var ls = KOJOCloud.getLastSync();
+  if (ls.ok === false) {
+    badge.textContent = '⚠️';
+    badge.title = 'Ошибка синхронизации: ' + (ls.error || 'неизвестно') + ' (последняя попытка ' + ls.at + ')';
+  } else if (ls.ok === true) {
+    badge.textContent = '☁️';
+    badge.title = 'Синхронизация активна · обновлено в ' + ls.at;
+  }
+}
+
+function refreshAllViews() {
+  try {
+    updateAllMiniProgress();
+    updateChecklistsBadge();
+    updateStats();
+    var topic = $('topic-screen');
+    if (topic && topic.classList.contains('active')) {
+      var visible = topic.querySelector('.checklist-checkbox');
+      if (visible) {
+        var cl = visible.getAttribute('data-checklist');
+        if (cl) {
+          var tKey = null;
+          for (var k in D.topics) {
+            if (D.topics[k].type === 'checklist' && D.topics[k].clId === cl) { tKey = k; break; }
+          }
+          if (tKey) renderTopic(tKey, 'checklists');
+        }
+      }
+    }
+  } catch (e) {}
+}
+
+// === ПОИСК ===
+var searchableItems = null;
+
+function buildSearchIndex() {
+  var arr = [];
+  for (var i = 0; i < D.sections.length; i++) {
+    var sec = D.sections[i];
+    for (var j = 0; j < sec.items.length; j++) {
+      var it = sec.items[j];
+      arr.push({ id: it.id, icon: it.icon, text: it.title, section: SECTION_LABELS[sec.id] || sec.screenTitle });
+    }
+  }
+  arr.push({ id: 'order-request', icon: '📋', text: 'Написание заявки (расчёт остатков)', section: 'Чек-листы' });
+  return arr;
+}
+
+function simpleSearch(items, query) {
+  var q = query.toLowerCase().trim();
+  if (!q) return items;
+  var res = [];
+  for (var i = 0; i < items.length; i++) {
+    var item = items[i];
+    if (item.text.toLowerCase().indexOf(q) !== -1 || item.section.toLowerCase().indexOf(q) !== -1) {
+      res.push(item);
+    }
+  }
+  return res;
+}
+
+var selectedSuggestionIndex = -1;
+
+function closeSuggestions() {
+  var el = $('search-suggestions');
+  if (!el) return;
+  el.classList.remove('visible');
+  el.innerHTML = '';
+  selectedSuggestionIndex = -1;
+}
+
+function renderSuggestions(matches) {
+  var el = $('search-suggestions');
+  if (!el) return;
+  if (matches.length === 0) {
+    closeSuggestions();
+    return;
+  }
+  var html = '';
+  for (var i = 0; i < matches.length; i++) {
+    var item = matches[i];
+    html += '<div class="suggestion-item" data-index="' + i + '" data-id="' + item.id + '" data-action="navigate-search">';
+    html += '<span class="sug-icon">' + item.icon + '</span>';
+    html += '<span>' + item.text + '</span>';
+    html += '<span class="sug-section">' + item.section + '</span>';
+    html += '</div>';
+  }
+  el.innerHTML = html;
+  el.classList.add('visible');
+  selectedSuggestionIndex = -1;
+}
+
+function navigateToSearchResult(id) {
+  if (!searchableItems) searchableItems = buildSearchIndex();
+  var item = null;
+  for (var i = 0; i < searchableItems.length; i++) {
+    if (searchableItems[i].id === id) { item = searchableItems[i]; break; }
+  }
+  if (!item) return;
+  closeSuggestions();
+
+  var sectionMap = { 'Чек-листы': 'checklists', 'Что делать если': 'ifs', 'Важное': 'important', 'История и Философия': 'rules' };
+  var sectionKey = sectionMap[item.section] || 'checklists';
+  openTopic(id, sectionKey);
+}
+
+function clearSearch() {
+  var input = $('search');
+  var count = $('search-count');
+  if (!input || !count) return;
+  input.value = '';
+  closeSuggestions();
+  count.style.display = 'none';
+  var links = document.querySelectorAll('.item-link');
+  for (var i = 0; i < links.length; i++) {
+    links[i].style.display = '';
+  }
+  input.focus();
+}
+
+function onChipClick(key) {
+  var chips = document.querySelectorAll('.chip[data-suggest]');
+  for (var i = 0; i < chips.length; i++) {
+    chips[i].classList.remove('active');
+  }
+  var activeChip = document.querySelector('.chip[data-suggest="' + key + '"]');
+  if (activeChip) activeChip.classList.add('active');
+  var map = {
+    'open-shift': function () { openTopic('open-coffee-shop', 'checklists'); },
+    'close-shift': function () { openTopic('close-coffee-shop', 'checklists'); },
+    'steam-wand': function () { openTopic('steam-wand-cleaning', 'checklists'); },
+    'va-e1': function () { openTopic('va-e1-cleaning', 'checklists'); },
+    'largo': function () { openTopic('largo-cleaning', 'checklists'); },
+    'philosophy': function () { openTopic('rules-philosophy', 'rules'); },
+    'history': function () { openTopic('rules-history', 'rules'); }
+  };
+  if (map[key]) map[key]();
+  setTimeout(function () { if (activeChip) activeChip.classList.remove('active'); }, 500);
+}
+
+// === БЫСТРЫЕ ДЕЙСТВИЯ ===
+function quickStartShift() {
+  openTopic('open-coffee-shop', 'checklists');
+  showToast('🚀 Открываем чек-лист открытия смены', 'info');
+}
+
+function quickEndShift() {
+  openTopic('close-coffee-shop', 'checklists');
+  showToast('🏁 Открываем чек-лист закрытия смены', 'info');
+}
+
+function quickChecklist() {
+  showSection('checklists');
+  showToast('✅ Чек-листы кофейни', 'info');
+}
+
+function quickSearch() {
+  var input = $('search');
+  if (input) input.focus();
+  showToast('🔍 Введите запрос для поиска', 'info');
+}
+
+function openChecklist(id) {
+  var map = {
+    'open': 'open-coffee-shop',
+    'close': 'close-coffee-shop',
+    'general': 'general-cleaning'
+  };
+  if (map[id]) openTopic(map[id], 'checklists');
+}
+
+// === КАЛЬКУЛЯТОР ===
+function calcOrder(key, norm) {
+  var input = $('stock-' + key);
+  if (!input) return;
+  var val = parseInt(input.value, 10) || 0;
+  var order = Math.max(0, norm - val);
+  var out = $('order-' + key);
+  if (out) out.textContent = order;
+}
+
+function copyOrderToClipboard() {
+  var lines = [];
+  for (var i = 0; i < D.calc.length; i++) {
+    var row = D.calc[i];
+    if (row.section) continue;
+    var stock = 0;
+    var input = $('stock-' + row.key);
+    if (input) stock = parseInt(input.value, 10) || 0;
+    var order = Math.max(0, row.norm - stock);
+    if (order > 0) lines.push(row.short + ': ' + order + ' ' + row.unit);
+  }
+  if (lines.length === 0) {
+    showToast('⚠️ Нет позиций для заказа', 'warning');
+    return;
+  }
+  lines.unshift('📋 Заявка на поставку:');
+  var text = lines.join('\n');
+  try {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(function () {
+        showToast('✅ Заявка скопирована в буфер обмена', 'success');
+      }).catch(function () { fallbackCopy(text); });
+    } else {
+      fallbackCopy(text);
+    }
+  } catch (e) {
+    fallbackCopy(text);
+  }
+}
+
+function fallbackCopy(text) {
+  try {
+    var textarea = document.createElement('textarea');
+    textarea.value = text;
+    textarea.style.position = 'fixed';
+    textarea.style.opacity = '0';
+    document.body.appendChild(textarea);
+    textarea.select();
+    document.execCommand('copy');
+    document.body.removeChild(textarea);
+    showToast('✅ Заявка скопирована в буфер обмена', 'success');
+  } catch (e) {
+    showToast('⚠️ Не удалось скопировать', 'error');
+  }
+}
+
+// === TOAST ===
+function showToast(message, type) {
+  var container = $('toast-container');
+  if (!container) return;
+  type = type || '';
+  var toast = document.createElement('div');
+  toast.className = 'toast ' + type;
+  toast.textContent = message;
+  container.appendChild(toast);
+  setTimeout(function () {
+    toast.style.opacity = '0';
+    toast.style.transform = 'translateY(10px) scale(0.95)';
+    toast.style.transition = 'all 0.3s ease';
+    setTimeout(function () { if (toast.parentNode) toast.parentNode.removeChild(toast); }, 300);
+  }, 2500);
+}
+
+// === СТАТИСТИКА + ЭКСПОРТ/ИМПОРТ ===
+function showStatsModal() {
+  var html = '<div style="display:grid;gap:8px;margin:8px 0 16px">';
+  var total = 0;
+  var done = 0;
+  for (var i = 0; i < CL_IDS.length; i++) {
+    var clId = CL_IDS[i];
+    var s = getChecklistStats(clId);
+    total += s.total;
+    done += s.done;
+    if (s.total > 0) {
+      html += '<div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border)">';
+      html += '<span>' + (D.checklistStatsLabels[clId] || clId) + '</span>';
+      html += '<span><strong>' + s.done + '</strong> / ' + s.total + '</span>';
+      html += '</div>';
+    }
+  }
+  html += '<div style="display:flex;justify-content:space-between;padding:8px 0;font-weight:700;font-size:16px;border-top:2px solid var(--border)">';
+  html += '<span>Всего</span><span><strong>' + done + '</strong> / ' + total + '</span>';
+  html += '</div>';
+  html += '<div style="display:flex;justify-content:space-between;font-size:13px;color:var(--muted)">';
+  html += '<span>Прогресс</span><span>' + (total > 0 ? Math.round((done / total) * 100) : 0) + '%</span>';
+  html += '</div>';
+  html += '</div>';
+
+  var content = $('stats-content');
+  if (content) content.innerHTML = html;
+
+  var modal = $('stats-modal');
+  if (modal) modal.classList.add('visible');
+}
+
+function closeStatsModal() {
+  var el = $('stats-modal');
+  if (el) el.classList.remove('visible');
+}
+
+function exportProgress() {
+  var payload = {
+    app: D.appName,
+    version: D.version,
+    exportedAt: new Date().toISOString(),
+    user: currentUser() || '',
+    checklists: KOJOState.exportData(CL_IDS).checklists
+  };
+  var blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a');
+  a.href = url;
+  a.download = 'kojo-guide-progress.json';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  setTimeout(function () { try { URL.revokeObjectURL(url); } catch (e) {} }, 1000);
+  showToast('⬇️ Прогресс сохранён в файл', 'success');
+}
+
+function importProgressFromFile(file) {
+  if (!file) return;
+  var reader = new FileReader();
+  reader.onload = function () {
+    try {
+      var payload = JSON.parse(reader.result);
+      if (!payload || payload.app !== D.appName) {
+        showToast('⚠️ Это не файл прогресса KOJO Guide', 'error');
+        return;
+      }
+      var applied = KOJOState.importData(payload, CL_IDS);
+      if (applied.length === 0) {
+        showToast('⚠️ В файле нет данных чек-листов', 'warning');
+        return;
+      }
+      refreshAllViews();
+      scheduleCloudPush();
+      showToast('⬆️ Прогресс импортирован (' + applied.length + ' чек-листов)', 'success');
+    } catch (e) {
+      console.error('KOJO import:', e);
+      showToast('⚠️ Не удалось прочитать файл', 'error');
+    }
+  };
+  reader.onerror = function () {
+    showToast('⚠️ Не удалось прочитать файл', 'error');
+  };
+  reader.readAsText(file);
+}
+
+// === СЛУШАТЕЛИ ===
+function setupSearchListeners() {
+  var input = $('search');
+  if (!input) return;
+  input.addEventListener('input', function () {
+    try {
+      var q = input.value.toLowerCase().trim();
+      var clearBtn = $('clear-search');
+      if (clearBtn) clearBtn.classList.toggle('visible', q.length > 0);
+
+      if (!q) {
+        closeSuggestions();
+        var count = $('search-count');
+        if (count) count.style.display = 'none';
+        var links = document.querySelectorAll('.item-link');
+        for (var i = 0; i < links.length; i++) links[i].style.display = '';
+        return;
+      }
+
+      if (!searchableItems) searchableItems = buildSearchIndex();
+      var matches = simpleSearch(searchableItems, q);
+      var count2 = $('search-count');
+      if (count2) {
+        count2.textContent = 'Найдено: ' + matches.length + ' из ' + searchableItems.length;
+        count2.style.display = 'block';
+      }
+      renderSuggestions(matches);
+
+      var links2 = document.querySelectorAll('.item-link');
+      for (var j = 0; j < links2.length; j++) {
+        var text = links2[j].innerText.toLowerCase();
+        links2[j].style.display = text.indexOf(q) !== -1 ? '' : 'none';
+      }
+    } catch (e) { console.error('KOJO search input:', e); }
+  });
+
+  input.addEventListener('keydown', function (e) {
+    try {
+      var el = $('search-suggestions');
+      if (!el) return;
+      var items = el.querySelectorAll('.suggestion-item');
+      if (items.length === 0) return;
+
+      if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        selectedSuggestionIndex = Math.min(selectedSuggestionIndex + 1, items.length - 1);
+      } else if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        selectedSuggestionIndex = Math.max(selectedSuggestionIndex - 1, -1);
+      } else if (e.key === 'Enter' && selectedSuggestionIndex >= 0) {
+        e.preventDefault();
+        var id = items[selectedSuggestionIndex].getAttribute('data-id');
+        navigateToSearchResult(id);
+        return;
+      } else {
+        return;
+      }
+
+      for (var i = 0; i < items.length; i++) {
+        if (i === selectedSuggestionIndex) items[i].classList.add('highlighted');
+        else items[i].classList.remove('highlighted');
+      }
+      if (selectedSuggestionIndex >= 0 && items[selectedSuggestionIndex]) {
+        try { items[selectedSuggestionIndex].scrollIntoView({ block: 'nearest' }); } catch (e2) {}
+      }
+    } catch (e) { console.error('KOJO search keydown:', e); }
+  });
+}
+
+document.addEventListener('click', function (e) {
+  try {
+    if (!e.target.closest) return;
+    if (!e.target.closest('.search')) closeSuggestions();
+
+    var target = e.target.closest('[data-action], [data-open-topic], [data-back], [data-back-topic], .theme-toggle, .chip[data-suggest], .account-chip');
+    if (!target) return;
+
+    var action = target.getAttribute('data-action');
+
+    if (target.classList.contains('account-chip')) {
+      e.preventDefault();
+      var accLogin = target.getAttribute('data-account');
+      var selected = $('selected-account');
+      if (selected) selected.value = accLogin;
+      var loginEl = $('login-user');
+      if (loginEl) loginEl.value = accLogin;
+      var chips = document.querySelectorAll('.account-chip');
+      for (var ci = 0; ci < chips.length; ci++) chips[ci].classList.remove('active');
+      target.classList.add('active');
+      return;
+    }
+
+    if (target.classList.contains('theme-toggle') || action === 'toggle-theme') {
+      e.preventDefault();
+      toggleTheme();
+      return;
+    }
+    if (action === 'show-stats') {
+      e.preventDefault();
+      showStatsModal();
+      return;
+    }
+    if (action === 'show-control') {
+      e.preventDefault();
+      showSection('control');
+      return;
+    }
+    if (action === 'open-sync-settings') {
+      e.preventDefault();
+      showSyncSettingsModal();
+      return;
+    }
+    if (action === 'save-sync-settings') {
+      e.preventDefault();
+      closeSyncSettingsFromForm();
+      return;
+    }
+    if (action === 'auto-create-bin') {
+      e.preventDefault();
+      autoCreateBin();
+      return;
+    }
+    if (action === 'sync-now') {
+      e.preventDefault();
+      syncAllFromCloud(function () {
+        var box = $('section-screen');
+        if (box && box.classList.contains('active') && box.querySelector('.screen-title')) {
+          var title = box.querySelector('.screen-title').textContent;
+          if (title.indexOf('Контроль') !== -1) renderSection('control');
+        }
+        showToast('🔄 Данные обновлены', 'success');
+      });
+      return;
+    }
+    if (action === 'logout') {
+      e.preventDefault();
+      logout();
+      return;
+    }
+    if (action === 'quick-start-shift') {
+      e.preventDefault();
+      quickStartShift();
+      return;
+    }
+    if (action === 'quick-end-shift') {
+      e.preventDefault();
+      quickEndShift();
+      return;
+    }
+    if (action === 'quick-checklist') {
+      e.preventDefault();
+      quickChecklist();
+      return;
+    }
+    if (action === 'quick-search') {
+      e.preventDefault();
+      quickSearch();
+      return;
+    }
+    if (action === 'clear-search') {
+      e.preventDefault();
+      clearSearch();
+      return;
+    }
+    if (action === 'open-checklist') {
+      e.preventDefault();
+      openChecklist(target.getAttribute('data-checklist'));
+      return;
+    }
+    if (action === 'scroll-to-sections') {
+      e.preventDefault();
+      var grid = document.querySelector('.grid');
+      if (grid) {
+        try { grid.scrollIntoView({ behavior: 'smooth' }); } catch (e3) { grid.scrollIntoView(); }
+      }
+      return;
+    }
+    if (action === 'show-section') {
+      e.preventDefault();
+      showSection(target.getAttribute('data-section'));
+      return;
+    }
+    if (action === 'open-topic' || target.hasAttribute('data-open-topic')) {
+      e.preventDefault();
+      var topic = target.getAttribute('data-topic') || target.getAttribute('data-open-topic');
+      var parent = target.getAttribute('data-parent');
+      openTopic(topic, parent);
+      return;
+    }
+    if (target.hasAttribute('data-back')) {
+      e.preventDefault();
+      goHome();
+      return;
+    }
+    if (target.hasAttribute('data-back-topic')) {
+      e.preventDefault();
+      goBackToSection(target.getAttribute('data-back-topic'));
+      return;
+    }
+    if (action === 'reset-checklist') {
+      e.preventDefault();
+      resetChecklist(target.getAttribute('data-checklist'));
+      return;
+    }
+    if (action === 'reset-all') {
+      e.preventDefault();
+      resetAllChecklists();
+      return;
+    }
+    if (action === 'close-modal') {
+      e.preventDefault();
+      closeStatsModal();
+      return;
+    }
+    if (action === 'close-sync-modal') {
+      e.preventDefault();
+      closeSyncModal();
+      return;
+    }
+    if (action === 'export-progress') {
+      e.preventDefault();
+      exportProgress();
+      return;
+    }
+    if (action === 'import-progress') {
+      e.preventDefault();
+      var fileInput = $('import-file');
+      if (fileInput) fileInput.click();
+      return;
+    }
+    if (action === 'copy-order') {
+      e.preventDefault();
+      copyOrderToClipboard();
+      return;
+    }
+    if (action === 'link-to-topic') {
+      e.preventDefault();
+      openTopic(target.getAttribute('data-topic'), target.getAttribute('data-parent'));
+      return;
+    }
+    if (action === 'navigate-search') {
+      e.preventDefault();
+      var sid = target.getAttribute('data-id');
+      if (sid) navigateToSearchResult(sid);
+      return;
+    }
+    if (target.classList.contains('chip') && target.getAttribute('data-suggest')) {
+      e.preventDefault();
+      onChipClick(target.getAttribute('data-suggest'));
+      return;
+    }
+    if (action === 'install-app') {
+      e.preventDefault();
+      installPwa();
+      return;
+    }
+    if (action === 'dismiss-install') {
+      e.preventDefault();
+      hideInstallBanner();
+      return;
+    }
+  } catch (err) {
+    console.error('KOJO click handler:', err);
+  }
+});
+
+document.addEventListener('change', function (e) {
+  try {
+    if (e.target && e.target.classList && e.target.classList.contains('checklist-checkbox') && e.target.getAttribute('data-checklist')) {
+      updateProgress(e.target.getAttribute('data-checklist'));
+    }
+  } catch (err) { console.error('KOJO change:', err); }
+});
+
+document.addEventListener('input', function (e) {
+  try {
+    if (e.target && e.target.getAttribute && e.target.getAttribute('data-calc')) {
+      var key = e.target.getAttribute('data-calc');
+      var norm = parseInt(e.target.getAttribute('data-norm'), 10) || 0;
+      calcOrder(key, norm);
+    }
+  } catch (err) { console.error('KOJO input:', err); }
+});
+
+document.addEventListener('keydown', function (e) {
+  try {
+    if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+      e.preventDefault();
+      var inp = $('search');
+      if (inp) inp.focus();
+    }
+    if (e.key === 'Escape') {
+      var statsModal = $('stats-modal');
+      if (statsModal && statsModal.classList.contains('visible')) {
+        closeStatsModal();
+      } else {
+        var syncModal = $('sync-modal');
+        if (syncModal && syncModal.classList.contains('visible')) {
+          closeSyncModal();
+        } else if (document.querySelector('.screen.active')) {
+          goHome();
+        }
+      }
+    }
+  } catch (err) { console.error('KOJO keyboard:', err); }
+});
+
+// === PWA ===
+var deferredPrompt = null;
+
+function showInstallBanner() {
+  var banner = $('install-banner');
+  if (banner) banner.classList.add('visible');
+}
+
+function hideInstallBanner() {
+  var banner = $('install-banner');
+  if (banner) banner.classList.remove('visible');
+  try { KOJOStore.set('kojo-install-dismissed', '1'); } catch (e) {}
+}
+
+function installPwa() {
+  if (!deferredPrompt) return;
+  deferredPrompt.prompt();
+  deferredPrompt = null;
+  hideInstallBanner();
+}
+
+function registerServiceWorker() {
+  try {
+    var proto = window.location.protocol;
+    var host = window.location.hostname;
+    if ((proto === 'https:' || host === 'localhost' || host === '127.0.0.1') && 'serviceWorker' in navigator) {
+      navigator.serviceWorker.register('sw.js').catch(function (err) {
+        console.warn('KOJO SW register:', err);
+      });
+    }
+  } catch (e) {}
+}
+
+function setupInstallBanner() {
+  window.addEventListener('beforeinstallprompt', function (e) {
+    e.preventDefault();
+    deferredPrompt = e;
+    try {
+      if (KOJOStore.get('kojo-install-dismissed') !== '1') showInstallBanner();
+    } catch (e2) {}
+  });
+}
+
+// === ИНИЦИАЛИЗАЦИЯ ===
+function initApp() {
+  try {
+    if (!isAuthenticated() || !currentUser()) {
+      showLoginScreen();
+      return;
+    }
+    hideLoginScreen();
+
+    var savedTheme = KOJOState.getTheme();
+    if (savedTheme && (savedTheme === 'dark' || savedTheme === 'red')) {
+      setTheme(savedTheme);
+    } else {
+      setTheme('light');
+    }
+
+    try { KOJOState.cleanOldDates(kojoToday()); } catch (e) {}
+    renderHome();
+    updateAllMiniProgress();
+    updateChecklistsBadge();
+    updateStats();
+    updateHeaderAdminButtons();
+    scheduleCloudPush();
+    syncAllFromCloud(function () {
+      renderHome();
+      updateAllMiniProgress();
+      updateChecklistsBadge();
+      updateStats();
+      updateHeaderAdminButtons();
+    });
+    startCloudSyncPolling();
+
+    setupSearchListeners();
+    setupInstallBanner();
+
+    var modal = $('stats-modal');
+    if (modal) {
+      modal.addEventListener('click', function (e) {
+        if (e.target === e.currentTarget) closeStatsModal();
+      });
+    }
+    var smodal = $('sync-modal');
+    if (smodal) {
+      smodal.addEventListener('click', function (e) {
+        if (e.target === e.currentTarget) closeSyncModal();
+      });
+    }
+
+    var fileInput = $('import-file');
+    if (fileInput) {
+      fileInput.addEventListener('change', function () {
+        if (fileInput.files && fileInput.files.length > 0) {
+          importProgressFromFile(fileInput.files[0]);
+          fileInput.value = '';
+        }
+      });
+    }
+
+    registerServiceWorker();
+
+    console.log('💡 KOJO Guide: Используйте Ctrl+K для поиска, Escape для выхода');
+  } catch (e) {
+    console.error('KOJO init:', e);
+  }
+}
+
+try {
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initApp);
+  } else {
+    initApp();
+  }
+} catch (e) {
+  console.error('KOJO boot:', e);
+}
+
+var loginFormEl = $('login-form');
+if (loginFormEl) {
+  loginFormEl.addEventListener('submit', function (e) {
+    e.preventDefault();
+    submitLogin();
+  });
+}
+</script>
 </body>
 </html>
