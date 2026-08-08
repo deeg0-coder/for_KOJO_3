@@ -1,4 +1,4 @@
-'use strict';
+﻿'use strict';
 
 if (!Element.prototype.closest) {
   Element.prototype.closest = function (sel) {
@@ -26,14 +26,14 @@ function safeScroll() {
 
 var D = KOJO_DATA;
 var $ = function (id) { return document.getElementById(id); };
-var SECTION_LABELS = { checklists: 'Чек-листы', ifs: 'Что делать если', important: 'Важное', rules: 'История и Философия' };
+var SECTION_LABELS = { checklists: 'Р§РµРє-Р»РёСЃС‚С‹', ifs: 'Р§С‚Рѕ РґРµР»Р°С‚СЊ РµСЃР»Рё', important: 'Р’Р°Р¶РЅРѕРµ', rules: 'РСЃС‚РѕСЂРёСЏ Рё Р¤РёР»РѕСЃРѕС„РёСЏ' };
 
-// === ТЕКУЩИЙ ПОЛЬЗОВАТЕЛЬ ===
+// === РўР•РљРЈР©РР™ РџРћР›Р¬Р—РћР’РђРўР•Р›Р¬ ===
 function currentUser() { return KOJOState.getCurrentUser(); }
 function currentAccount() { return kojoAccountByLogin(currentUser()); }
 function isAdmin() { var a = currentAccount(); return !!(a && a.role === 'admin'); }
 
-// === ВХОД (выбор учётной записи) ===
+// === Р’РҐРћР” (РІС‹Р±РѕСЂ СѓС‡С‘С‚РЅРѕР№ Р·Р°РїРёСЃРё) ===
 
 function utf8Bytes(str) {
   var out = [];
@@ -119,7 +119,7 @@ function showLoginScreen() {
 function renderAccountPicker() {
   var box = $('account-picker');
   if (!box) return;
-  var html = '<div class="account-picker-label">Выбери свой аккаунт</div>';
+  var html = '<div class="account-picker-label">Р’С‹Р±РµСЂРё СЃРІРѕР№ Р°РєРєР°СѓРЅС‚</div>';
   html += '<div class="account-picker-grid">';
   for (var i = 0; i < KOJO_ACCOUNTS.length; i++) {
     var acc = KOJO_ACCOUNTS[i];
@@ -164,10 +164,10 @@ function submitLogin() {
     if (errEl) errEl.textContent = '';
     if (passEl) passEl.value = '';
     if (loginEl) loginEl.value = '';
-    showToast('🔓 Добро пожаловать, ' + login + '!', 'success');
+    showToast('рџ”“ Р”РѕР±СЂРѕ РїРѕР¶Р°Р»РѕРІР°С‚СЊ, ' + login + '!', 'success');
     return;
   }
-  if (errEl) errEl.textContent = 'Неверный аккаунт или пароль';
+  if (errEl) errEl.textContent = 'РќРµРІРµСЂРЅС‹Р№ Р°РєРєР°СѓРЅС‚ РёР»Рё РїР°СЂРѕР»СЊ';
   if (passEl) { passEl.value = ''; passEl.focus(); }
   var card = $('login-card');
   if (card) {
@@ -202,14 +202,14 @@ function topicByClId(clId) {
 
 var CL_IDS = checklistIds();
 
-var APP_VERSION = 6;
+var APP_VERSION = 7;
 
 function appVersionMarker() {
   var el = $('app-version-marker');
   if (el) el.textContent = 'v' + APP_VERSION;
 }
 
-// === ТЕМА ===
+// === РўР•РњРђ ===
 function getTheme() {
   if (document.body.classList.contains('red')) return 'red';
   if (document.body.classList.contains('dark')) return 'dark';
@@ -226,14 +226,14 @@ function setTheme(theme) {
   var btn = document.querySelector('.theme-toggle');
   if (theme === 'dark') {
     document.body.classList.add('dark');
-    if (btn) btn.textContent = '☀️';
+    if (btn) btn.textContent = 'вЂпёЏ';
     setMetaTheme('#18181b');
   } else if (theme === 'red') {
     document.body.classList.add('red');
-    if (btn) btn.textContent = '🌑';
+    if (btn) btn.textContent = 'рџЊ‘';
     setMetaTheme('#1a0a0a');
   } else {
-    if (btn) btn.textContent = '🌙';
+    if (btn) btn.textContent = 'рџЊ™';
     setMetaTheme('#ffffff');
   }
   try { KOJOState.setTheme(theme); } catch (e) {}
@@ -245,7 +245,7 @@ function toggleTheme() {
   setTheme(next);
 }
 
-// === РЕНДЕР: ГЛАВНЫЙ ЭКРАН ===
+// === Р Р•РќР”Р•Р : Р“Р›РђР’РќР«Р™ Р­РљР РђРќ ===
 function renderHome() {
   var homeEl = $('home-screen');
   if (!homeEl) return;
@@ -278,9 +278,9 @@ function renderHome() {
   html += '</div>';
 
   html += '<div class="search">';
-  html += '<span class="search-icon">🔍</span>';
+  html += '<span class="search-icon">рџ”Ќ</span>';
   html += '<input id="search" placeholder="' + h.searchPlaceholder + '" />';
-  html += '<button class="clear-btn" id="clear-search" data-action="clear-search" aria-label="Очистить поиск">✕</button>';
+  html += '<button class="clear-btn" id="clear-search" data-action="clear-search" aria-label="РћС‡РёСЃС‚РёС‚СЊ РїРѕРёСЃРє">вњ•</button>';
   html += '<div class="search-results-count" id="search-count"></div>';
   html += '<div class="search-suggestions" id="search-suggestions"></div>';
   html += '</div>';
@@ -307,8 +307,8 @@ function renderHome() {
 
   html += '<section class="section">';
   html += '<div class="section-header">';
-  html += '<h2>Разделы</h2>';
-  html += '<span class="see-all" data-action="scroll-to-sections">все разделы →</span>';
+  html += '<h2>Р Р°Р·РґРµР»С‹</h2>';
+  html += '<span class="see-all" data-action="scroll-to-sections">РІСЃРµ СЂР°Р·РґРµР»С‹ в†’</span>';
   html += '</div>';
   html += '<div class="grid">';
   for (var t = 0; t < h.tiles.length; t++) {
@@ -326,9 +326,9 @@ function renderHome() {
   }
   if (isAdmin()) {
     html += '<article class="tile tile-admin" data-action="show-control">';
-    html += '<span class="tile-icon">📊</span>';
-    html += '<p class="tile-title">Контроль</p>';
-    html += '<p class="tile-text">Что и кто выполнил сегодня по всем аккаунтам.</p>';
+    html += '<span class="tile-icon">рџ“Љ</span>';
+    html += '<p class="tile-title">РљРѕРЅС‚СЂРѕР»СЊ</p>';
+    html += '<p class="tile-text">Р§С‚Рѕ Рё РєС‚Рѕ РІС‹РїРѕР»РЅРёР» СЃРµРіРѕРґРЅСЏ РїРѕ РІСЃРµРј Р°РєРєР°СѓРЅС‚Р°Рј.</p>';
     html += '</article>';
   }
   html += '</div>';
@@ -337,7 +337,7 @@ function renderHome() {
   homeEl.innerHTML = html;
 }
 
-// === РЕНДЕР: РАЗДЕЛ ===
+// === Р Р•РќР”Р•Р : Р РђР—Р”Р•Р› ===
 function renderSection(id) {
   var box = $('section-screen');
   if (!box) return;
@@ -352,7 +352,7 @@ function renderSection(id) {
 
   var html = '';
   html += '<div class="back" data-back>';
-  html += '<div class="back-icon">←</div><span>На главный экран</span>';
+  html += '<div class="back-icon">в†ђ</div><span>РќР° РіР»Р°РІРЅС‹Р№ СЌРєСЂР°РЅ</span>';
   html += '</div>';
   html += '<div class="screen-box">';
   html += '<h1 class="screen-title">' + sec.icon + ' ' + sec.screenTitle + '</h1>';
@@ -360,9 +360,9 @@ function renderSection(id) {
 
   if (id === 'checklists') {
     html += '<div class="checklist-stats" id="checklist-stats">';
-    html += '<div class="stat-card"><div class="stat-value done" id="stat-done">0</div><div class="stat-label">Выполнено</div></div>';
-    html += '<div class="stat-card"><div class="stat-value pending" id="stat-pending">0</div><div class="stat-label">Осталось</div></div>';
-    html += '<div class="stat-card"><div class="stat-value" id="stat-total">0</div><div class="stat-label">Всего пунктов</div></div>';
+    html += '<div class="stat-card"><div class="stat-value done" id="stat-done">0</div><div class="stat-label">Р’С‹РїРѕР»РЅРµРЅРѕ</div></div>';
+    html += '<div class="stat-card"><div class="stat-value pending" id="stat-pending">0</div><div class="stat-label">РћСЃС‚Р°Р»РѕСЃСЊ</div></div>';
+    html += '<div class="stat-card"><div class="stat-value" id="stat-total">0</div><div class="stat-label">Р’СЃРµРіРѕ РїСѓРЅРєС‚РѕРІ</div></div>';
     html += '</div>';
   }
 
@@ -372,7 +372,7 @@ function renderSection(id) {
     html += '<button class="item-link" data-open-topic="' + it.id + '">';
     html += '<span class="link-icon">' + it.icon + '</span>';
     html += it.title;
-    html += '<span class="link-arrow">→</span>';
+    html += '<span class="link-arrow">в†’</span>';
     html += '</button>';
   }
   html += '</div>';
@@ -382,21 +382,21 @@ function renderSection(id) {
   box.classList.add('active');
 }
 
-// === РЕНДЕР: ТЕМА ===
+// === Р Р•РќР”Р•Р : РўР•РњРђ ===
 function renderTopic(key, parent) {
   var box = $('topic-screen');
   if (!box) return;
   var topic = D.topics[key];
   if (!topic) return;
   if (!parent) parent = topic.back || 'home';
-  var backLabel = 'На главный экран';
+  var backLabel = 'РќР° РіР»Р°РІРЅС‹Р№ СЌРєСЂР°РЅ';
   for (var i = 0; i < D.sections.length; i++) {
     if (D.sections[i].id === parent) { backLabel = D.sections[i].backLabel; break; }
   }
 
   var html = '';
   html += '<div class="back" data-back-topic="' + parent + '">';
-  html += '<div class="back-icon">←</div><span>' + backLabel + '</span>';
+  html += '<div class="back-icon">в†ђ</div><span>' + backLabel + '</span>';
   html += '</div>';
   html += '<div class="screen-box">';
 
@@ -408,7 +408,7 @@ function renderTopic(key, parent) {
     html += '<div class="checklist-progress">';
     html += '<span><span id="' + clId + '-progress">0</span>/<span id="' + clId + '-total">0</span></span>';
     html += '<div class="progress-bar"><div class="progress-bar-fill" id="' + clId + '-progress-bar"></div></div>';
-    html += '<button class="reset-btn" data-action="reset-checklist" data-checklist="' + clId + '">✕ Сбросить</button>';
+    html += '<button class="reset-btn" data-action="reset-checklist" data-checklist="' + clId + '">вњ• РЎР±СЂРѕСЃРёС‚СЊ</button>';
     html += '</div>';
     html += '</div>';
     html += '<p class="screen-sub">' + topic.sub + '</p>';
@@ -458,15 +458,15 @@ function renderTopic(key, parent) {
       html += '<div class="calc-row">';
       html += '<label>' + row.label + '</label>';
       html += '<input type="number" class="calc-input" id="stock-' + row.key + '" value="0" min="0" data-calc="' + row.key + '" data-norm="' + row.norm + '" />';
-      html += '<span class="calc-note">норма: ' + row.norm + ' ' + row.unit + ' → заказать: <strong id="order-' + row.key + '">' + row.norm + '</strong></span>';
+      html += '<span class="calc-note">РЅРѕСЂРјР°: ' + row.norm + ' ' + row.unit + ' в†’ Р·Р°РєР°Р·Р°С‚СЊ: <strong id="order-' + row.key + '">' + row.norm + '</strong></span>';
       html += '</div>';
     }
     html += '</div>';
     html += '<div class="calc-actions">';
-    html += '<button class="calc-copy-btn" data-action="copy-order">📋 Копировать заявку</button>';
-    html += '<span class="calc-hint">Скопирует все позиции с количеством к заказу</span>';
+    html += '<button class="calc-copy-btn" data-action="copy-order">рџ“‹ РљРѕРїРёСЂРѕРІР°С‚СЊ Р·Р°СЏРІРєСѓ</button>';
+    html += '<span class="calc-hint">РЎРєРѕРїРёСЂСѓРµС‚ РІСЃРµ РїРѕР·РёС†РёРё СЃ РєРѕР»РёС‡РµСЃС‚РІРѕРј Рє Р·Р°РєР°Р·Сѓ</span>';
     html += '</div>';
-    html += '<p class="calc-footnote">Нормы рассчитаны на 3 дня до следующей поставки. Уточни нормы у управляющей.</p>';
+    html += '<p class="calc-footnote">РќРѕСЂРјС‹ СЂР°СЃСЃС‡РёС‚Р°РЅС‹ РЅР° 3 РґРЅСЏ РґРѕ СЃР»РµРґСѓСЋС‰РµР№ РїРѕСЃС‚Р°РІРєРё. РЈС‚РѕС‡РЅРё РЅРѕСЂРјС‹ Сѓ СѓРїСЂР°РІР»СЏСЋС‰РµР№.</p>';
   }
 
   html += '</div>';
@@ -479,7 +479,7 @@ function renderTopic(key, parent) {
   }
 }
 
-// === КОНТРОЛЬ (только для администраторов) ===
+// === РљРћРќРўР РћР›Р¬ (С‚РѕР»СЊРєРѕ РґР»СЏ Р°РґРјРёРЅРёСЃС‚СЂР°С‚РѕСЂРѕРІ) ===
 function userProgressCount(login) {
   var total = 0;
   var done = 0;
@@ -501,9 +501,9 @@ function userProgressCount(login) {
 }
 
 var CONTROL_LEVELS = [
-  { clId: 'open', icon: '☀️', label: 'Открытие' },
-  { clId: 'close', icon: '🌙', label: 'Закрытие' },
-  { clId: 'general', icon: '🧹', label: 'Генуборка' }
+  { clId: 'open', icon: 'вЂпёЏ', label: 'РћС‚РєСЂС‹С‚РёРµ' },
+  { clId: 'close', icon: 'рџЊ™', label: 'Р—Р°РєСЂС‹С‚РёРµ' },
+  { clId: 'general', icon: 'рџ§№', label: 'Р“РµРЅСѓР±РѕСЂРєР°' }
 ];
 
 function checklistProgressCount(login, clId) {
@@ -526,16 +526,16 @@ function checklistProgressCount(login, clId) {
 function renderControlSection(box) {
   var today = kojoToday();
   var html = '<div class="back" data-back>';
-  html += '<div class="back-icon">←</div><span>На главный экран</span>';
+  html += '<div class="back-icon">в†ђ</div><span>РќР° РіР»Р°РІРЅС‹Р№ СЌРєСЂР°РЅ</span>';
   html += '</div>';
   html += '<div class="screen-box">';
-  html += '<h1 class="screen-title">📊 Контроль</h1>';
-  html += '<p class="screen-sub">Открытие, закрытие и генеральная уборка за сегодня (' + today + ') по каждому аккаунту.</p>';
+  html += '<h1 class="screen-title">рџ“Љ РљРѕРЅС‚СЂРѕР»СЊ</h1>';
+  html += '<p class="screen-sub">РћС‚РєСЂС‹С‚РёРµ, Р·Р°РєСЂС‹С‚РёРµ Рё РіРµРЅРµСЂР°Р»СЊРЅР°СЏ СѓР±РѕСЂРєР° Р·Р° СЃРµРіРѕРґРЅСЏ (' + today + ') РїРѕ РєР°Р¶РґРѕРјСѓ Р°РєРєР°СѓРЅС‚Сѓ.</p>';
 
   html += '<div class="control-syncline">';
-  html += '<span id="control-sync-status">Синхронизация: …</span>';
-  html += '<button class="reset-btn" data-action="sync-now">🔄 Обновить из облака</button>';
-  html += '<button class="reset-btn" data-action="open-sync-settings">⚙️ Синхронизация</button>';
+  html += '<span id="control-sync-status">РЎРёРЅС…СЂРѕРЅРёР·Р°С†РёСЏ: вЂ¦</span>';
+  html += '<button class="reset-btn" data-action="sync-now">рџ”„ РћР±РЅРѕРІРёС‚СЊ РёР· РѕР±Р»Р°РєР°</button>';
+  html += '<button class="reset-btn" data-action="open-sync-settings">вљ™пёЏ РЎРёРЅС…СЂРѕРЅРёР·Р°С†РёСЏ</button>';
   html += '</div>';
 
   var totals = { open: { done: 0, total: 0 }, close: { done: 0, total: 0 }, general: { done: 0, total: 0 } };
@@ -568,7 +568,7 @@ function renderControlSection(box) {
   }
 
   html += '<div class="control-total-wrap">';
-  html += '<span class="muted">Итого по всем аккаунтам</span>';
+  html += '<span class="muted">РС‚РѕРіРѕ РїРѕ РІСЃРµРј Р°РєРєР°СѓРЅС‚Р°Рј</span>';
   for (var t = 0; t < CONTROL_LEVELS.length; t++) {
     var lvl2 = CONTROL_LEVELS[t];
     var tt = totals[lvl2.clId];
@@ -576,7 +576,7 @@ function renderControlSection(box) {
   }
   html += '</div>';
 
-  html += '<p class="screen-sub small">Каждый новый день прогресс всех аккаунтов автоматически обнуляется.</p>';
+  html += '<p class="screen-sub small">РљР°Р¶РґС‹Р№ РЅРѕРІС‹Р№ РґРµРЅСЊ РїСЂРѕРіСЂРµСЃСЃ РІСЃРµС… Р°РєРєР°СѓРЅС‚РѕРІ Р°РІС‚РѕРјР°С‚РёС‡РµСЃРєРё РѕР±РЅСѓР»СЏРµС‚СЃСЏ.</p>';
   html += '</div>';
 
   box.innerHTML = html;
@@ -590,14 +590,14 @@ function updateControlStatus() {
   if (KOJOCloud.isConfigured()) {
     var ls = KOJOCloud.getLastSync();
     if (ls.ok === true) {
-      el.textContent = '☁️ Синхронизация включена · обновлено в ' + ls.at;
+      el.textContent = 'вЃпёЏ РЎРёРЅС…СЂРѕРЅРёР·Р°С†РёСЏ РІРєР»СЋС‡РµРЅР° В· РѕР±РЅРѕРІР»РµРЅРѕ РІ ' + ls.at;
     } else if (ls.ok === false) {
-      el.textContent = '☁️ Синхронизация включена · ошибка: ' + (ls.error || 'неизвестно');
+      el.textContent = 'вЃпёЏ РЎРёРЅС…СЂРѕРЅРёР·Р°С†РёСЏ РІРєР»СЋС‡РµРЅР° В· РѕС€РёР±РєР°: ' + (ls.error || 'РЅРµРёР·РІРµСЃС‚РЅРѕ');
     } else {
-      el.textContent = '☁️ Синхронизация включена · ожидание первой синхронизации…';
+      el.textContent = 'вЃпёЏ РЎРёРЅС…СЂРѕРЅРёР·Р°С†РёСЏ РІРєР»СЋС‡РµРЅР° В· РѕР¶РёРґР°РЅРёРµ РїРµСЂРІРѕР№ СЃРёРЅС…СЂРѕРЅРёР·Р°С†РёРёвЂ¦';
     }
   } else {
-    el.textContent = '⚠️ Облачная синхронизация не настроена — работает локально на этом устройстве';
+    el.textContent = 'вљ пёЏ РћР±Р»Р°С‡РЅР°СЏ СЃРёРЅС…СЂРѕРЅРёР·Р°С†РёСЏ РЅРµ РЅР°СЃС‚СЂРѕРµРЅР° вЂ” СЂР°Р±РѕС‚Р°РµС‚ Р»РѕРєР°Р»СЊРЅРѕ РЅР° СЌС‚РѕРј СѓСЃС‚СЂРѕР№СЃС‚РІРµ';
   }
 }
 
@@ -605,12 +605,14 @@ function showSyncSettingsModal() {
   var s = KOJOCloud.getSettings();
   var html = '<div style="display:grid;gap:10px;padding:4px 0">';
   html += '<label style="font-size:13px;color:var(--muted)">Bin ID (jsonbin.io)</label>';
-  html += '<input type="text" id="sync-bin" class="login-input" value="' + (s.binId || '') + '" placeholder="Вставьте Bin ID" />';
+  html += '<input type="text" id="sync-bin" class="login-input" value="' + (s.binId || '') + '" placeholder="Р’СЃС‚Р°РІСЊС‚Рµ Bin ID" />';
   html += '<label style="font-size:13px;color:var(--muted)">X-Master-Key</label>';
-  html += '<input type="text" id="sync-key" class="login-input" value="' + (s.masterKey || '') + '" placeholder="Вставьте Master Key" />';
-  html += '<button class="login-btn" data-action="save-sync-settings" style="margin-top:4px">Сохранить</button>';
-  html += '<button class="reset-btn" data-action="auto-create-bin" style="margin-top:8px">✨ Создать Bin автоматически (только Master Key)</button>';
-  html += '<p style="font-size:12px;color:var(--muted)">Схема: на ПЕРВОМ устройстве вставьте Master Key (jsonbin.io) и нажмите «Создать Bin» — появится Bin ID. На ВСЕХ остальных устройствах вставьте этот же Bin ID и Master Key и нажмите «Сохранить». Данные всех аккаунтов будут автоматически обновляться на всех устройствах каждые 20 секунд.</p>';
+  html += '<input type="text" id="sync-key" class="login-input" value="' + (s.masterKey || '') + '" placeholder="Р’СЃС‚Р°РІСЊС‚Рµ Master Key" />';
+  html += '<button class="login-btn" data-action="save-sync-settings" style="margin-top:4px">РЎРѕС…СЂР°РЅРёС‚СЊ</button>';
+  html += '<button class="reset-btn" data-action="auto-create-bin" style="margin-top:8px">вњЁ РЎРѕР·РґР°С‚СЊ Bin Р°РІС‚РѕРјР°С‚РёС‡РµСЃРєРё (С‚РѕР»СЊРєРѕ Master Key)</button>';
+  html += '<button class="reset-btn" data-action="test-connection" style="margin-top:8px">рџ”Њ РџСЂРѕРІРµСЂРєР° СЃРІСЏР·Рё СЃ РѕР±Р»Р°РєРѕРј</button>';
+  html += '<p id="sync-test-result" style="font-size:13px;color:var(--muted);margin:0"></p>';
+  html += '<p style="font-size:12px;color:var(--muted)">РЎС…РµРјР°: РЅР° РџР•Р Р’РћРњ СѓСЃС‚СЂРѕР№СЃС‚РІРµ РІСЃС‚Р°РІСЊС‚Рµ Master Key (jsonbin.io) Рё РЅР°Р¶РјРёС‚Рµ В«РЎРѕР·РґР°С‚СЊ BinВ» вЂ” РїРѕСЏРІРёС‚СЃСЏ Bin ID. РќР° Р’РЎР•РҐ РѕСЃС‚Р°Р»СЊРЅС‹С… СѓСЃС‚СЂРѕР№СЃС‚РІР°С… РІСЃС‚Р°РІСЊС‚Рµ СЌС‚РѕС‚ Р¶Рµ Bin ID Рё Master Key Рё РЅР°Р¶РјРёС‚Рµ В«РЎРѕС…СЂР°РЅРёС‚СЊВ». Р”Р°РЅРЅС‹Рµ РІСЃРµС… Р°РєРєР°СѓРЅС‚РѕРІ Р±СѓРґСѓС‚ Р°РІС‚РѕРјР°С‚РёС‡РµСЃРєРё РѕР±РЅРѕРІР»СЏС‚СЊСЃСЏ РЅР° РІСЃРµС… СѓСЃС‚СЂРѕР№СЃС‚РІР°С… РєР°Р¶РґС‹Рµ 45 СЃРµРєСѓРЅРґ (РїСЂРё РІРєР»СЋС‡С‘РЅРЅРѕРј СЌРєСЂР°РЅРµ).</p>';
   html += '</div>';
   var content = $('sync-modal-content');
   if (content) content.innerHTML = html;
@@ -624,13 +626,13 @@ function closeSyncSettingsFromForm() {
   if (!bin || !key) return;
   KOJOCloud.saveSettings(bin.value.trim(), key.value.trim());
   closeSyncModal();
-  showToast('⚙️ Настройки синхронизации сохранены', 'success');
+  showToast('вљ™пёЏ РќР°СЃС‚СЂРѕР№РєРё СЃРёРЅС…СЂРѕРЅРёР·Р°С†РёРё СЃРѕС…СЂР°РЅРµРЅС‹', 'success');
   startCloudSyncPolling();
   syncAllFromCloud(function () {
     var box = $('section-screen');
     if (box && box.classList.contains('active') && box.querySelector('.screen-title')) {
       var title = box.querySelector('.screen-title').textContent;
-      if (title.indexOf('Контроль') !== -1) renderSection('control');
+      if (title.indexOf('РљРѕРЅС‚СЂРѕР»СЊ') !== -1) renderSection('control');
     }
   });
 }
@@ -640,24 +642,24 @@ function autoCreateBin() {
   if (!key) return;
   var masterKey = key.value.trim();
   if (!masterKey) {
-    showToast('⚠️ Сначала вставьте X-Master-Key', 'warning');
+    showToast('вљ пёЏ РЎРЅР°С‡Р°Р»Р° РІСЃС‚Р°РІСЊС‚Рµ X-Master-Key', 'warning');
     return;
   }
   KOJOCloud.saveSettings('', masterKey);
   KOJOCloud.createBin({ date: kojoToday(), users: {} }, function (binId) {
     if (binId) {
       closeSyncModal();
-      showToast('✨ Bin создан и подключён!', 'success');
+      showToast('вњЁ Bin СЃРѕР·РґР°РЅ Рё РїРѕРґРєР»СЋС‡С‘РЅ!', 'success');
       startCloudSyncPolling();
       syncAllFromCloud(function () {
         var box = $('section-screen');
         if (box && box.classList.contains('active') && box.querySelector('.screen-title')) {
           var title = box.querySelector('.screen-title').textContent;
-          if (title.indexOf('Контроль') !== -1) renderSection('control');
+          if (title.indexOf('РљРѕРЅС‚СЂРѕР»СЊ') !== -1) renderSection('control');
         }
       });
     } else {
-      showToast('⚠️ Не удалось создать Bin — проверьте Master Key', 'error');
+      showToast('вљ пёЏ РќРµ СѓРґР°Р»РѕСЃСЊ СЃРѕР·РґР°С‚СЊ Bin вЂ” РїСЂРѕРІРµСЂСЊС‚Рµ Master Key', 'error');
     }
   });
 }
@@ -667,31 +669,76 @@ function closeSyncModal() {
   if (modal) modal.classList.remove('visible');
 }
 
-// === ОБЛАЧНАЯ СИНХРОНИЗАЦИЯ ===
-var syncTimer = null;
-var cloudSyncing = false;
-var cloudTimer = null;
-
-function pushCloud() {
-  var user = currentUser();
-  if (!user || !KOJOCloud.isConfigured()) return;
-  var doc = { date: kojoToday(), users: {} };
-  var cloud = KOJOState.getCloudDoc();
-  if (cloud && cloud.date === kojoToday() && cloud.users) doc.users = cloud.users;
-  doc.users[user] = {};
-  for (var i = 0; i < CL_IDS.length; i++) {
-    var clId = CL_IDS[i];
-    var arr = KOJOState.getChecklist(clId, user);
-    if (arr) doc.users[user][clId] = arr;
-  }
-  KOJOState.saveCloudDoc(doc);
-  KOJOCloud.set(doc, function (res) {
-    updateHeaderSyncBadge();
-    if (res) { if (console) console.log('KOJO sync ok'); }
+function runConnectionTest() {
+  var out = $('sync-test-result');
+  if (!out) return;
+  out.textContent = 'вЏі РџСЂРѕРІРµСЂСЏРµРјвЂ¦';
+  var t0 = Date.now();
+  KOJOCloud.get(function (doc, err) {
+    if (err) { out.textContent = 'вќЊ РћС€РёР±РєР° С‡С‚РµРЅРёСЏ bin: ' + err; return; }
+    if (!doc || typeof doc !== 'object') { out.textContent = 'вќЊ Р‘РёРЅ РїСѓСЃС‚ РёР»Рё РЅРµ СЃРѕРґРµСЂР¶РёС‚ РґР°РЅРЅС‹С…'; return; }
+    var probe = '__probe__';
+    doc.users = doc.users || {};
+    doc.users[probe] = ['ok'];
+    KOJOCloud.set(doc, function (res, err2) {
+      if (err2) { out.textContent = 'вќЊ РћС€РёР±РєР° Р·Р°РїРёСЃРё РІ bin: ' + err2; return; }
+      KOJOCloud.get(function (doc2, err3) {
+        if (err3 || !doc2 || !doc2.users || !doc2.users[probe]) {
+          out.textContent = 'вќЊ Р—Р°РїРёСЃСЊ РЅРµ РїСЂРѕС‡РёС‚Р°Р»Р°СЃСЊ РѕР±СЂР°С‚РЅРѕ' + (err3 ? ' (' + err3 + ')' : '');
+          return;
+        }
+        delete doc2.users[probe];
+        KOJOCloud.set(doc2, function (res4, err4) {
+          out.textContent = 'вњ… РЎРІСЏР·СЊ СЃ РѕР±Р»Р°РєРѕРј РµСЃС‚СЊ: Р·Р°РїРёСЃСЊ + С‡С‚РµРЅРёРµ Р·Р° ' + (Date.now() - t0) + ' РјСЃ';
+        });
+      });
+    });
   });
 }
 
+// === РћР‘Р›РђР§РќРђРЇ РЎРРќРҐР РћРќРР—РђР¦РРЇ ===
+var syncTimer = null;
+var cloudSyncing = false;
+var cloudTimer = null;
+var cloudDirty = true;
+
+function pushCloud(cb, freshDoc) {
+  var user = currentUser();
+  if (!user || !KOJOCloud.isConfigured()) { if (cb) cb(); return; }
+  var today = kojoToday();
+  var doc = { date: today, users: {} };
+  var finishPush = function (cloud, ok) {
+    if (!ok) { updateHeaderSyncBadge(); if (cb) cb(); return; }
+    if (cloud && cloud.date === today && cloud.users) doc.users = cloud.users;
+    doc.users[user] = {};
+    for (var i = 0; i < CL_IDS.length; i++) {
+      var clId = CL_IDS[i];
+      var arr = KOJOState.getChecklist(clId, user);
+      if (arr) doc.users[user][clId] = arr;
+    }
+    KOJOState.saveCloudDoc(doc);
+    KOJOCloud.set(doc, function (res, err2) {
+      if (!err2) cloudDirty = false;
+      updateHeaderSyncBadge();
+      if (res) { if (console) console.log('KOJO sync ok'); }
+      if (cb) cb();
+    });
+  };
+  // Свежий документ уже есть (из цикла опроса) — пишем на его основе.
+  // ВАЖНО: перед записью всегда нужна актуальная копия bin, иначе можно
+  // стереть данные других устройств. Если свежей копии нет — читаем заново;
+  // при ошибке чтения НИЧЕГО не пишем.
+  if (freshDoc && typeof freshDoc === 'object' && freshDoc.date === today && freshDoc.users) {
+    finishPush(freshDoc, true);
+  } else {
+    KOJOCloud.get(function (cloud, err) {
+      finishPush(cloud, !err);
+    });
+  }
+}
+
 function scheduleCloudPush() {
+  cloudDirty = true;
   if (syncTimer) clearTimeout(syncTimer);
   syncTimer = setTimeout(pushCloud, 800);
 }
@@ -702,15 +749,25 @@ function syncAllFromCloud(cb) {
     return;
   }
   cloudSyncing = true;
-  KOJOCloud.get(function (doc) {
+  var finished = function () {
+    cloudSyncing = false;
+    refreshAllViews();
+    updateHeaderSyncBadge();
+    if (cb) cb();
+  };
+  KOJOCloud.get(function (doc, err) {
     try {
+      // РћРЁРР‘РљРђ (СЃРµС‚СЊ/СЃРµСЂРІРµСЂ/С‚Р°Р№РјР°СѓС‚): РќР• РїРёС€РµРј РІ bin РЅРёС‡РµРіРѕ вЂ” С‡СѓР¶РёРµ РґР°РЅРЅС‹Рµ
+      // РѕСЃС‚Р°СЋС‚СЃСЏ С†РµР»С‹РјРё. РџСЂРѕСЃС‚Рѕ Р¶РґС‘Рј СЃР»РµРґСѓСЋС‰РµРіРѕ С†РёРєР»Р° РѕРїСЂРѕСЃР°.
+      if (err) { finished(); return; }
       var today = kojoToday();
       if (!doc || doc.date !== today || !doc.users) {
+        // РќРѕРІС‹Р№ РґРµРЅСЊ РёР»Рё bin РµС‰С‘ РїСѓСЃС‚ вЂ” Р±РµР·РѕРїР°СЃРЅРѕ РЅР°С‡Р°С‚СЊ СЃ С‡РёСЃС‚РѕРіРѕ РґРѕРєСѓРјРµРЅС‚Р°.
         doc = { date: today, users: {} };
         KOJOState.saveCloudDoc(doc);
-        KOJOCloud.set(doc, function () {});
+        KOJOCloud.set(doc, function (res, err2) { finished(); });
       } else {
-        // переносим облачные данные в локальное хранилище для каждого аккаунта
+        // РїРµСЂРµРЅРѕСЃРёРј РѕР±Р»Р°С‡РЅС‹Рµ РґР°РЅРЅС‹Рµ РІ Р»РѕРєР°Р»СЊРЅРѕРµ С…СЂР°РЅРёР»РёС‰Рµ РґР»СЏ РєР°Р¶РґРѕРіРѕ Р°РєРєР°СѓРЅС‚Р°
         for (var user in doc.users) {
           var u = doc.users[user];
           if (!u) continue;
@@ -719,15 +776,12 @@ function syncAllFromCloud(cb) {
           }
         }
         KOJOState.saveCloudDoc(doc);
-        pushCloud();
+        try { KOJOState.cleanOldDates(today); } catch (e) {}
+        // Р—Р°РїРёСЃС‹РІР°РµРј РѕР±СЂР°С‚РЅРѕ РўРћР›Р¬РљРћ РµСЃР»Рё С‡С‚Рѕ-С‚Рѕ РёР·РјРµРЅРёР»РѕСЃСЊ Р»РѕРєР°Р»СЊРЅРѕ
+        // (РёРЅР°С‡Рµ Р»РёС€РЅРёР№ Р·Р°РїСЂРѕСЃ Рё СЂРёСЃРє РѕР±РЅСѓР»РµРЅРёСЏ С‡СѓР¶РёС… РґР°РЅРЅС‹С…).
+        if (cloudDirty) { pushCloud(finished, doc); } else { finished(); }
       }
-      try { KOJOState.cleanOldDates(today); } catch (e) {}
-      if (cb) cb();
-      refreshAllViews();
-      updateHeaderSyncBadge();
-    } finally {
-      cloudSyncing = false;
-    }
+    } catch (e) { finished(); }
   });
 }
 
@@ -742,11 +796,11 @@ function startCloudSyncPolling() {
         if (box && box.classList.contains('active')) {
           var titleEl = box.querySelector('.screen-title');
           var title = titleEl ? titleEl.textContent : '';
-          if (title.indexOf('Контроль') !== -1) renderSection('control');
+          if (title.indexOf('РљРѕРЅС‚СЂРѕР»СЊ') !== -1) renderSection('control');
         }
       });
     } catch (e) {}
-  }, 20000);
+  }, 45000);
 }
 
 function stopCloudSyncPolling() {
@@ -756,7 +810,7 @@ function stopCloudSyncPolling() {
   }
 }
 
-// === НАВИГАЦИЯ ===
+// === РќРђР’РР“РђР¦РРЇ ===
 function hideAllScreens() {
   var homeEl = $('home-screen');
   var sec = $('section-screen');
@@ -822,7 +876,7 @@ function screensExists() {
   return $('home-screen') && $('section-screen') && $('topic-screen');
 }
 
-// === ЧЕК-ЛИСТЫ ===
+// === Р§Р•Рљ-Р›РРЎРўР« ===
 function getChecklistStats(clId) {
   var topic = topicByClId(clId);
   if (!topic) return { done: 0, total: 0 };
@@ -870,7 +924,7 @@ function updateProgress(clId) {
   scheduleCloudPush();
 
   if (done === total && total > 0) {
-    showToast('✅ Чек-лист выполнен!', 'success');
+    showToast('вњ… Р§РµРє-Р»РёСЃС‚ РІС‹РїРѕР»РЅРµРЅ!', 'success');
   }
 }
 
@@ -886,7 +940,7 @@ function saveChecklistState(clId) {
 }
 
 function resetChecklist(clId) {
-  if (!window.confirm('Сбросить все пункты чек-листа?')) return;
+  if (!window.confirm('РЎР±СЂРѕСЃРёС‚СЊ РІСЃРµ РїСѓРЅРєС‚С‹ С‡РµРє-Р»РёСЃС‚Р°?')) return;
   KOJOState.clearChecklist(clId);
   var box = $('topic-screen');
   if (box) {
@@ -899,11 +953,11 @@ function resetChecklist(clId) {
   }
   updateProgress(clId);
   scheduleCloudPush();
-  showToast('🔄 Чек-лист сброшен', 'warning');
+  showToast('рџ”„ Р§РµРє-Р»РёСЃС‚ СЃР±СЂРѕС€РµРЅ', 'warning');
 }
 
 function resetAllChecklists() {
-  if (!window.confirm('Сбросить все чек-листы?')) return;
+  if (!window.confirm('РЎР±СЂРѕСЃРёС‚СЊ РІСЃРµ С‡РµРє-Р»РёСЃС‚С‹?')) return;
   for (var i = 0; i < CL_IDS.length; i++) {
     KOJOState.clearChecklist(CL_IDS[i]);
   }
@@ -921,7 +975,7 @@ function resetAllChecklists() {
   }
   closeStatsModal();
   scheduleCloudPush();
-  showToast('🔄 Все чек-листы сброшены', 'warning');
+  showToast('рџ”„ Р’СЃРµ С‡РµРє-Р»РёСЃС‚С‹ СЃР±СЂРѕС€РµРЅС‹', 'warning');
 }
 
 function updateMiniProgress(clId) {
@@ -980,17 +1034,17 @@ function updateHeaderSyncBadge() {
   var badge = $('sync-badge');
   if (!badge) return;
   if (!KOJOCloud.isConfigured()) {
-    badge.textContent = '☁️';
-    badge.title = 'Синхронизация не настроена';
+    badge.textContent = 'вЃпёЏ';
+    badge.title = 'РЎРёРЅС…СЂРѕРЅРёР·Р°С†РёСЏ РЅРµ РЅР°СЃС‚СЂРѕРµРЅР°';
     return;
   }
   var ls = KOJOCloud.getLastSync();
   if (ls.ok === false) {
-    badge.textContent = '⚠️';
-    badge.title = 'Ошибка синхронизации: ' + (ls.error || 'неизвестно') + ' (последняя попытка ' + ls.at + ')';
+    badge.textContent = 'вљ пёЏ';
+    badge.title = 'РћС€РёР±РєР° СЃРёРЅС…СЂРѕРЅРёР·Р°С†РёРё: ' + (ls.error || 'РЅРµРёР·РІРµСЃС‚РЅРѕ') + ' (РїРѕСЃР»РµРґРЅСЏСЏ РїРѕРїС‹С‚РєР° ' + ls.at + ')';
   } else if (ls.ok === true) {
-    badge.textContent = '☁️';
-    badge.title = 'Синхронизация активна · обновлено в ' + ls.at;
+    badge.textContent = 'вЃпёЏ';
+    badge.title = 'РЎРёРЅС…СЂРѕРЅРёР·Р°С†РёСЏ Р°РєС‚РёРІРЅР° В· РѕР±РЅРѕРІР»РµРЅРѕ РІ ' + ls.at;
   }
 }
 
@@ -1016,7 +1070,7 @@ function refreshAllViews() {
   } catch (e) {}
 }
 
-// === ПОИСК ===
+// === РџРћРРЎРљ ===
 var searchableItems = null;
 
 function buildSearchIndex() {
@@ -1028,7 +1082,7 @@ function buildSearchIndex() {
       arr.push({ id: it.id, icon: it.icon, text: it.title, section: SECTION_LABELS[sec.id] || sec.screenTitle });
     }
   }
-  arr.push({ id: 'order-request', icon: '📋', text: 'Написание заявки (расчёт остатков)', section: 'Чек-листы' });
+  arr.push({ id: 'order-request', icon: 'рџ“‹', text: 'РќР°РїРёСЃР°РЅРёРµ Р·Р°СЏРІРєРё (СЂР°СЃС‡С‘С‚ РѕСЃС‚Р°С‚РєРѕРІ)', section: 'Р§РµРє-Р»РёСЃС‚С‹' });
   return arr;
 }
 
@@ -1085,7 +1139,7 @@ function navigateToSearchResult(id) {
   if (!item) return;
   closeSuggestions();
 
-  var sectionMap = { 'Чек-листы': 'checklists', 'Что делать если': 'ifs', 'Важное': 'important', 'История и Философия': 'rules' };
+  var sectionMap = { 'Р§РµРє-Р»РёСЃС‚С‹': 'checklists', 'Р§С‚Рѕ РґРµР»Р°С‚СЊ РµСЃР»Рё': 'ifs', 'Р’Р°Р¶РЅРѕРµ': 'important', 'РСЃС‚РѕСЂРёСЏ Рё Р¤РёР»РѕСЃРѕС„РёСЏ': 'rules' };
   var sectionKey = sectionMap[item.section] || 'checklists';
   openTopic(id, sectionKey);
 }
@@ -1124,26 +1178,26 @@ function onChipClick(key) {
   setTimeout(function () { if (activeChip) activeChip.classList.remove('active'); }, 500);
 }
 
-// === БЫСТРЫЕ ДЕЙСТВИЯ ===
+// === Р‘Р«РЎРўР Р«Р• Р”Р•Р™РЎРўР’РРЇ ===
 function quickStartShift() {
   openTopic('open-coffee-shop', 'checklists');
-  showToast('🚀 Открываем чек-лист открытия смены', 'info');
+  showToast('рџљЂ РћС‚РєСЂС‹РІР°РµРј С‡РµРє-Р»РёСЃС‚ РѕС‚РєСЂС‹С‚РёСЏ СЃРјРµРЅС‹', 'info');
 }
 
 function quickEndShift() {
   openTopic('close-coffee-shop', 'checklists');
-  showToast('🏁 Открываем чек-лист закрытия смены', 'info');
+  showToast('рџЏЃ РћС‚РєСЂС‹РІР°РµРј С‡РµРє-Р»РёСЃС‚ Р·Р°РєСЂС‹С‚РёСЏ СЃРјРµРЅС‹', 'info');
 }
 
 function quickChecklist() {
   showSection('checklists');
-  showToast('✅ Чек-листы кофейни', 'info');
+  showToast('вњ… Р§РµРє-Р»РёСЃС‚С‹ РєРѕС„РµР№РЅРё', 'info');
 }
 
 function quickSearch() {
   var input = $('search');
   if (input) input.focus();
-  showToast('🔍 Введите запрос для поиска', 'info');
+  showToast('рџ”Ќ Р’РІРµРґРёС‚Рµ Р·Р°РїСЂРѕСЃ РґР»СЏ РїРѕРёСЃРєР°', 'info');
 }
 
 function openChecklist(id) {
@@ -1155,7 +1209,7 @@ function openChecklist(id) {
   if (map[id]) openTopic(map[id], 'checklists');
 }
 
-// === КАЛЬКУЛЯТОР ===
+// === РљРђР›Р¬РљРЈР›РЇРўРћР  ===
 function calcOrder(key, norm) {
   var input = $('stock-' + key);
   if (!input) return;
@@ -1177,15 +1231,15 @@ function copyOrderToClipboard() {
     if (order > 0) lines.push(row.short + ': ' + order + ' ' + row.unit);
   }
   if (lines.length === 0) {
-    showToast('⚠️ Нет позиций для заказа', 'warning');
+    showToast('вљ пёЏ РќРµС‚ РїРѕР·РёС†РёР№ РґР»СЏ Р·Р°РєР°Р·Р°', 'warning');
     return;
   }
-  lines.unshift('📋 Заявка на поставку:');
+  lines.unshift('рџ“‹ Р—Р°СЏРІРєР° РЅР° РїРѕСЃС‚Р°РІРєСѓ:');
   var text = lines.join('\n');
   try {
     if (navigator.clipboard && navigator.clipboard.writeText) {
       navigator.clipboard.writeText(text).then(function () {
-        showToast('✅ Заявка скопирована в буфер обмена', 'success');
+        showToast('вњ… Р—Р°СЏРІРєР° СЃРєРѕРїРёСЂРѕРІР°РЅР° РІ Р±СѓС„РµСЂ РѕР±РјРµРЅР°', 'success');
       }).catch(function () { fallbackCopy(text); });
     } else {
       fallbackCopy(text);
@@ -1205,9 +1259,9 @@ function fallbackCopy(text) {
     textarea.select();
     document.execCommand('copy');
     document.body.removeChild(textarea);
-    showToast('✅ Заявка скопирована в буфер обмена', 'success');
+    showToast('вњ… Р—Р°СЏРІРєР° СЃРєРѕРїРёСЂРѕРІР°РЅР° РІ Р±СѓС„РµСЂ РѕР±РјРµРЅР°', 'success');
   } catch (e) {
-    showToast('⚠️ Не удалось скопировать', 'error');
+    showToast('вљ пёЏ РќРµ СѓРґР°Р»РѕСЃСЊ СЃРєРѕРїРёСЂРѕРІР°С‚СЊ', 'error');
   }
 }
 
@@ -1228,7 +1282,7 @@ function showToast(message, type) {
   }, 2500);
 }
 
-// === СТАТИСТИКА + ЭКСПОРТ/ИМПОРТ ===
+// === РЎРўРђРўРРЎРўРРљРђ + Р­РљРЎРџРћР Рў/РРњРџРћР Рў ===
 function showStatsModal() {
   var html = '<div style="display:grid;gap:8px;margin:8px 0 16px">';
   var total = 0;
@@ -1246,10 +1300,10 @@ function showStatsModal() {
     }
   }
   html += '<div style="display:flex;justify-content:space-between;padding:8px 0;font-weight:700;font-size:16px;border-top:2px solid var(--border)">';
-  html += '<span>Всего</span><span><strong>' + done + '</strong> / ' + total + '</span>';
+  html += '<span>Р’СЃРµРіРѕ</span><span><strong>' + done + '</strong> / ' + total + '</span>';
   html += '</div>';
   html += '<div style="display:flex;justify-content:space-between;font-size:13px;color:var(--muted)">';
-  html += '<span>Прогресс</span><span>' + (total > 0 ? Math.round((done / total) * 100) : 0) + '%</span>';
+  html += '<span>РџСЂРѕРіСЂРµСЃСЃ</span><span>' + (total > 0 ? Math.round((done / total) * 100) : 0) + '%</span>';
   html += '</div>';
   html += '</div>';
 
@@ -1282,7 +1336,7 @@ function exportProgress() {
   a.click();
   document.body.removeChild(a);
   setTimeout(function () { try { URL.revokeObjectURL(url); } catch (e) {} }, 1000);
-  showToast('⬇️ Прогресс сохранён в файл', 'success');
+  showToast('в¬‡пёЏ РџСЂРѕРіСЂРµСЃСЃ СЃРѕС…СЂР°РЅС‘РЅ РІ С„Р°Р№Р»', 'success');
 }
 
 function importProgressFromFile(file) {
@@ -1292,29 +1346,29 @@ function importProgressFromFile(file) {
     try {
       var payload = JSON.parse(reader.result);
       if (!payload || payload.app !== D.appName) {
-        showToast('⚠️ Это не файл прогресса KOJO Guide', 'error');
+        showToast('вљ пёЏ Р­С‚Рѕ РЅРµ С„Р°Р№Р» РїСЂРѕРіСЂРµСЃСЃР° KOJO Guide', 'error');
         return;
       }
       var applied = KOJOState.importData(payload, CL_IDS);
       if (applied.length === 0) {
-        showToast('⚠️ В файле нет данных чек-листов', 'warning');
+        showToast('вљ пёЏ Р’ С„Р°Р№Р»Рµ РЅРµС‚ РґР°РЅРЅС‹С… С‡РµРє-Р»РёСЃС‚РѕРІ', 'warning');
         return;
       }
       refreshAllViews();
       scheduleCloudPush();
-      showToast('⬆️ Прогресс импортирован (' + applied.length + ' чек-листов)', 'success');
+      showToast('в¬†пёЏ РџСЂРѕРіСЂРµСЃСЃ РёРјРїРѕСЂС‚РёСЂРѕРІР°РЅ (' + applied.length + ' С‡РµРє-Р»РёСЃС‚РѕРІ)', 'success');
     } catch (e) {
       console.error('KOJO import:', e);
-      showToast('⚠️ Не удалось прочитать файл', 'error');
+      showToast('вљ пёЏ РќРµ СѓРґР°Р»РѕСЃСЊ РїСЂРѕС‡РёС‚Р°С‚СЊ С„Р°Р№Р»', 'error');
     }
   };
   reader.onerror = function () {
-    showToast('⚠️ Не удалось прочитать файл', 'error');
+    showToast('вљ пёЏ РќРµ СѓРґР°Р»РѕСЃСЊ РїСЂРѕС‡РёС‚Р°С‚СЊ С„Р°Р№Р»', 'error');
   };
   reader.readAsText(file);
 }
 
-// === СЛУШАТЕЛИ ===
+// === РЎР›РЈРЁРђРўР•Р›Р ===
 function setupSearchListeners() {
   var input = $('search');
   if (!input) return;
@@ -1337,7 +1391,7 @@ function setupSearchListeners() {
       var matches = simpleSearch(searchableItems, q);
       var count2 = $('search-count');
       if (count2) {
-        count2.textContent = 'Найдено: ' + matches.length + ' из ' + searchableItems.length;
+        count2.textContent = 'РќР°Р№РґРµРЅРѕ: ' + matches.length + ' РёР· ' + searchableItems.length;
         count2.style.display = 'block';
       }
       renderSuggestions(matches);
@@ -1436,15 +1490,20 @@ document.addEventListener('click', function (e) {
       autoCreateBin();
       return;
     }
+    if (action === 'test-connection') {
+      e.preventDefault();
+      runConnectionTest();
+      return;
+    }
     if (action === 'sync-now') {
       e.preventDefault();
       syncAllFromCloud(function () {
         var box = $('section-screen');
         if (box && box.classList.contains('active') && box.querySelector('.screen-title')) {
           var title = box.querySelector('.screen-title').textContent;
-          if (title.indexOf('Контроль') !== -1) renderSection('control');
+          if (title.indexOf('РљРѕРЅС‚СЂРѕР»СЊ') !== -1) renderSection('control');
         }
-        showToast('🔄 Данные обновлены', 'success');
+        showToast('рџ”„ Р”Р°РЅРЅС‹Рµ РѕР±РЅРѕРІР»РµРЅС‹', 'success');
       });
       return;
     }
@@ -1664,7 +1723,7 @@ function setupInstallBanner() {
   });
 }
 
-// === ИНИЦИАЛИЗАЦИЯ ===
+// === РРќРР¦РРђР›РР—РђР¦РРЇ ===
 function initApp() {
   try {
     if (!isAuthenticated() || !currentUser()) {
@@ -1724,7 +1783,7 @@ function initApp() {
 
     registerServiceWorker();
 
-    console.log('💡 KOJO Guide: Используйте Ctrl+K для поиска, Escape для выхода');
+    console.log('рџ’Ў KOJO Guide: РСЃРїРѕР»СЊР·СѓР№С‚Рµ Ctrl+K РґР»СЏ РїРѕРёСЃРєР°, Escape РґР»СЏ РІС‹С…РѕРґР°');
   } catch (e) {
     console.error('KOJO init:', e);
   }

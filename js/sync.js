@@ -50,7 +50,7 @@ var KOJOCloud = (function () {
 
   function get(cb) {
     var s = getSettings();
-    if (!isConfigured()) { cb && cb(null); return; }
+    if (!isConfigured()) { cb && cb(null, 'не настроено'); return; }
     var xhr = new XMLHttpRequest();
     xhr.open('GET', BASE + s.binId + '/latest', true);
     xhr.setRequestHeader('X-Master-Key', s.masterKey);
@@ -62,21 +62,21 @@ var KOJOCloud = (function () {
           var body = JSON.parse(xhr.responseText);
           var record = body && body.record !== undefined ? body.record : body;
           markSync(true, '');
-          cb && cb(record);
+          cb && cb(record, null);
         } else {
           markSync(false, 'HTTP ' + xhr.status);
-          cb && cb(null);
+          cb && cb(null, 'HTTP ' + xhr.status);
         }
-      } catch (e) { markSync(false, 'ошибка ответа'); cb && cb(null); }
+      } catch (e) { markSync(false, 'ошибка ответа'); cb && cb(null, 'ошибка ответа'); }
     };
-    xhr.onerror = function () { markSync(false, 'сеть недоступна'); cb && cb(null); };
-    xhr.ontimeout = function () { markSync(false, 'таймаут'); cb && cb(null); };
+    xhr.onerror = function () { markSync(false, 'сеть недоступна'); cb && cb(null, 'сеть недоступна'); };
+    xhr.ontimeout = function () { markSync(false, 'таймаут'); cb && cb(null, 'таймаут'); };
     xhr.send();
   }
 
   function set(payload, cb) {
     var s = getSettings();
-    if (!isConfigured()) { cb && cb(null); return; }
+    if (!isConfigured()) { cb && cb(null, 'не настроено'); return; }
     var xhr = new XMLHttpRequest();
     xhr.open('PUT', BASE + s.binId, true);
     xhr.setRequestHeader('X-Master-Key', s.masterKey);
@@ -87,15 +87,15 @@ var KOJOCloud = (function () {
       try {
         if (xhr.status >= 200 && xhr.status < 300) {
           markSync(true, '');
-          cb && cb(JSON.parse(xhr.responseText));
+          cb && cb(JSON.parse(xhr.responseText), null);
         } else {
           markSync(false, 'HTTP ' + xhr.status);
-          cb && cb(null);
+          cb && cb(null, 'HTTP ' + xhr.status);
         }
-      } catch (e) { markSync(false, 'ошибка ответа'); cb && cb(null); }
+      } catch (e) { markSync(false, 'ошибка ответа'); cb && cb(null, 'ошибка ответа'); }
     };
-    xhr.onerror = function () { markSync(false, 'сеть недоступна'); cb && cb(null); };
-    xhr.ontimeout = function () { markSync(false, 'таймаут'); cb && cb(null); };
+    xhr.onerror = function () { markSync(false, 'сеть недоступна'); cb && cb(null, 'сеть недоступна'); };
+    xhr.ontimeout = function () { markSync(false, 'таймаут'); cb && cb(null, 'таймаут'); };
     xhr.send(JSON.stringify(payload));
   }
 
