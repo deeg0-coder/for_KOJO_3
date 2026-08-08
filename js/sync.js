@@ -15,6 +15,32 @@ var KOJOCloud = (function () {
   var SETTINGS_KEY = 'kojo-sync-settings';
   var LOG_KEY = 'kojo-sync-log';
   var lastSync = { ok: null, error: '', at: '' };
+  // Лимиты jsonblob.com без ключа: ~6 чтений и ~3 записи в минуту на IP.
+  // Чтобы уложиться, устройства пишут не чаще раза в 25 с (последние правки
+  // объединяются в один запрос), а после HTTP 429 пауза удлиняется до 45 с.
+  var WRITE_GAP_MS = 25000;
+  var RATE_LIMIT_PAUSE_MS = 45000;
+  var lastWriteAt = 0;
+  var lastRateLimitAt = 0;
+  var pendingPayload = null;
+  var pendingCbs = [];
+  var pendingTimer = null;
+
+  function fireCbs(cbs, res, err) {
+    for (var i = 0; i < cbs.length; i++) {
+      try { cbs[i] && cbs[i](res, err); } catch (e) {}
+    }
+  }
+
+  function flushPendingWrite() {
+    pendingTimer = null;
+    if (pendingPayload === null) return;
+    var p = pendingPayload, cbs = pendingCbs;
+    pendingPayload = null;
+    pendingCbs = [];
+    lastWriteAt = Date.now();
+    doSet(p, cbs);
+  }
 
   function markSync(ok, error) {
     lastSync.ok = ok;
@@ -74,6 +100,12 @@ var KOJOCloud = (function () {
     try { KOJOStore.set(SETTINGS_KEY, JSON.stringify({ binId: binId, masterKey: masterKey || '' })); } catch (e) {}
   }
 
+  function setWriteGap(ms) {
+    var v = (typeof ms === 'number' && ms >= 0) ? ms : 25000;
+    WRITE_GAP_MS = v;
+    RATE_LIMIT_PAUSE_MS = v === 0 ? 0 : v + 20000;
+  }
+
   function todayIso() {
     try { return kojoToday(); } catch (e) { return new Date().toISOString().slice(0, 10); }
   }
@@ -104,6 +136,7 @@ var KOJOCloud = (function () {
       var xhr = new XMLHttpRequest();
       xhr.open('GET', BASE + fallbacks[i], true);
       xhr.timeout = 15000;
+      if (s.masterKey) xhr.setRequestHeader('X-Master-Key', s.masterKey);
       xhr.onload = function () {
         try {
           if (xhr.status >= 200 && xhr.status < 300) {
@@ -135,6 +168,7 @@ var KOJOCloud = (function () {
       var xhr = new XMLHttpRequest();
       xhr.open('GET', BASE + s.binId, true);
       xhr.timeout = 30000;
+      if (s.masterKey) xhr.setRequestHeader('X-Master-Key', s.masterKey);
       xhr.onload = function () {
         try {
           if (xhr.status >= 200 && xhr.status < 300) {
@@ -148,6 +182,7 @@ var KOJOCloud = (function () {
               cb && cb(recovered, recovered ? null : 'не удалось восстановить блоб');
             });
           } else {
+            if (xhr.status === 429) lastRateLimitAt = Date.now();
             markSync(false, 'HTTP ' + xhr.status);
             addLog(false, 'чтение HTTP ' + xhr.status);
             cb && cb(null, 'HTTP ' + xhr.status);
@@ -179,15 +214,33 @@ var KOJOCloud = (function () {
   function set(payload, cb) {
     var s = getSettings();
     if (!s.binId) { cb && cb(null, 'не настроено'); return; }
+    // Придерживаем паузу между записями и после лимита: изменения не теряются,
+    // последующие правки ждут и объединяются в один запрос.
+    var waitUntil = lastWriteAt + WRITE_GAP_MS;
+    if (lastRateLimitAt + RATE_LIMIT_PAUSE_MS > waitUntil) waitUntil = lastRateLimitAt + RATE_LIMIT_PAUSE_MS;
+    var wait = waitUntil - Date.now();
+    if (wait > 0) {
+      pendingPayload = payload;
+      pendingCbs.push(cb || null);
+      if (!pendingTimer) pendingTimer = setTimeout(flushPendingWrite, wait + 500);
+      return;
+    }
+    lastWriteAt = Date.now();
+    doSet(payload, [cb || null]);
+  }
+
+  function doSet(payload, cbs) {
+    var s = getSettings();
+    if (!s.binId) { fireCbs(cbs, null, 'не настроено'); return; }
     var attempt = 0;
     var go = function () {
       var finish = function (status, text) {
         if (status >= 200 && status < 300) {
           markSync(true, '');
           addLog(true, 'запись');
-          try {
-            cb && cb(JSON.parse(text), null);
-          } catch (e) { cb && cb({}, null); }
+          var parsed = {};
+          try { parsed = JSON.parse(text); } catch (e) {}
+          fireCbs(cbs, parsed, null);
         } else if (status === 404) {
           markSync(false, 'облако удалено (404)');
           addLog(false, 'запись: блоб 404 — создаю заново');
@@ -195,25 +248,27 @@ var KOJOCloud = (function () {
             if (id) {
               markSync(true, '');
               addLog(true, 'создан новый блоб + запись');
-              cb && cb({}, null);
+              fireCbs(cbs, {}, null);
             } else {
               markSync(false, 'не удалось создать блоб');
               addLog(false, 'создание блоба не удалось');
-              cb && cb(null, 'не удалось создать блоб');
+              fireCbs(cbs, null, 'не удалось создать блоб');
             }
           });
         } else {
+          if (status === 429) lastRateLimitAt = Date.now();
           markSync(false, 'HTTP ' + status);
           addLog(false, 'запись HTTP ' + status);
-          cb && cb(null, 'HTTP ' + status);
+          fireCbs(cbs, null, 'HTTP ' + status);
         }
       };
       var xhr = new XMLHttpRequest();
       xhr.open('PUT', BASE + s.binId, true);
       xhr.setRequestHeader('Content-Type', 'application/json');
+      if (s.masterKey) xhr.setRequestHeader('X-Master-Key', s.masterKey);
       xhr.timeout = 30000;
       xhr.onload = function () {
-        try { finish(xhr.status, xhr.responseText); } catch (e) { cb && cb(null, 'ошибка ответа'); }
+        try { finish(xhr.status, xhr.responseText); } catch (e) { fireCbs(cbs, null, 'ошибка ответа'); }
       };
       xhr.onerror = function () { retry('сеть недоступна'); };
       xhr.ontimeout = function () { retry('таймаут'); };
@@ -227,7 +282,7 @@ var KOJOCloud = (function () {
       } else {
         markSync(false, reason);
         addLog(false, 'запись: ' + reason);
-        cb && cb(null, reason);
+        fireCbs(cbs, null, reason);
       }
     };
     go();
@@ -238,6 +293,7 @@ var KOJOCloud = (function () {
     var xhr = new XMLHttpRequest();
     xhr.open('POST', 'https://jsonblob.com/api/jsonBlob', true);
     xhr.setRequestHeader('Content-Type', 'application/json');
+    if (s.masterKey) xhr.setRequestHeader('X-Master-Key', s.masterKey);
     xhr.timeout = 20000;
     xhr.onload = function () {
       try {
@@ -258,6 +314,18 @@ var KOJOCloud = (function () {
     xhr.send(JSON.stringify(initial));
   }
 
+  function getWriteState() {
+    return { gapMs: WRITE_GAP_MS, pending: pendingPayload !== null, pendingCbs: pendingCbs.length };
+  }
+
+  function testThrottle(force) {
+    if (pendingTimer) { clearTimeout(pendingTimer); pendingTimer = null; }
+    pendingPayload = null;
+    pendingCbs = [];
+    if (force) lastWriteAt = Date.now();
+    else lastRateLimitAt = 0;
+  }
+
   return {
     getSettings: getSettings,
     saveSettings: saveSettings,
@@ -265,6 +333,9 @@ var KOJOCloud = (function () {
     get: get,
     set: set,
     createBin: createBin,
+    setWriteGap: setWriteGap,
+    getWriteState: getWriteState,
+    testThrottle: testThrottle,
     getLastSync: getLastSync,
     getLog: getLog,
     clearLog: clearLog

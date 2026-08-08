@@ -202,7 +202,7 @@ function topicByClId(clId) {
 
 var CL_IDS = checklistIds();
 
-var APP_VERSION = 16;
+var APP_VERSION = 17;
 
 function appVersionMarker() {
   var el = $('app-version-marker');
@@ -746,6 +746,7 @@ function schedSetCell(login, dayKey, shiftId) {
   if (!s.cells[dayKey]) s.cells[dayKey] = {};
   if (shiftId) s.cells[dayKey][login] = shiftId;
   else delete s.cells[dayKey][login];
+  s.ts = Date.now();
   KOJOState.saveSchedule(s);
   scheduleCloudPush();
 }
@@ -898,6 +899,7 @@ function schedAddShift() {
   var id = 'sh' + Date.now();
   var short = (name.trim() || 'С').slice(0, 2);
   s.shifts.push({ id: id, name: name.trim(), short: short, hours: h });
+  s.ts = Date.now();
   KOJOState.saveSchedule(s);
   scheduleCloudPush();
   renderScheduleSection($('section-screen'));
@@ -924,6 +926,7 @@ function schedSetRate() {
   }
   var s2 = schedRawData();
   s2.rates = newRates;
+  s2.ts = Date.now();
   KOJOState.saveSchedule(s2);
   scheduleCloudPush();
   renderScheduleSection($('section-screen'));
@@ -1278,9 +1281,10 @@ function syncAllFromCloud(cb) {
 }
 
 var cloudTimer = null;
-var cloudSyncDelayMs = 60000;              // базовый интервал опроса облака
-var cloudSyncDelayMinMs = 60000;           // минимум
-var cloudSyncDelayMaxMs = 600000;          // максимум (при ошибках/лимитах)
+var cloudSyncDelayMs = 300000;              // базовый интервал опроса облака
+var cloudSyncDelayMinMs = 300000;           // минимум
+var cloudSyncDelayMaxMs = 900000;           // максимум (при ошибках/лимитах)
+var lastRateToastAt = 0;
 
 function startCloudSyncPolling() {
   stopCloudSyncPolling();
@@ -1294,12 +1298,14 @@ function startCloudSyncPolling() {
       var ls = KOJOCloud.getLastSync();
       if (!ls || ls.ok === true) {
         cloudSyncDelayMs = cloudSyncDelayMinMs;
-        delay = cloudSyncDelayMinMs;
+        // Случайный сдвиг фазы: устройства на одном Wi-Fi не опрашивают синхронно.
+        delay = cloudSyncDelayMinMs + Math.floor(Math.random() * 30000);
       } else {
         var err = String(ls.error || '');
         cloudSyncDelayMs = Math.min(cloudSyncDelayMaxMs, Math.max(cloudSyncDelayMs * 2, cloudSyncDelayMinMs));
         delay = cloudSyncDelayMs;
-        if (err.indexOf('429') !== -1 || err.indexOf('лимит') !== -1) {
+        if ((err.indexOf('429') !== -1 || err.indexOf('лимит') !== -1) && Date.now() - lastRateToastAt > 60000) {
+          lastRateToastAt = Date.now();
           showToast('⚠️ Слишком частые запросы к облаку — синхронизация замедлена', 'warning');
         }
       }
@@ -1313,7 +1319,9 @@ function startCloudSyncPolling() {
       cloudTimer = setTimeout(tick, delay);
     });
   };
-  cloudTimer = setTimeout(tick, 2000);
+  // Первый опрос со случайной задержкой: устройства, открытые одновременно
+  // (утро в кафе), не ударяют в лимит анонимного API одним залпом.
+  cloudTimer = setTimeout(tick, 4000 + Math.floor(Math.random() * 20000));
 }
 
 function stopCloudSyncPolling() {

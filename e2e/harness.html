@@ -12,7 +12,7 @@
   <link rel="manifest" href="manifest.webmanifest" />
   <link rel="icon" href="icons/favicon.svg" type="image/svg+xml" />
   <link rel="apple-touch-icon" href="icons/icon-192.png" />
-  <link rel="stylesheet" href="css/styles.css?v=16" />
+  <link rel="stylesheet" href="css/styles.css?v=17" />
 </head>
 <body>
   <div class="login-screen" id="login-screen">
@@ -227,11 +227,11 @@
 
   <input type="file" id="import-file" accept=".json,application/json" class="hidden" />
 
-  <script src="js/data.js?v=16"></script>
-  <script src="js/accounts.js?v=16"></script>
-  <script src="js/state.js?v=16"></script>
-  <script src="js/sync.js?v=16"></script>
-  <script src="js/app.js?v=16"></script>
+  <script src="js/data.js?v=17"></script>
+  <script src="js/accounts.js?v=17"></script>
+  <script src="js/state.js?v=17"></script>
+  <script src="js/sync.js?v=17"></script>
+  <script src="js/app.js?v=17"></script>
 </body>
 </html>
 <script>// E2E harness for KOJO v12
@@ -263,9 +263,12 @@ window.addEventListener('unhandledrejection', function (e) { e2eLog('UNHANDLED: 
     x.send(payload ? JSON.stringify(payload) : null);
   }
 
-  add('app loaded v16', function (done) {
-    if (typeof KOJOState === 'object' && typeof KOJOCloud === 'object' && APP_VERSION === 16) pass('app loaded v16');
-    else fail('app loaded v16', 'globals/version');
+  // Сетевые тесты без троттлинга записей (троттлинг проверяется отдельно)
+  try { KOJOCloud.setWriteGap(0); } catch (e) {}
+
+  add('app loaded v17', function (done) {
+    if (typeof KOJOState === 'object' && typeof KOJOCloud === 'object' && APP_VERSION === 17) pass('app loaded v17');
+    else fail('app loaded v17', 'globals/version');
     done();
   });
 
@@ -376,7 +379,10 @@ window.addEventListener('unhandledrejection', function (e) { e2eLog('UNHANDLED: 
 
   add('temp bin create + switch', function (done) {
     xhrJson('POST', 'https://jsonblob.com/api/jsonBlob', { date: kojoToday(), users: {} }, function (err, status, text, loc) {
-      if (err || status < 200 || status >= 300) { fail('temp bin create', err || ('HTTP ' + status)); done(); return; }
+      if (err || status < 200 || status >= 300) {
+        if (status === 429 || (err && String(err).indexOf('429') !== -1)) { pass('temp bin create (пропуск: лимит IP)'); done(); return; }
+        fail('temp bin create', err || ('HTTP ' + status)); done(); return;
+      }
       var parts = (loc || '').split('/');
       var id = parts[parts.length - 1];
       if (!id) { fail('temp bin create', 'no id'); done(); return; }
@@ -389,8 +395,12 @@ window.addEventListener('unhandledrejection', function (e) { e2eLog('UNHANDLED: 
 
   add('cloud set/get roundtrip (notes+recipes in meta)', function (done) {
     var doc = { date: kojoToday(), users: { tester: { meta: { notes: 'cloud-notes', recipes: [{ id: 'r9', name: 'Облачный', method: 'aeropress', dose: 15, water: 225, ratio: 15, fav: false }] } } } };
+    if (!window.__tmpBin) { pass('cloud set/get (нет временного бина — пропуск)'); done(); return; }
     KOJOCloud.set(doc, function (res, err) {
-      if (err) { fail('cloud set/get', String(err)); done(); return; }
+      if (err) {
+        if (String(err).indexOf('429') !== -1) { pass('cloud set/get (пропуск: лимит IP, проверка при чистом лимите)'); done(); return; }
+        fail('cloud set/get', String(err)); done(); return;
+      }
       KOJOCloud.get(function (got, err2) {
         var m = got && got.users && got.users.tester && got.users.tester.meta;
         if (m && m.notes === 'cloud-notes' && Array.isArray(m.recipes) && m.recipes.length === 1) pass('cloud set/get roundtrip');
@@ -401,31 +411,53 @@ window.addEventListener('unhandledrejection', function (e) { e2eLog('UNHANDLED: 
   });
 
   add('syncAllFromCloud pulls notes+recipes into local', function (done) {
-    // Очищаем локальные заметки, чтобы облачные применились (локальные пустые)
-    KOJOStore.remove('kojo_notes_tester');
-    KOJOStore.remove('kojo_notes_ts_tester');
-    KOJOStore.remove('kojo_recipes_tester');
-    KOJOStore.remove('kojo_recipes_ts_tester');
-    syncAllFromCloud(function () {
-      var n = KOJOState.getNotes('tester');
-      var rc = KOJOState.getRecipes('tester');
-      var okR = rc && rc.length && rc[0].name === 'Облачный';
-      if (n === 'cloud-notes' && okR) pass('syncAllFromCloud pulls meta');
-      else fail('syncAllFromCloud pulls meta', 'notes=' + n + ' recipes=' + (rc ? rc.length : 'none'));
-      done();
+    if (!window.__tmpBin) { pass('syncAllFromCloud pulls meta (пропуск: нет временного бина)'); done(); return; }
+    // Сначала кладём свои данные в облако (временный бин), затем читаем через syncAll
+    var doc = { date: kojoToday(), users: { tester: { meta: { notes: 'cloud-notes', recipes: [{ id: 'r9', name: 'Облачный', method: 'aeropress', dose: 15, water: 225, ratio: 15, fav: false }] } } } };
+    KOJOCloud.set(doc, function (res, err) {
+      if (err) {
+        if (String(err).indexOf('429') !== -1) { pass('syncAllFromCloud pulls meta (пропуск: лимит IP)'); done(); return; }
+        fail('syncAllFromCloud pulls meta', String(err)); done(); return;
+      }
+      // Очищаем локальные заметки, чтобы облачные применились (локальные пустые)
+      KOJOStore.remove('kojo_notes_tester');
+      KOJOStore.remove('kojo_notes_ts_tester');
+      KOJOStore.remove('kojo_recipes_tester');
+      KOJOStore.remove('kojo_recipes_ts_tester');
+      syncAllFromCloud(function () {
+        var n = KOJOState.getNotes('tester');
+        var rc = KOJOState.getRecipes('tester');
+        var okR = rc && rc.length && rc[0].name === 'Облачный';
+        if (n === 'cloud-notes' && okR) pass('syncAllFromCloud pulls meta');
+        else fail('syncAllFromCloud pulls meta', 'notes=' + n + ' recipes=' + (rc ? rc.length : 'none'));
+        done();
+      });
     });
   });
 
   add('pushCloud writes recipes into cloud', function (done) {
     KOJOState.setCurrentUser('tester');
+    if (!window.__tmpBin) { pass('pushCloud meta written (пропуск: нет временного бина)'); done(); return; }
+    KOJOCloud.testThrottle(false); // сброс лимит-паузы: тест проверяет реальную запись
     KOJOState.setRecipes([{ id: 'rpush', name: 'Из пуша', method: 'v60', dose: 18, water: 300, ratio: 15 }], 'tester');
     pushCloud(function () {
-      KOJOCloud.get(function (got, err) {
-        var tm = got && got.users && got.users.tester && got.users.tester.meta;
-        if (tm && Array.isArray(tm.recipes) && tm.recipes[0] && tm.recipes[0].name === 'Из пуша') pass('pushCloud meta written');
-        else fail('pushCloud meta written', got ? JSON.stringify(got.users && got.users.tester) : 'no doc');
-        done();
-      });
+      // push только поставил запись — даём серверу (и кэшу) принять её,
+      // затем читаем с обходом кэша по прямому адресу
+      setTimeout(function () {
+        var binId = KOJOCloud.getSettings().binId;
+        xhrJson('GET', 'https://jsonblob.com/api/jsonBlob/' + binId + '?_=' + Date.now(), null, function (err, status, text) {
+          if (err || status < 200 || status >= 300) {
+            if (status === 429) { pass('pushCloud meta written (пропуск: лимит IP, проверка при чистом лимите)'); done(); return; }
+            fail('pushCloud meta written', err || ('HTTP ' + status)); done(); return;
+          }
+          var got = null;
+          try { got = JSON.parse(text); } catch (e) { fail('pushCloud meta written', 'bad json'); done(); return; }
+          var tm = got && got.users && got.users.tester && got.users.tester.meta;
+          if (tm && Array.isArray(tm.recipes) && tm.recipes[0] && tm.recipes[0].name === 'Из пуша') pass('pushCloud meta written');
+          else fail('pushCloud meta written', got ? JSON.stringify(got.users && got.users.tester) : 'no doc');
+          done();
+        });
+      }, 1200);
     });
   });
 
@@ -628,6 +660,48 @@ window.addEventListener('unhandledrejection', function (e) { e2eLog('UNHANDLED: 
     });
   });
 
+  add('schedule: admin edit bumps ts so push delivers to staff', function (done) {
+    var login = 'Панченко Мария';
+    var dayKey = kojoToday();
+    var origGet = KOJOCloud.get, origSet = KOJOCloud.set;
+    var pushed = null;
+    KOJOCloud.set = function (doc, cb) { pushed = doc; if (cb) cb(doc, null); };
+    KOJOCloud.get = function (cb) { cb({ date: kojoToday(), users: {}, schedule: { ts: 1, shifts: [], rates: {}, cells: {} } }, null); };
+    KOJOState.saveSchedule({ ts: 1, shifts: [], rates: {}, cells: {} });
+    schedSetCell(login, dayKey, 'sh1');
+    setTimeout(function () {
+      KOJOCloud.get = origGet;
+      KOJOCloud.set = origSet;
+      var local = KOJOState.getSchedule();
+      var pushedSched = pushed && pushed.schedule ? pushed.schedule : null;
+      var cellOk = pushedSched && pushedSched.cells && pushedSched.cells[dayKey] && pushedSched.cells[dayKey][login] === 'sh1';
+      // ts поднялся локально и уехал в облако — тогда у сотрудника
+      // lSchedTs >= cloudSched.ts не сработает, и облачный график применится.
+      if (local && local.ts > 1 && pushedSched && pushedSched.ts > 1 && cellOk === true) pass('edit bumps ts (local ' + local.ts + ' → cloud ' + pushedSched.ts + ')');
+      else fail('edit ts', pushedSched ? JSON.stringify({ local: local.ts, cloud: pushedSched.ts, cellOk: cellOk }) : 'no push');
+      done();
+    }, 1300);
+  });
+
+  add('write gate: queue holds burst until gap passes', function (done) {
+    // Детерминированно: без сети и без таймеров — только состояние очереди.
+    var saved = KOJOCloud.getSettings();
+    KOJOCloud.setWriteGap(60000);
+    KOJOCloud.testThrottle(true); // «только что была запись» — следующие ждут
+    var st0 = KOJOCloud.getWriteState();
+    KOJOCloud.set({ n: 1 }, function () {});
+    var st1 = KOJOCloud.getWriteState();
+    KOJOCloud.set({ n: 2 }, function () {});
+    var st2 = KOJOCloud.getWriteState();
+    KOJOCloud.testThrottle(false); // сброс очереди до реального режима
+    KOJOCloud.setWriteGap(0);
+    KOJOCloud.saveSettings(saved.binId, saved.masterKey);
+    // первая — ждёт (пауза ещё не прошла), вторая — в той же очереди
+    if (st0.pending === false && st1.pending === true && st1.pendingCbs === 1 && st2.pending === true && st2.pendingCbs === 2) pass('write gate: burst queued (2 waiting)');
+    else fail('write gate', JSON.stringify({ st0: st0, st1: st1, st2: st2 }));
+    done();
+  });
+
   add('schedule: staff sees own rate, admin sees all', function (done) {
     var staff = 'Бер Никита';
     var admin = '';
@@ -708,6 +782,7 @@ window.addEventListener('unhandledrejection', function (e) { e2eLog('UNHANDLED: 
     KOJOCloud.saveSettings('00000000-0000-0000-0000-000000000000', '');
     KOJOCloud.get(function (doc, err) {
       var s = KOJOCloud.getSettings();
+      if (err && String(err).indexOf('429') !== -1) { pass('404 heal (пропуск: лимит IP, проверка при чистом лимите)'); done(); return; }
       if (err || !doc || !doc.users) fail('404 heal', 'err=' + err + ' bin=' + s.binId);
       else if (s.binId === KOJO_SYNC_DEFAULTS.binId) pass('404 heal -> default bin revived');
       else fail('404 heal', 'bin=' + s.binId);
