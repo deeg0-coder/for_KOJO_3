@@ -3128,7 +3128,7 @@ function topicByClId(clId) {
 
 var CL_IDS = checklistIds();
 
-var APP_VERSION = 7;
+var APP_VERSION = 8;
 
 function appVersionMarker() {
   var el = $('app-version-marker');
@@ -3608,16 +3608,23 @@ function runConnectionTest() {
     doc.users[probe] = ['ok'];
     KOJOCloud.set(doc, function (res, err2) {
       if (err2) { out.textContent = '❌ Ошибка записи в bin: ' + err2; return; }
-      KOJOCloud.get(function (doc2, err3) {
-        if (err3 || !doc2 || !doc2.users || !doc2.users[probe]) {
-          out.textContent = '❌ Запись не прочиталась обратно' + (err3 ? ' (' + err3 + ')' : '');
-          return;
-        }
-        delete doc2.users[probe];
-        KOJOCloud.set(doc2, function (res4, err4) {
-          out.textContent = '✅ Связь с облаком есть: запись + чтение за ' + (Date.now() - t0) + ' мс';
+      // jsonbin может отдавать чтение с небольшой задержкой — пробуем несколько раз
+      var tries = 0;
+      var tryRead = function () {
+        KOJOCloud.get(function (doc2, err3) {
+          if (err3 || !doc2 || !doc2.users || !doc2.users[probe]) {
+            tries++;
+            if (tries < 5) { setTimeout(tryRead, 400); return; }
+            out.textContent = '❌ Запись не прочиталась обратно' + (err3 ? ' (' + err3 + ')' : '');
+            return;
+          }
+          delete doc2.users[probe];
+          KOJOCloud.set(doc2, function (res4, err4) {
+            out.textContent = '✅ Связь с облаком есть: запись + чтение за ' + (Date.now() - t0) + ' мс';
+          });
         });
-      });
+      };
+      tryRead();
     });
   });
 }

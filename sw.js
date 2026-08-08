@@ -1,13 +1,13 @@
-var CACHE_NAME = 'kojo-guide-v7';
+var CACHE_NAME = 'kojo-guide-v8';
 var ASSETS = [
   './',
   './index.html',
-  './css/styles.css?v=7',
-  './js/data.js?v=7',
-  './js/accounts.js?v=7',
-  './js/state.js?v=7',
-  './js/sync.js?v=7',
-  './js/app.js?v=7',
+  './css/styles.css?v=8',
+  './js/data.js?v=8',
+  './js/accounts.js?v=8',
+  './js/state.js?v=8',
+  './js/sync.js?v=8',
+  './js/app.js?v=8',
   './manifest.webmanifest',
   './icons/favicon.svg',
   './icons/icon-192.png',
@@ -48,6 +48,9 @@ function isCoreResource(request) {
 }
 
 self.addEventListener('fetch', function (event) {
+  // Запросы к облачной БД (jsonbin.io) НЕ кэшируем вообще —
+  // иначе первое чтение застревает в кэше SW навсегда.
+  if (event.request.url.indexOf('api.jsonbin.io') !== -1) return;
   if (event.request.method !== 'GET') return;
   var request = event.request;
 
