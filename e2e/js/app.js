@@ -202,7 +202,7 @@ function topicByClId(clId) {
 
 var CL_IDS = checklistIds();
 
-var APP_VERSION = 17;
+var APP_VERSION = 18;
 
 function appVersionMarker() {
   var el = $('app-version-marker');
