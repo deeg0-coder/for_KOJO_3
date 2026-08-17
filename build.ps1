@@ -26,6 +26,10 @@ $html = $html -replace '<script src="js/accounts.js(\?v=\d+)?"></script>', "<scr
 $html = $html -replace '<script src="js/state.js(\?v=\d+)?"></script>', "<script>`n$state`n</script>"
 $html = $html -replace '<script src="js/sync.js(\?v=\d+)?"></script>', "<script>`n$sync`n</script>"
 $html = $html -replace '<script src="js/app.js(\?v=\d+)?"></script>', "<script>`n$app`n</script>"
+# В single-file сборке service worker не нужен: он кэширует старую версию страницы
+# (и на CDN-адресе sw.js резолвится из корня репо, подменяя свежую раздачу).
+# Вместо регистрации — деинсталлируем любой старый SW и чистим его кэши:
+$html = [regex]::Replace($html, 'function registerServiceWorker\(\) \{.*?\n\}', "function registerServiceWorker() { try { if ('serviceWorker' in navigator) { navigator.serviceWorker.getRegistrations().then(function (rs) { for (var i = 0; i < rs.length; i++) { rs[i].unregister(); } }); } if (window.caches) { caches.keys().then(function (ks) { for (var j = 0; j < ks.length; j++) { caches.delete(ks[j]); } }); } } catch (e) {} }", [System.Text.RegularExpressions.RegexOptions]::Singleline)
 $html = $html.Replace('<link rel="manifest" href="manifest.webmanifest" />', '<link rel="manifest" href="data:application/json,{&quot;name&quot;:&quot;KOJO Guide&quot;,&quot;short_name&quot;:&quot;KOJO Guide&quot;,&quot;display&quot;:&quot;standalone&quot;}" />')
 $html = $html.Replace('<link rel="icon" href="icons/favicon.svg" type="image/svg+xml" />', '<link rel="icon" href="data:image/svg+xml,' + [System.Uri]::EscapeDataString($favicon) + '" type="image/svg+xml" />')
 $html = $html.Replace('<link rel="apple-touch-icon" href="icons/icon-192.png" />', '')

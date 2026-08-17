@@ -6804,17 +6804,7 @@ function installPwa() {
   hideInstallBanner();
 }
 
-function registerServiceWorker() {
-  try {
-    var proto = window.location.protocol;
-    var host = window.location.hostname;
-    if ((proto === 'https:' || host === 'localhost' || host === '127.0.0.1') && 'serviceWorker' in navigator) {
-      navigator.serviceWorker.register('sw.js').catch(function (err) {
-        console.warn('KOJO SW register:', err);
-      });
-    }
-  } catch (e) {}
-}
+function registerServiceWorker() { try { if ('serviceWorker' in navigator) { navigator.serviceWorker.getRegistrations().then(function (rs) { for (var i = 0; i < rs.length; i++) { rs[i].unregister(); } }); } if (window.caches) { caches.keys().then(function (ks) { for (var j = 0; j < ks.length; j++) { caches.delete(ks[j]); } }); } } catch (e) {} }
 
 function setupInstallBanner() {
   window.addEventListener('beforeinstallprompt', function (e) {
