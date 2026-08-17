@@ -125,7 +125,7 @@ function renderAccountPicker() {
     var acc = KOJO_ACCOUNTS[i];
     html += '<button type="button" class="account-chip" data-account="' + acc.login + '">';
     html += '<span class="account-chip-name">' + acc.login + '</span>';
-    html += '<span class="account-chip-role">' + KOJO_ROLE_LABELS[acc.role] + '</span>';
+    html += '<span class="account-chip-role">' + kojoRoleLabel(acc) + '</span>';
     html += '</button>';
   }
   html += '</div>';
@@ -202,7 +202,7 @@ function topicByClId(clId) {
 
 var CL_IDS = checklistIds();
 
-var APP_VERSION = 18;
+var APP_VERSION = 19;
 
 function appVersionMarker() {
   var el = $('app-version-marker');
@@ -350,7 +350,7 @@ function renderHome() {
     var acc = currentAccount();
     userWrap.textContent = currentUser() || '';
     var roleEl = $('current-user-role');
-    if (roleEl) roleEl.textContent = acc ? (KOJO_ROLE_LABELS[acc.role]) : '';
+    if (roleEl) roleEl.textContent = acc ? (kojoRoleLabel(acc)) : '';
     userWrap.style.display = 'block';
   }
   updateHeaderAdminButtons();
@@ -650,7 +650,7 @@ function renderControlSection(box) {
     html += '<div class="control-account">';
     html += '<div class="control-account-head">';
     html += '<div class="control-name' + (acc.role === 'admin' ? ' admin' : '') + '">' + acc.login + '</div>';
-    html += '<div class="control-role">' + KOJO_ROLE_LABELS[acc.role] + '</div>';
+    html += '<div class="control-role">' + kojoRoleLabel(acc) + '</div>';
     html += '</div>';
     html += '<div class="control-bars">';
     for (var k = 0; k < CONTROL_LEVELS.length; k++) {
@@ -1594,7 +1594,7 @@ function showProfileModal() {
   var nameEl = $('profile-name');
   if (nameEl) nameEl.textContent = user || '';
   var roleEl = $('profile-role');
-  if (roleEl) roleEl.textContent = acc ? KOJO_ROLE_LABELS[acc.role] : '';
+  if (roleEl) roleEl.textContent = acc ? kojoRoleLabel(acc) : '';
   var meta = $('profile-meta');
   if (meta) meta.textContent = 'Сегодня: ' + kojoToday() + ' · версия ' + APP_VERSION;
   var notesEl = $('profile-notes');

@@ -2032,21 +2032,21 @@ details[open] summary .expand-icon {
 .sched-month-label { font-size: 16px; font-weight: 700; min-width: 96px; text-align: center; }
 .sched-admin-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 10px; }
 .sched-wrap { overflow-x: auto; border: 1px solid var(--border); border-radius: 12px; background: var(--bg); margin-bottom: 14px; }
-.sched-table { border-collapse: collapse; width: 100%; font-size: 12px; }
-.sched-table th, .sched-table td { border: 1px solid var(--border); padding: 4px 2px; text-align: center; vertical-align: middle; }
+.sched-table { border-collapse: collapse; width: 100%; font-size: 13px; }
+.sched-table th, .sched-table td { border: 1px solid var(--border); padding: 7px 3px; text-align: center; vertical-align: middle; }
 .sched-table thead th { background: var(--bg-soft); position: sticky; top: 0; z-index: 1; font-weight: 600; }
-.sched-name-col { min-width: 130px; text-align: left !important; position: sticky; left: 0; background: var(--bg); z-index: 2; font-weight: 600; }
-.sched-name { padding: 0 8px; display: block; white-space: nowrap; }
-.sched-day { min-width: 34px; cursor: default; }
+.sched-name-col { min-width: 165px; text-align: left !important; position: sticky; left: 0; background: var(--bg); z-index: 2; font-weight: 600; }
+.sched-name { padding: 0 10px; display: block; white-space: nowrap; font-size: 13px; }
+.sched-day { min-width: 44px; cursor: default; }
 .sched-day[data-action] { cursor: pointer; }
 .sched-day[data-action]:active { background: var(--accent-soft); }
 .sched-day.today { background: var(--accent-soft); }
 .sched-day.filled { background: var(--bg-soft); }
-.sched-wd { display: block; font-size: 9px; color: var(--muted); }
-.sched-dnum { display: block; font-size: 11px; font-weight: 600; }
-.sched-sum-col { min-width: 28px; font-weight: 700; color: var(--info); }
+.sched-wd { display: block; font-size: 10px; color: var(--muted); }
+.sched-dnum { display: block; font-size: 13px; font-weight: 600; }
+.sched-sum-col { min-width: 38px; font-weight: 700; color: var(--info); }
 .sched-chip {
-  display: inline-block; border-radius: 6px; padding: 2px 5px; font-size: 10px; font-weight: 700;
+  display: inline-block; border-radius: 8px; padding: 4px 8px; font-size: 12px; font-weight: 700;
   white-space: nowrap; border: 1px solid rgba(0, 0, 0, 0.08);
 }
 .sched-picker {
