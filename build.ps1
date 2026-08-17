@@ -34,5 +34,9 @@ $utf8NoBom = New-Object System.Text.UTF8Encoding($false)
 $outPath = Join-Path $dist 'kojo-guide.html'
 [System.IO.File]::WriteAllText($outPath, $html, $utf8NoBom)
 
+# Дублируем в корень репо — оттуда сайт раздаёт raw.githack.com
+# (https://raw.githack.com/deeg0-coder/for_KOJO_3/main/kojo-guide.html)
+[System.IO.File]::WriteAllText((Join-Path $root 'kojo-guide.html'), $html, $utf8NoBom)
+
 $size = (Get-Item -LiteralPath $outPath).Length
 Write-Host "OK: $outPath ($size bytes)"
