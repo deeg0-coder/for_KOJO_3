@@ -522,6 +522,35 @@ window.addEventListener('unhandledrejection', function (e) { e2eLog('UNHANDLED: 
     });
   });
 
+  add('delivery checklist: 5 items render + cloud push', function (done) {
+    var topic = topicByClId('delivery');
+    if (!topic) { fail('delivery checklist', 'no topic'); done(); return; }
+    if (topic.items.length !== 5) { fail('delivery checklist', 'items=' + topic.items.length); done(); return; }
+    var user = 'merge-user';
+    KOJOState.setCurrentUser(user);
+    var arr = [];
+    for (var j = 0; j < topic.items.length; j++) arr.push(j === 0);
+    KOJOState.saveChecklist('delivery', arr, user);
+    var box = $('topic-screen');
+    renderTopic('delivery-receiving', 'checklists');
+    var nodes = box.querySelectorAll('.checklist-checkbox[data-checklist="delivery"]');
+    var checked = box.querySelectorAll('.checklist-checkbox[data-checklist="delivery"]:checked');
+    var origGet = KOJOCloud.get;
+    var origSet = KOJOCloud.set;
+    var pushed = null;
+    KOJOCloud.set = function (doc, cb) { pushed = doc; if (cb) cb(doc, null); };
+    KOJOCloud.get = function (cb) { cb({ date: kojoToday(), users: {} }, null); };
+    pushCloud(function () {
+      KOJOCloud.get = origGet;
+      KOJOCloud.set = origSet;
+      var cloudArr = pushed && pushed.users[user] && pushed.users[user].delivery;
+      var ok = nodes.length === 5 && checked.length === 1 && Array.isArray(cloudArr) && cloudArr.length === 5 && cloudArr[0] === true;
+      if (ok) pass('delivery checklist (render 5, 1 checked, pushed to cloud)');
+      else fail('delivery checklist', JSON.stringify({ nodes: nodes.length, checked: checked.length, cloud: cloudArr ? cloudArr.length : null }));
+      done();
+    });
+  });
+
   add('cloud merge: stale local with old ts overwritten by newer cloud', function (done) {
     var user = 'merge-user';
     KOJOState.setCurrentUser(user);

@@ -608,7 +608,8 @@ function userProgressCount(login) {
 var CONTROL_LEVELS = [
   { clId: 'open', icon: '☀️', label: 'Открытие' },
   { clId: 'close', icon: '🌙', label: 'Закрытие' },
-  { clId: 'general', icon: '🧹', label: 'Генуборка' }
+  { clId: 'general', icon: '🧹', label: 'Генуборка' },
+  { clId: 'delivery', icon: '📦', label: 'Поставка' }
 ];
 
 function checklistProgressCount(login, clId) {
@@ -643,7 +644,10 @@ function renderControlSection(box) {
   html += '<button class="reset-btn" data-action="open-sync-settings">⚙️ Синхронизация</button>';
   html += '</div>';
 
-  var totals = { open: { done: 0, total: 0 }, close: { done: 0, total: 0 }, general: { done: 0, total: 0 } };
+  var totals = {};
+  for (var li = 0; li < CONTROL_LEVELS.length; li++) {
+    totals[CONTROL_LEVELS[li].clId] = { done: 0, total: 0 };
+  }
 
   for (var i = 0; i < KOJO_ACCOUNTS.length; i++) {
     var acc = KOJO_ACCOUNTS[i];
