@@ -165,6 +165,58 @@ body.red .login-btn {
   color: var(--muted);
 }
 
+.login-credentials {
+  margin-top: 16px;
+  width: 100%;
+  text-align: left;
+}
+
+.cred-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 8px;
+  text-align: center;
+}
+
+.cred-group {
+  margin-bottom: 10px;
+}
+
+.cred-group-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 4px;
+}
+
+.cred-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 5px 10px;
+  font-size: 13px;
+  border-radius: 8px;
+  background: var(--bg-secondary, rgba(0,0,0,0.03));
+  margin-bottom: 3px;
+}
+
+.cred-row span:first-child {
+  color: var(--text);
+}
+
+.cred-pass {
+  font-family: monospace;
+  font-size: 13px;
+  color: var(--muted);
+  background: var(--bg);
+  padding: 2px 6px;
+  border-radius: 4px;
+  border: 1px solid var(--border-strong);
+}
+
 .login-card.shake {
   animation: shake 0.5s;
 }

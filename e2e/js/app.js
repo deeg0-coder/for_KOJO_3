@@ -113,24 +113,6 @@ function showLoginScreen() {
   var app = document.querySelector('.app');
   if (ls) ls.classList.add('visible');
   if (app) app.classList.add('locked');
-  renderAccountPicker();
-}
-
-function renderAccountPicker() {
-  var box = $('account-picker');
-  if (!box) return;
-  var html = '<div class="account-picker-label">Выбери свой аккаунт</div>';
-  html += '<div class="account-picker-grid">';
-  for (var i = 0; i < KOJO_ACCOUNTS.length; i++) {
-    var acc = KOJO_ACCOUNTS[i];
-    html += '<button type="button" class="account-chip" data-account="' + acc.login + '">';
-    html += '<span class="account-chip-name">' + acc.login + '</span>';
-    html += '<span class="account-chip-role">' + kojoRoleLabel(acc) + '</span>';
-    html += '</button>';
-  }
-  html += '</div>';
-  html += '<input type="hidden" id="selected-account" value="" />';
-  box.innerHTML = html;
 }
 
 function hideLoginScreen() {
@@ -157,8 +139,7 @@ function submitLogin() {
   var loginEl = $('login-user');
   var passEl = $('login-pass');
   var errEl = $('login-error');
-  var selEl = $('selected-account');
-  var login = (loginEl && loginEl.value.trim()) || (selEl && selEl.value) || '';
+  var login = loginEl ? loginEl.value.trim() : '';
   var pass = passEl ? passEl.value : '';
   if (tryLogin(login, pass)) {
     if (errEl) errEl.textContent = '';
@@ -2544,23 +2525,10 @@ document.addEventListener('click', function (e) {
     if (!e.target.closest) return;
     if (!e.target.closest('.search')) closeSuggestions();
 
-    var target = e.target.closest('[data-action], [data-open-topic], [data-back], [data-back-topic], .theme-toggle, .chip[data-suggest], .account-chip');
+    var target = e.target.closest('[data-action], [data-open-topic], [data-back], [data-back-topic], .theme-toggle, .chip[data-suggest]');
     if (!target) return;
 
     var action = target.getAttribute('data-action');
-
-    if (target.classList.contains('account-chip')) {
-      e.preventDefault();
-      var accLogin = target.getAttribute('data-account');
-      var selected = $('selected-account');
-      if (selected) selected.value = accLogin;
-      var loginEl = $('login-user');
-      if (loginEl) loginEl.value = accLogin;
-      var chips = document.querySelectorAll('.account-chip');
-      for (var ci = 0; ci < chips.length; ci++) chips[ci].classList.remove('active');
-      target.classList.add('active');
-      return;
-    }
 
     if (target.classList.contains('theme-toggle') || action === 'toggle-theme') {
       e.preventDefault();
